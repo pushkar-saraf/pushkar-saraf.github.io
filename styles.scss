@@ -1,0 +1,43 @@
+$primary : #006064;
+$primary-dark: #003539;
+$primary-light: #428d90;
+$secondary: #ffa000;
+$secondary-dark: #c67100;
+$secondary-light: #ffd149;
+.bg{
+  background-image: url("https://collegeinfogeek.com/wp-content/uploads/2018/11/Essential-Books.jpg");
+  position: fixed;
+  z-index: -1;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+}
+
+.btn-pri{
+  background-color: $primary;
+  color: white;
+  float: right;
+}
+.btn-pri:hover{
+  background-color: $primary-dark;
+  color: white;
+}
+
+.pri-dark{
+  background: $primary-light;
+}
+
+body{
+  font-family: 'Quicksand', sans-serif;
+}
+
+h2,h3{
+  font-family: 'Cinzel', serif;
+}
+nav>*{
+  color: white;
+}
