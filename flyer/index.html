@@ -717,9 +717,9 @@ document.addEventListener("keydown", function(e){
     if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
 });
 
-/* Mark done opens WhatsApp with a short note to the team lead already written. Nothing is sent until the volunteer taps send. */
+/* Begin and Mark done open WhatsApp with a short note to the team lead already written. Nothing is sent until the volunteer taps send. */
 var WA_NUMBER = "14159350575";
-function tellTeam(h){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Covered " + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
+function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent((verb || "Covered ") + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
   if (s === "open") return ["Open", "Anyone can begin this walk"];
@@ -729,7 +729,7 @@ function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
   var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
   var a = document.getElementById("sActs"); a.textContent = "";
-  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); }));
+  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); tellTeam(h, "Starting "); }));
   else if (s === "progress"){ a.append(btn("Let go", "", function(){ setStatus(h, "open"); })); a.append(btn("Mark done", "main", function(){ setStatus(h, "done"); tellTeam(h); })); }
   else a.append(btn("Reopen", "", function(){ setStatus(h, "open"); }));
 }
