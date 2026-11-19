@@ -198,6 +198,18 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .donebox .small{margin:0; font-size:12.5px; line-height:1.45; color:var(--muted)}
 .donebox .acts .b{flex:1}
 .hp{position:absolute; left:-9999px; width:1px; height:1px; opacity:0}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{cursor:pointer; font:inherit; font-size:14.5px; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:999px; padding:8px 15px; min-height:42px}
+.chip[aria-pressed="true"]{background:var(--btn); color:var(--btn-ink); border-color:transparent}
+.filters{margin:28px 0 -24px}
+.filters .chip{font-size:14px}
+.card.off,.tier.off,.grid.off{display:none !important}
+.fempty{margin:48px 0 0; color:var(--muted)}
+.vh{position:absolute; width:1px; height:1px; opacity:0; overflow:hidden}
+.pick{display:flex; align-items:center; gap:12px; cursor:pointer; border:1px dashed var(--line); border-radius:12px; padding:10px 14px; min-height:56px; background:var(--card); color:var(--ink); font-size:15px; position:relative}
+.pick:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+.pick img{width:48px; height:48px; object-fit:cover; border-radius:8px; flex:none}
+.pick img[hidden]{display:none}
 .feedlist{display:grid; gap:14px; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); margin-top:24px}
 .fi{background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; min-width:0}
 .fi .ph{display:block; aspect-ratio:4/3; background:var(--soft)}
@@ -234,7 +246,9 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 
   <h2 class="sec">The walks</h2>
   <p class="sub">Grouped by area: San Francisco, Berkeley, Oakland, then the rest of the Bay. Each walk says how posting works on that campus.</p>
+  <div class="filters chips" id="filters" role="group" aria-label="Show walks"></div>
   <div id="grid"></div>
+  <p class="fempty" id="fEmpty" hidden></p>
   <section class="feed" id="feed" hidden>
     <h2 class="sec">Recent covers</h2>
     <p class="sub">Who walked where, and when. Add yours with Mark done.</p>
@@ -284,11 +298,11 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
     <h4 id="dbTitle">Mark this walk covered</h4>
     <div id="dbFields">
       <label class="fld"><span>Your name</span><input id="dbName" maxlength="40" autocomplete="given-name" enterkeyhint="done"></label>
-      <label class="fld" id="dbDateRow" style="margin-top:12px"><span>The day you plan to walk it</span><input id="dbDate" type="date"></label>
-      <label class="fld" id="dbPhotoRow" style="margin-top:12px"><span>A photo from the walk (optional)</span><input id="dbPhoto" type="file" accept="image/*"></label>
+      <div class="fld" id="dbDateRow" style="margin-top:12px"><span id="dbDateLbl">The day you plan to walk it</span><div class="chips" id="dbDays" role="group" aria-labelledby="dbDateLbl"></div><input id="dbDate" type="date" aria-label="Or pick another day"></div>
+      <div class="fld" id="dbPhotoRow" style="margin-top:12px"><span>A photo from the walk (optional)</span><label class="pick"><input id="dbPhoto" class="vh" type="file" accept="image/*"><img id="dbPrev" alt="" hidden><span id="dbPickTx">Add a photo</span></label></div>
       <input class="hp" id="dbHp" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
-    <p class="small" id="dbNote">Your name, the time and any photo appear on this page for anyone with the link.</p>
+    <p class="small" id="dbNote">Your name, the time and any photo appear on this page for anyone with the link. To take a photo down, message the team on WhatsApp.</p>
     <div class="acts" id="dbActs"></div>
   </form>
   <div class="bar"><div class="who" id="sWho"></div><div class="acts" id="sActs"></div></div>
@@ -355,10 +369,12 @@ var backend = false, events = [];
 function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(/,/.test(addr) ? addr : addr + ", " + "San Francisco, CA"); }
 function day(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ""); return m ? new Date(+m[1], m[2]-1, +m[3]).toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}) : ""; }
 function ymd(dt){ return dt.getFullYear() + "-" + ("0" + (dt.getMonth()+1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2); }
+function rel(d, long){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ""); if (!m) return ""; var a = new Date(+m[1], m[2]-1, +m[3]), n = new Date(), t0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()), k = Math.round((a - t0) / 864e5);
+  if (k === 0) return "today"; if (k === 1) return "tomorrow"; if (k > 1 && k < 7 && !long) return a.toLocaleDateString("en-US", {weekday:"short"}); return long ? day(d) : a.toLocaleDateString("en-US", {month:"short", day:"numeric"}); }
 function fmt(iso){ var d = new Date(iso); if (isNaN(d)) return ""; var day = d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); return /T00:00:00/.test(iso) ? day : day + ", " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); }
 function who(id){ if (backend){ if (!id) return "Someone"; if (id === "team") return "the team"; return id === myName() ? "You" : id; }
   if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
-function status(id){ var h = hoods[id]; return h && (h.status === "claimed" || h.status === "progress" || h.status === "done") ? h.status : "open"; }
+function status(id){ var h = hoods[id]; if (h && h.status === "claimed" && h.date && h.date < ymd(new Date())) return "open"; return h && (h.status === "claimed" || h.status === "progress" || h.status === "done") ? h.status : "open"; }
 function counts(){ var d = 0, p = 0, c = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; else if (s === "claimed") c++; }); return {d:d, p:p, c:c}; }
 function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 function pad(n){ return (n < 10 ? "0" : "") + n; }
@@ -447,7 +463,7 @@ function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + 
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
   if (s === "open") return ["Open", "Reserve it for a day, or begin now"];
-  if (s === "claimed") return [who(rec.by) === "You" ? "You reserved this walk" : "Reserved by " + who(rec.by), rec.date ? "For " + day(rec.date) : (rec.at ? "Since " + fmt(rec.at) : "")];
+  if (s === "claimed") return [who(rec.by) === "You" ? "You reserved this walk" : "Reserved by " + who(rec.by), rec.date ? "For " + rel(rec.date, true) : (rec.at ? "Since " + fmt(rec.at) : "")];
   if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
   return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
 function renderSheet(){
@@ -456,16 +472,31 @@ function renderSheet(){
   var a = document.getElementById("sActs"); a.textContent = "";
   if (s === "open"){ a.append(btn("Reserve", "", function(){ act(h, "claimed"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
   else if (s === "claimed"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
-  else if (s === "progress"){ a.append(btn("Let go", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
+  else if (s === "progress"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
   else a.append(btn("Reopen", "", function(){ act(h, "open"); }));
   renderWalkFeed(h);
+}
+var filt = "all";
+function mine(h){ var s = status(h.id), rec = hoods[h.id] || {}; return s !== "open" && rec.by !== "team" && who(rec.by) === "You"; }
+function renderFilters(){
+  var f = document.getElementById("filters"), anyMine = HOODS.some(mine);
+  if (filt === "mine" && !anyMine) filt = "all";
+  var opts = [["all", "All " + HOODS.length], ["open", "Open " + HOODS.filter(function(h){ return status(h.id) === "open"; }).length]];
+  if (anyMine) opts.push(["mine", "Yours " + HOODS.filter(mine).length]);
+  f.textContent = "";
+  opts.forEach(function(o){ var b = el("button", "chip", o[1]); b.type = "button"; b.setAttribute("aria-pressed", String(filt === o[0])); b.addEventListener("click", function(){ filt = o[0]; render(); }); f.append(b); });
+  var shown = 0;
+  HOODS.forEach(function(h){ var c = document.getElementById("c-" + h.id), ok = filt === "all" || (filt === "open" ? status(h.id) === "open" : mine(h)); c.classList.toggle("off", !ok); if (ok) shown++; });
+  Array.prototype.forEach.call(grid.querySelectorAll(".grid"), function(g){ var off = !g.querySelector(".card:not(.off)"); g.classList.toggle("off", off); var hd = g.previousElementSibling; if (hd && hd.classList.contains("tier")) hd.classList.toggle("off", off); });
+  var fe = document.getElementById("fEmpty"); fe.hidden = shown > 0; fe.textContent = filt === "open" ? "Every walk is taken right now. Check Yours, or come back later." : "";
 }
 function render(){
   HOODS.forEach(function(h){
     var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
     c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done"); c.classList.toggle("claimed", s === "claimed");
-    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "claimed" ? "Reserved · " + who(rec.by) + (rec.date ? " · " + day(rec.date).replace(/^\w+, /, "") : "") : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "claimed" ? (rec.date ? "Reserved for " + rel(rec.date) : "Reserved") + " · " + who(rec.by) : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
   });
+  renderFilters();
   var k = counts();
   document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
   var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
@@ -517,13 +548,14 @@ var SITE = "students";
 var byId = {}; HOODS.forEach(function(h){ byId[h.id] = h; });
 function store(k, v){ try{ if (v === undefined) return localStorage.getItem(k) || ""; localStorage.setItem(k, v); }catch(e){ return ""; } }
 function myName(){ return store("flyer-quest-name"); }
+store("flyer-quest-last", SITE);
 function device(){ var d = store("flyer-quest-device"); if (!d){ d = Math.random().toString(36).slice(2) + Date.now().toString(36); store("flyer-quest-device", d); } return d; }
 function thumb(id){ return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w800"; }
 function okId(id){ return /^[\w-]{10,}$/.test(id || ""); }
 function act(h, next){
   if (!backend){ setStatus(h, next); if (next === "progress") tellTeam(h, "Starting "); if (next === "done") tellTeam(h); return; }
   if (next === "open"){ send(h, "open", {}); return; }
-  if (next === "progress" && myName()){ send(h, "progress", {name: myName()}, true); tellTeam(h, "Starting "); return; }
+  if (next === "progress" && myName()){ send(h, "progress", {name: myName()}, true).then(function(ok){ if (!ok) render(); }); if (navigator.onLine !== false) tellTeam(h, "Starting "); return; }
   openBox(h, next);
 }
 var box = document.getElementById("doneBox"), bar = sheet.querySelector(".bar");
@@ -534,6 +566,15 @@ function openBox(h, next){
   document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Reserve " + h.name : "Who's walking " + h.name + "?";
   document.getElementById("dbDateRow").hidden = !claim;
   var dt = document.getElementById("dbDate"), today = ymd(new Date()); dt.min = today; dt.value = today;
+  var dd = document.getElementById("dbDays"); dd.textContent = "";
+  if (claim){ var n0 = new Date(), seen = {}, picks = [];
+    for (var i = 0; i < 7; i++){ var x = new Date(n0.getFullYear(), n0.getMonth(), n0.getDate() + i), v = ymd(x); if (i < 2 || x.getDay() === 6 || x.getDay() === 0){ if (!seen[v]){ seen[v] = 1; picks.push(v); } } }
+    picks.slice(0, 4).forEach(function(v){ var r = rel(v); var b = el("button", "chip", r.charAt(0).toUpperCase() + r.slice(1) + (/^to/.test(r) ? "" : " " + v.slice(8).replace(/^0/, ""))); b.type = "button"; b.dataset.v = v; b.addEventListener("click", function(){ dt.value = v; marks(); }); dd.append(b); });
+    var marks = function(){ Array.prototype.forEach.call(dd.children, function(b){ b.setAttribute("aria-pressed", String(b.dataset.v === dt.value)); }); };
+    dt.oninput = dt.onchange = marks; marks(); }
+  var ph = document.getElementById("dbPhoto"), pv = document.getElementById("dbPrev"), ptx = document.getElementById("dbPickTx");
+  if (pv.src && pv.src.indexOf("blob:") === 0) URL.revokeObjectURL(pv.src); pv.hidden = true; pv.removeAttribute("src"); ptx.textContent = "Add a photo";
+  ph.onchange = function(){ var f = ph.files[0]; if (pv.src && pv.src.indexOf("blob:") === 0) URL.revokeObjectURL(pv.src); if (f){ pv.src = URL.createObjectURL(f); pv.hidden = false; ptx.textContent = "Change photo"; } else { pv.hidden = true; ptx.textContent = "Add a photo"; } };
   document.getElementById("dbFields").hidden = false; document.getElementById("dbNote").hidden = false;
   document.getElementById("dbPhotoRow").hidden = !done;
   var nm = document.getElementById("dbName"); nm.value = (done && rec0.by && rec0.by !== "team") ? rec0.by : myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
@@ -545,6 +586,7 @@ function openBox(h, next){
     var name = nm.value.replace(/\s+/g, " ").trim().slice(0, 40);
     if (!name){ nm.focus(); toast("Add your name first"); return; }
     store("flyer-quest-name", name);
+    if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
     if (claim){ if (!/^\d{4}-\d{2}-\d{2}$/.test(dt.value)){ dt.focus(); toast("Pick the day you plan to walk"); return; } closeBox(); send(h, "claimed", {name: name, date: dt.value}); return; }
     if (!done){ closeBox(); send(h, "progress", {name: name}, true); tellTeam(h, "Starting "); return; }
     var file = document.getElementById("dbPhoto").files[0];
@@ -575,6 +617,7 @@ function shrink(file){ return new Promise(function(ok, no){
 var ACT = {claimed: "claim", progress: "start", done: "done", open: "open"};
 function send(h, next, o, quick){
   if (pending[h.id]) return Promise.resolve(false);
+  if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return Promise.resolve(false); }
   var prev = hoods[h.id];
   var rec = next === "open" ? null : {status: next, by: o.name, at: new Date().toISOString(), date: o.date || ""};
   if (rec) hoods[h.id] = rec; else delete hoods[h.id];
@@ -583,7 +626,7 @@ function send(h, next, o, quick){
   return fetch(BACKEND, {method: "POST", body: body, keepalive: !!quick && body.length < 60000}).then(function(r){ return r.json(); }).then(function(res){
     if (!res || !res.ok) throw new Error(res && res.error || "save");
     events.push({t: res.t, w: h.id, a: ACT[next], n: o.name || "", d: o.date || "", p: res.p || ""});
-    if (next === "claimed") toast(h.name + " is reserved for you" + (o.date ? " on " + day(o.date) : "") + ".");
+    if (next === "claimed") toast(h.name + " is reserved for you" + (o.date ? (/^to/.test(rel(o.date)) ? " " : " on ") + rel(o.date, true) : "") + ".");
     if (next === "progress") toast("Enjoy the walk through " + h.name);
     if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
     return true;
@@ -661,6 +704,8 @@ if (BACKEND){
   render(); renderFeed(); syncEl.textContent = "Loading shared progress…";
   pull(); setInterval(function(){ if (!document.hidden) pull(); }, 30000);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) pull(); });
+  window.addEventListener("offline", function(){ syncEl.textContent = "You're offline. You can still read every walk; saving needs signal."; });
+  window.addEventListener("online", pull);
   return;
 }
 

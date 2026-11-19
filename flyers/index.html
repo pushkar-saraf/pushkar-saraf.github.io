@@ -69,6 +69,9 @@ a{color:inherit}
 .door .n{font:italic 400 14px/1 var(--serif); color:var(--accent); margin-top:16px}
 .door h3{font:400 24px/1.15 var(--serif); margin:6px 0 4px}
 .door p{margin:0; font-size:14.5px; color:var(--muted)}
+.resume{display:inline-flex; align-items:center; gap:10px; margin-top:24px; background:var(--btn); color:var(--btn-ink); text-decoration:none; border-radius:999px; padding:13px 22px; font-weight:500; font-size:15px}
+.resume[hidden]{display:none}
+@media (max-width:600px){.top{padding:36px 0 20px}.top h1{margin:12px 0 14px}.scene{aspect-ratio:16/9}.story{gap:20px}.sec{margin-top:72px}}
 .foot{margin-top:96px; font-size:13.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
 </style>
@@ -79,6 +82,7 @@ a{color:inherit}
     <div class="label">Four guides · one Bay</div>
     <h1>Flyer <em>Quest</em></h1>
     <p>A stack of flyers, a free afternoon, and the whole Bay in front of you. Choose your path.</p>
+    <a class="resume" id="resume" hidden></a>
   </header>
 
   <section class="story" id="story" aria-live="polite">
@@ -115,6 +119,10 @@ var PAGES = {
              ["Berkeley","Shattuck, Telegraph, co-ops and the Thursday market","end:berkeley"]]}
 };
 var trail = [];
+// Pick up where you left off: each guide remembers itself on this device.
+(function(){ var k = ""; try{ k = localStorage.getItem("flyer-quest-last") || ""; }catch(e){}
+  var g = GUIDES[k], r = document.getElementById("resume"); if (!g) return;
+  r.href = g.url; r.textContent = "Continue with " + g.name + " \u2192"; r.hidden = false; })();
 var page = document.getElementById("page"), img = document.getElementById("sceneImg"), story = document.getElementById("story");
 function el(t, c, txt){ var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
 
