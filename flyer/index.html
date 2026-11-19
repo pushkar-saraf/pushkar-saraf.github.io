@@ -9,18 +9,19 @@
 <style>
 /* Quiet and minimal: one serif for headings, one sans for reading, warm paper, one accent, lots of air. */
 :root{
-  --paper:#f7f4ee; --card:#fffdf9; --ink:#1f2328; --muted:#62666d; --line:#e4dfd5; --soft:#efe9df;
-  --accent:#a8492a; --done:#3c7356; --btn:#1f2328; --btn-ink:#f7f4ee;
+  /* Colors pulled from the paintings: apricot sky for paper, night navy for ink, plum dusk for the accent, park grass for done, marigold for underway. */
+  --paper:#faf3ec; --card:#fffaf5; --ink:#1d2b45; --muted:#5d6577; --line:#ecdfd3; --soft:#f3e7dc;
+  --accent:#87485f; --done:#2f6e4e; --warm:#c98a22; --btn:#1d2b45; --btn-ink:#faf3ec;
   --serif:"Fraunces", "Iowan Old Style", Georgia, serif;
   --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gut:max(20px, env(safe-area-inset-left)); --gutr:max(20px, env(safe-area-inset-right));
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#151413; --card:#1c1b19; --ink:#ece8e1; --muted:#a39e96; --line:#2c2a27; --soft:#22201e;
-  --accent:#e08a62; --done:#7fbf98; --btn:#ece8e1; --btn-ink:#151413; color-scheme:dark}}
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#151413; --card:#1c1b19; --ink:#ece8e1; --muted:#a39e96; --line:#2c2a27; --soft:#22201e;
-  --accent:#e08a62; --done:#7fbf98; --btn:#ece8e1; --btn-ink:#151413; color-scheme:dark}
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:hidden; -webkit-text-size-adjust:100%; text-rendering:optimizeLegibility}
@@ -42,7 +43,7 @@ a{color:inherit}
 .prog{display:flex; align-items:center; gap:16px; margin-top:36px; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
 .prog .bar{flex:1; padding:0; border:0; max-width:260px; height:2px; background:var(--line); position:relative; overflow:hidden}
 .prog .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--done)}
-.prog .bar b{position:absolute; top:0; bottom:0; background:var(--accent); opacity:.6}
+.prog .bar b{position:absolute; top:0; bottom:0; background:var(--warm)}
 .hero{border-radius:4px; aspect-ratio:4/5; max-height:620px}
 @media (min-width:600px){.hero{aspect-ratio:16/10}}
 @media (min-width:900px){.hero{aspect-ratio:16/7}}
@@ -79,7 +80,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .card .vb{font-size:13px; color:var(--muted); line-height:1.45}
 .card .st{display:none; font-size:12.5px; font-weight:500; margin-top:6px; align-items:center; gap:7px}
 .card .st::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
-.card.progress .st{display:flex; color:var(--accent)}
+.card.progress .st{display:flex; color:var(--warm)}
 .card.done .st{display:flex; color:var(--done)}
 .card .seal{position:absolute; top:10px; left:10px; padding:5px 10px; font:500 11px/1 var(--sans); letter-spacing:.06em; color:#1f2328; background:rgba(255,253,249,.92); border-radius:999px; display:none; backdrop-filter:blur(4px)}
 .card.done .seal{display:inline-block}
@@ -131,6 +132,19 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .foot{margin:120px 0 0; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); max-width:60ch}
 .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%, 16px); background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font:400 15px/1.3 var(--sans); opacity:0; pointer-events:none; transition:all .3s ease; z-index:40; max-width:calc(100vw - 32px); text-align:center}
 .toast.show{opacity:1; transform:translate(-50%, 0)}
+
+/* each walk borrows its painting's sky color */
+.card,.sheet{--t:var(--tl, var(--accent)); --w:var(--wl, var(--soft))}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .card,:root:not([data-theme="light"]) .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}
+.card .art,.sheet .art{background:var(--w)}
+.card .no{color:var(--t); font-style:italic}
+.card .no::after{content:""; display:inline-block; width:18px; height:1px; background:currentColor; vertical-align:middle; margin-left:8px; opacity:.6}
+.sheet #sNo,.sheet .start .label,.trail .label{color:var(--t)}
+.trail .n{border-color:var(--t); color:var(--t)}
+.quote{border-left-color:var(--t)}
+.maplink{border-color:color-mix(in srgb, var(--t) 35%, var(--line))}
+.trail a:hover{color:var(--t); border-color:var(--t)}
 @media (max-width:520px){
   .top{padding:48px 0 28px}
   .sheet > .bar{flex-wrap:wrap; gap:10px}
@@ -583,11 +597,14 @@ var MAPI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="
 /* ---------- build ---------- */
 document.getElementById("heroArt").innerHTML = pic("hero");
 var grid = document.getElementById("grid"), gsec = null;
+/* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
+var TINT = {"bayview":["#376b76","#a5ccd5","#dcebef","#263b40"],"bernal":["#6a4351","#ccaeb8","#ebe0e4","#3f272f"],"castro":["#822b38","#e199a4","#f1dadd","#40262a"],"dogpatch":["#386a75","#a5ccd4","#dcebee","#263b40"],"dolores":["#825c2b","#e1c198","#f1e7da","#403526"],"duboce":["#466751","#b0cab9","#e1eae4","#293d30"],"embarcadero":["#3c5e71","#a8c2d1","#dee8ed","#263640"],"excelsior":["#825c2b","#e1c198","#f1e7da","#403426"],"glenpark":["#466852","#b0cab9","#e1eae4","#293d30"],"haight":["#822b37","#e198a2","#f1dadd","#40262a"],"hayes":["#822b3a","#e099a5","#f1dade","#40262b"],"innerrichmond":["#405d6e","#abc1ce","#dfe7ec","#263640"],"innersunset":["#415d6c","#acc2cd","#dfe7ec","#27373f"],"japantown":["#6a4352","#ccaeb9","#ebe0e4","#3e2830"],"lowerhaight":["#6a4453","#cbaeba","#ebe0e5","#3e2831"],"marina":["#2b6482","#98c8e1","#dae9f1","#263740"],"mission":["#82402b","#e1aa98","#f1dfda","#402c26"],"mission24":["#822b39","#de9ba5","#f1dade","#40262a"],"noe":["#2b6382","#98c7e1","#dae9f1","#263740"],"nopa":["#2b6382","#98c7e1","#dae9f1","#263740"],"northbeach":["#2b4b82","#9bb4de","#dae2f1","#263040"],"oceanave":["#2b6382","#98c7e1","#dae9f1","#263740"],"outerrichmond":["#376b76","#a5ccd5","#dcecef","#263b40"],"outersunset":["#386b75","#a5ccd4","#dcebef","#263b40"],"pacheights":["#82432b","#e1ac98","#f1e0da","#402d26"],"parkside":["#405e6e","#abc2ce","#dfe8ec","#263740"],"portola":["#825c2b","#e1c198","#f1e7da","#403526"],"potrero":["#825b2b","#e1c198","#f1e7da","#403426"],"tenderloin":["#2b4d82","#9ab5df","#dae3f1","#263040"],"westportal":["#47674f","#b0c9b7","#e1eae3","#293d2f"]};
+function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
 document.getElementById("heroLabel").textContent = "San Francisco · " + N + " walks";
 HOODS.forEach(function(h, i){
   TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
   h.k = i;
-  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk");
+  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.id);
   var a = el("div", "art"); a.innerHTML = pic(h.id + "-card", true);
   var seal = el("div", "seal", "Covered");
   var meta = el("div", "meta");
@@ -600,7 +617,7 @@ HOODS.forEach(function(h, i){
 /* ---------- sheet ---------- */
 var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
 function openSheet(h, from){
-  cur = h; lastFocus = from || null;
+  cur = h; lastFocus = from || null; tint(document.getElementById("sheet"), h.id);
   document.getElementById("sArt").innerHTML = pic(h.id + "-wide") + '<span class="coord">' + coordText(h.id) + '</span>';
   document.getElementById("sNo").textContent = "No. " + (h.k+1) + " of " + N;
   document.getElementById("sTitle").textContent = h.name;
