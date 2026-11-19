@@ -40,7 +40,7 @@ a{color:inherit}
 .top h1 em{font-style:italic; font-weight:300}
 .top p{margin:0; font:400 clamp(18px, 4.4vw, 21px)/1.5 var(--serif); color:var(--muted); max-width:30ch}
 .prog{display:flex; align-items:center; gap:16px; margin-top:36px; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
-.prog .bar{flex:1; max-width:260px; height:2px; background:var(--line); position:relative; overflow:hidden}
+.prog .bar{flex:1; padding:0; border:0; max-width:260px; height:2px; background:var(--line); position:relative; overflow:hidden}
 .prog .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--done)}
 .prog .bar b{position:absolute; top:0; bottom:0; background:var(--accent); opacity:.6}
 .hero{border-radius:4px; aspect-ratio:4/5; max-height:620px}
@@ -121,7 +121,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .bonus ul{margin:0; padding:0; list-style:none; display:grid; gap:10px}
 .bonus li{font-size:15px; display:flex; justify-content:space-between; gap:4px 12px; flex-wrap:wrap}
 .bonus li a{color:var(--muted); font-size:13.5px; text-decoration:none; border-bottom:1px solid var(--line)}
-.bar{flex:none; padding:14px var(--gutr) calc(14px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--paper); display:flex; gap:12px; align-items:center}
+.sheet > .bar{flex:none; padding:14px var(--gutr) calc(14px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--paper); display:flex; gap:12px; align-items:center}
 .bar .who{flex:1; min-width:0; font-size:13.5px; color:var(--muted); line-height:1.4}
 .bar .who b{display:block; color:var(--ink); font:400 17px/1.25 var(--serif)}
 .acts{display:flex; gap:8px; flex:none}
@@ -133,7 +133,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .toast.show{opacity:1; transform:translate(-50%, 0)}
 @media (max-width:520px){
   .top{padding:48px 0 28px}
-  .bar{flex-wrap:wrap; gap:10px}
+  .sheet > .bar{flex-wrap:wrap; gap:10px}
   .bar .who{flex:1 1 100%}
   .acts{flex:1 1 100%}
   .acts .b{flex:1}
