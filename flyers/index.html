@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Flyer Quest</title>
-<meta name="description" content="Pick your path: four volunteer flyering guides for San Francisco, Oakland, Berkeley and Bay Area campuses.">
+<meta name="description" content="Volunteer flyering guides for San Francisco, Oakland, Berkeley and Bay Area campuses.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500&display=swap">
 <style>
@@ -35,43 +35,33 @@ a{color:inherit}
 .top h1 em{font-style:italic; font-weight:300}
 .top p{margin:0; font:400 clamp(18px, 4.4vw, 21px)/1.5 var(--serif); color:var(--muted); max-width:34ch}
 
-/* the story */
-.story{display:grid; gap:28px; margin-top:12px}
-@media (min-width:860px){.story{grid-template-columns:1.25fr 1fr; gap:56px; align-items:center}}
-.scene{border-radius:4px; overflow:hidden; background:var(--soft); aspect-ratio:16/11}
-.scene img{display:block; width:100%; height:100%; object-fit:cover; transition:opacity .35s ease}
-.page{transition:opacity .35s ease, transform .35s ease}
-.fade .page, .fade .scene img{opacity:0}
-.fade .page{transform:translateY(6px)}
-.step{font:italic 400 15px/1 var(--serif); color:var(--accent)}
-.page h2{font:400 clamp(28px, 6vw, 40px)/1.15 var(--serif); letter-spacing:-.02em; margin:12px 0 14px}
-.page p{margin:0 0 24px; font-size:17px; color:var(--muted); max-width:40ch}
-.choices{list-style:none; margin:0; padding:0; display:grid; gap:12px}
-.choice{display:grid; grid-template-columns:28px 1fr; align-items:baseline; width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:4px; padding:16px 18px; cursor:pointer; transition:border-color .2s, transform .2s}
-.choice:hover{border-color:var(--accent); transform:translateX(3px)}
-.choice b{font:italic 400 16px/1 var(--serif); color:var(--accent)}
-.choice span{font-size:16px; line-height:1.45}
-.choice small{display:block; color:var(--muted); font-size:14px; margin-top:2px}
-.go{display:inline-block; background:var(--btn); color:var(--btn-ink); text-decoration:none; border-radius:999px; padding:14px 26px; font-weight:500; margin-right:14px}
-.go:hover{opacity:.9}
-.back{background:none; border:0; padding:0; color:var(--muted); cursor:pointer; text-decoration:underline; text-underline-offset:3px; font-size:15px}
-.trail{margin-top:22px; font-size:14px; color:var(--muted)}
-
-/* all four */
-.sec{font:400 clamp(26px, 5vw, 34px)/1.1 var(--serif); letter-spacing:-.02em; margin:104px 0 8px}
-.sub{color:var(--muted); margin:0 0 32px; max-width:52ch}
-.doors{display:grid; gap:28px; grid-template-columns:1fr}
-@media (min-width:560px){.doors{grid-template-columns:1fr 1fr}}
-@media (min-width:960px){.doors{grid-template-columns:repeat(4,1fr)}}
-.door{text-decoration:none; display:block}
-.door .scene{aspect-ratio:4/5; transition:transform .3s ease}
-.door:hover .scene{transform:translateY(-4px)}
-.door .n{font:italic 400 14px/1 var(--serif); color:var(--accent); margin-top:16px}
-.door h3{font:400 24px/1.15 var(--serif); margin:6px 0 4px}
-.door p{margin:0; font-size:14.5px; color:var(--muted)}
+/* two steps: who, then where */
+.pick-h{font:italic 400 15px/1 var(--serif); color:var(--accent); margin:40px 0 14px}
+.who{display:grid; gap:14px; grid-template-columns:1fr 1fr; max-width:720px}
+.opt{text-align:left; background:var(--card); border:1px solid var(--line); border-radius:4px; padding:0; cursor:pointer; overflow:hidden; transition:border-color .2s, transform .2s}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+.opt .scene{aspect-ratio:16/10; border-radius:0}
+.opt .tx{display:block; padding:14px 16px 16px}
+.opt b{display:block; font:400 clamp(20px, 5vw, 26px)/1.15 var(--serif); font-weight:400}
+.opt small{display:block; color:var(--muted); font-size:14px; margin-top:4px; line-height:1.4}
+.where[hidden]{display:none}
+.cities{display:grid; gap:14px; grid-template-columns:1fr; max-width:1040px}
+@media (min-width:640px){.cities{grid-template-columns:repeat(3,1fr)}}
+.city{text-decoration:none; display:grid; grid-template-columns:96px 1fr; align-items:center; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:4px; overflow:hidden; transition:border-color .2s, transform .2s}
+@media (min-width:640px){.city{display:block}}
+.city:hover{border-color:var(--accent); transform:translateY(-2px)}
+.city .scene{aspect-ratio:1/1; border-radius:0}
+@media (min-width:640px){.city .scene{aspect-ratio:4/3}}
+.city .tx{display:block; padding:12px 14px 14px 0}
+@media (min-width:640px){.city .tx{padding:14px 16px 16px}}
+.city b{display:block; font:400 22px/1.15 var(--serif)}
+.city small{display:block; color:var(--muted); font-size:14px; margin-top:2px}
+.scene{border-radius:4px; overflow:hidden; background:var(--soft)}
+.scene img{display:block; width:100%; height:100%; object-fit:cover}
 .resume{display:inline-flex; align-items:center; gap:10px; margin-top:24px; background:var(--btn); color:var(--btn-ink); text-decoration:none; border-radius:999px; padding:13px 22px; font-weight:500; font-size:15px}
 .resume[hidden]{display:none}
-@media (max-width:600px){.top{padding:36px 0 20px}.top h1{margin:12px 0 14px}.scene{aspect-ratio:16/9}.story{gap:20px}.sec{margin-top:72px}}
+@media (max-width:600px){.top{padding:36px 0 8px}.top h1{margin:12px 0 14px}.pick-h{margin-top:28px}}
 .foot{margin-top:96px; font-size:13.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
 </style>
@@ -81,110 +71,67 @@ a{color:inherit}
   <header class="top">
     <div class="label">Four guides · one Bay</div>
     <h1>Flyer <em>Quest</em></h1>
-    <p>A stack of flyers, a free afternoon, and the whole Bay in front of you. Choose your path.</p>
+    <p>A stack of flyers, a free afternoon, and the whole Bay in front of you.</p>
     <a class="resume" id="resume" hidden></a>
   </header>
 
-  <section class="story" id="story" aria-live="polite">
-    <div class="scene"><img id="sceneImg" alt="" src="art/hero.webp"></div>
-    <div class="page" id="page"></div>
-  </section>
+  <div class="pick-h" id="whoH">Who are you reaching?</div>
+  <div class="who" id="who" role="group" aria-labelledby="whoH"></div>
 
-  <h2 class="sec" id="all">Or jump straight in</h2>
-  <p class="sub">Every guide works the same way: pick a walk, follow the boards and friendly shops, and mark it done so the team can see what's covered.</p>
-  <div class="doors" id="doors"></div>
+  <section class="where" id="where" hidden aria-live="polite">
+    <div class="pick-h" id="whereH">Which city?</div>
+    <div class="cities" id="cities"></div>
+  </section>
 
   <p class="foot">A volunteer guide for sharing free breathing and meditation sessions. Not an official Art of Living page. Places, hours and posting rules were checked in November 2026. Shops change, so a quick look before you head out never hurts.</p>
 </main>
 
 <script>
 var GUIDES = {
-  sf:       {name:"San Francisco", url:"../flyer/", art:"art/flyer.webp", walks:30, blurb:"Thirty neighborhood walks, from the Mission to the Sunset, with notice boards, markets and booth spots."},
-  oakland:  {name:"Oakland", url:"../flyer-oakland/", art:"art/flyer-oakland.webp", walks:13, blurb:"Rockridge, Temescal, Grand Lake and Chinatown, plus the markets and library boards."},
-  berkeley: {name:"Berkeley", url:"../flyer-berkeley/", art:"art/flyer-berkeley.webp", walks:10, blurb:"Shattuck, Telegraph, Solano and Elmwood, with co-ops, bookshops and Ecology Center markets."},
-  students: {name:"Bay Area students", url:"../flyer-students/", art:"art/flyer-students.webp", walks:22, blurb:"Campuses and late-night study spots across SF, Berkeley, Oakland, Stanford and San Jose."}
+  sf:       {name:"San Francisco", url:"../flyer/"},
+  oakland:  {name:"Oakland", url:"../flyer-oakland/"},
+  berkeley: {name:"Berkeley", url:"../flyer-berkeley/"},
+  students: {name:"Bay Area students", url:"../flyer-students/"}
 };
-var PAGES = {
-  start: {img:"art/hero.webp", step:"Chapter one", title:"Who do you want to reach today?",
-    text:"The flyers are warm from the printer. Somewhere out there, someone needs a calm hour and doesn't know it yet.",
-    choices:[["Neighbors on their daily rounds","Cafes, co-ops, libraries and shop windows","city"],
-             ["Students between classes","Campus plazas, boards and study cafes","end:students"]]},
-  city: {img:"art/who-wide.webp", step:"Chapter two", title:"Which side of the water?",
-    text:"You can stay in the city, with its hills and corner shops, or cross the Bay to the East Bay towns.",
-    choices:[["Stay in San Francisco","Thirty walks, neighborhood by neighborhood","end:sf"],
-             ["Cross the Bay","Oakland or Berkeley","east"]]},
-  east: {img:"art/east-wide.webp", step:"Chapter three", title:"Lakes and markets, or bookshops and hills?",
-    text:"BART drops you on the other side. Two towns, two moods.",
-    choices:[["Oakland","Lake Merritt, Chinatown, Rockridge and seven markets","end:oakland"],
-             ["Berkeley","Shattuck, Telegraph, co-ops and the Thursday market","end:berkeley"]]}
-};
-var trail = [];
+var WHO = [
+  ["hoods", "Neighbourhoods", "Cafes, co-ops, libraries and shop windows", "art/hero.webp"],
+  ["students", "Students", "Campus plazas, boards and study cafes", "art/flyer-students.webp"]
+];
+/* Neighbourhoods open the city's guide. Students open the students guide at that city's section. */
+var CITIES = [
+  {k:"sf", name:"San Francisco", art:"art/flyer.webp", hoods:"30 walks, the Mission to the Sunset", stu:"SF State, City College, USF and UCSF", anchor:"san-francisco"},
+  {k:"oakland", name:"Oakland", art:"art/flyer-oakland.webp", hoods:"13 walks, Rockridge to Lake Merritt", stu:"Laney and Mills", anchor:"oakland"},
+  {k:"berkeley", name:"Berkeley", art:"art/flyer-berkeley.webp", hoods:"10 walks, Shattuck to Solano", stu:"Sproul Plaza and the streets around Cal", anchor:"berkeley"}
+];
+function el(t, c, txt){ var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+function scene(src){ var s = el("span", "scene"), i = el("img"); i.src = src; i.alt = ""; s.appendChild(i); return s; }
+function tx(a, b){ var s = el("span", "tx"); s.appendChild(el("b", "", a)); s.appendChild(el("small", "", b)); return s; }
+
 // Pick up where you left off: each guide remembers itself on this device.
 (function(){ var k = ""; try{ k = localStorage.getItem("flyer-quest-last") || ""; }catch(e){}
   var g = GUIDES[k], r = document.getElementById("resume"); if (!g) return;
   r.href = g.url; r.textContent = "Continue with " + g.name + " \u2192"; r.hidden = false; })();
-var page = document.getElementById("page"), img = document.getElementById("sceneImg"), story = document.getElementById("story");
-function el(t, c, txt){ var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
 
-function render(key){
-  page.innerHTML = "";
-  if (key.indexOf("end:") === 0){
-    var g = GUIDES[key.slice(4)];
-    img.src = g.art; img.alt = "Painting of " + g.name;
-    page.appendChild(el("div", "step", "Your quest"));
-    page.appendChild(el("h2", "", g.name));
-    page.appendChild(el("p", "", g.blurb + " " + g.walks + " walks to choose from."));
-    var a = el("a", "go", "Begin this quest"); a.href = g.url; page.appendChild(a);
-    var b = el("button", "back", "Start over"); b.type = "button"; b.onclick = function(){ go("start", true); }; page.appendChild(b);
-  } else {
-    var p = PAGES[key];
-    img.src = p.img; img.alt = "";
-    page.appendChild(el("div", "step", p.step));
-    page.appendChild(el("h2", "", p.title));
-    page.appendChild(el("p", "", p.text));
-    var ul = el("ul", "choices");
-    p.choices.forEach(function(c, i){
-      var li = el("li"), btn = el("button", "choice"); btn.type = "button";
-      btn.appendChild(el("b", "", String.fromCharCode(97 + i) + "."));
-      var s = el("span", "", c[0]); s.appendChild(el("small", "", c[1])); btn.appendChild(s);
-      btn.onclick = function(){ go(c[2]); };
-      li.appendChild(btn); ul.appendChild(li);
-    });
-    page.appendChild(ul);
-    if (key !== "start"){
-      var bk = el("button", "back", "Go back a step"); bk.type = "button"; bk.style.marginTop = "22px";
-      bk.onclick = function(){ history.back(); }; page.appendChild(bk);
-    }
-  }
-}
-function show(key){
-  story.classList.add("fade");
-  setTimeout(function(){ render(key); story.classList.remove("fade"); }, 220);
-}
-function go(key, reset){
-  if (reset) history.replaceState(null, "", location.pathname);
-  location.hash = key === "start" ? "" : key;
-  if (key === "start") show("start");
-}
-function fromHash(){
-  var k = decodeURIComponent(location.hash.slice(1)) || "start";
-  if (!(PAGES[k] || (k.indexOf("end:") === 0 && GUIDES[k.slice(4)]))) k = "start";
-  show(k);
-}
-window.addEventListener("hashchange", fromHash);
-render((function(){ var k = decodeURIComponent(location.hash.slice(1)); return (PAGES[k] || (k.indexOf("end:") === 0 && GUIDES[k.slice(4)])) ? k : "start"; })());
-
-var doors = document.getElementById("doors");
-["sf","oakland","berkeley","students"].forEach(function(k, i){
-  var g = GUIDES[k], a = el("a", "door"); a.href = g.url;
-  var sc = el("div", "scene"), im = el("img"); im.src = g.art; im.alt = "Painting of " + g.name; im.loading = "lazy"; sc.appendChild(im); a.appendChild(sc);
-  a.appendChild(el("div", "n", "Path " + (i + 1) + " · " + g.walks + " walks"));
-  a.appendChild(el("h3", "", g.name));
-  a.appendChild(el("p", "", g.blurb));
-  doors.appendChild(a);
+var who = document.getElementById("who"), where = document.getElementById("where"), cities = document.getElementById("cities");
+WHO.forEach(function(w){
+  var b = el("button", "opt"); b.type = "button"; b.dataset.k = w[0]; b.setAttribute("aria-pressed", "false");
+  b.appendChild(scene(w[3])); b.appendChild(tx(w[1], w[2]));
+  b.onclick = function(){ if (location.hash !== "#" + w[0]) location.hash = w[0]; else pick(w[0]); };
+  who.appendChild(b);
 });
-// preload the scenes so the story turns smoothly
-["art/who-wide.webp","art/east-wide.webp"].concat(Object.keys(GUIDES).map(function(k){ return GUIDES[k].art; })).forEach(function(s){ var i = new Image(); i.src = s; });
+function pick(k, quiet){
+  Array.prototype.forEach.call(who.children, function(b){ b.setAttribute("aria-pressed", String(b.dataset.k === k)); });
+  where.hidden = !k; cities.textContent = ""; if (!k) return;
+  CITIES.forEach(function(c){
+    var a = el("a", "city"); a.href = k === "students" ? GUIDES.students.url + "#" + c.anchor : GUIDES[c.k].url;
+    a.appendChild(scene(c.art)); a.appendChild(tx(c.name, k === "students" ? c.stu : c.hoods));
+    cities.appendChild(a);
+  });
+  if (!quiet) where.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest"});
+}
+function fromHash(quiet){ var k = location.hash.slice(1); pick(k === "hoods" || k === "students" ? k : "", quiet); }
+window.addEventListener("hashchange", function(){ fromHash(false); });
+fromHash(true);
 </script>
 </body>
 </html>

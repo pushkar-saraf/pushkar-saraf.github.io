@@ -387,11 +387,14 @@ var grid = document.getElementById("grid"), gsec = null;
 /* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
 var TINT = {"sfstate": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ccsf": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "latenight": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "usf": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "ucsf": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "artu": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "missionbay": ["#203953", "#a4b5c8", "#e5eef4", "#202b37"], "uclaw": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sproul": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "durant": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "tele": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "moffitt": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "calshattuck": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "dorms": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "northside": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ihouse": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "calelmwood": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "laney": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "mills": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "stanford": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sjsu": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "csueb": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"]};
 function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
+function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+var jumped = false;
+function jump(){ if (jumped || !location.hash) return; var e = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (e){ jumped = true; e.scrollIntoView(); } }
 function buildGrid(){
 grid.textContent = ""; gsec = null; N = HOODS.length;
 document.getElementById("heroLabel").textContent = "Bay Area students" + " · " + N + " walks";
 HOODS.forEach(function(h, i){
-  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
+  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.id = slug(tr[1]); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
   h.k = i;
   var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.pic);
   var a = el("div", "art"); a.innerHTML = pic(art(h, "card"), true);
@@ -403,7 +406,7 @@ HOODS.forEach(function(h, i){
   gsec.append(c);
 });
 }
-buildGrid();
+buildGrid(); jump();
 
 /* ---------- sheet ---------- */
 var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;

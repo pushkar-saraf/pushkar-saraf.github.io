@@ -710,11 +710,14 @@ var grid = document.getElementById("grid"), gsec = null;
 /* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
 var TINT = {"bayview":["#376b76","#a5ccd5","#dcebef","#263b40"],"bernal":["#6a4351","#ccaeb8","#ebe0e4","#3f272f"],"castro":["#822b38","#e199a4","#f1dadd","#40262a"],"dogpatch":["#386a75","#a5ccd4","#dcebee","#263b40"],"dolores":["#825c2b","#e1c198","#f1e7da","#403526"],"duboce":["#466751","#b0cab9","#e1eae4","#293d30"],"embarcadero":["#3c5e71","#a8c2d1","#dee8ed","#263640"],"excelsior":["#825c2b","#e1c198","#f1e7da","#403426"],"glenpark":["#466852","#b0cab9","#e1eae4","#293d30"],"haight":["#822b37","#e198a2","#f1dadd","#40262a"],"hayes":["#822b3a","#e099a5","#f1dade","#40262b"],"innerrichmond":["#405d6e","#abc1ce","#dfe7ec","#263640"],"innersunset":["#415d6c","#acc2cd","#dfe7ec","#27373f"],"japantown":["#6a4352","#ccaeb9","#ebe0e4","#3e2830"],"lowerhaight":["#6a4453","#cbaeba","#ebe0e5","#3e2831"],"marina":["#2b6482","#98c8e1","#dae9f1","#263740"],"mission":["#82402b","#e1aa98","#f1dfda","#402c26"],"mission24":["#822b39","#de9ba5","#f1dade","#40262a"],"noe":["#2b6382","#98c7e1","#dae9f1","#263740"],"nopa":["#2b6382","#98c7e1","#dae9f1","#263740"],"northbeach":["#2b4b82","#9bb4de","#dae2f1","#263040"],"oceanave":["#2b6382","#98c7e1","#dae9f1","#263740"],"outerrichmond":["#376b76","#a5ccd5","#dcecef","#263b40"],"outersunset":["#386b75","#a5ccd4","#dcebef","#263b40"],"pacheights":["#82432b","#e1ac98","#f1e0da","#402d26"],"parkside":["#405e6e","#abc2ce","#dfe8ec","#263740"],"portola":["#825c2b","#e1c198","#f1e7da","#403526"],"potrero":["#825b2b","#e1c198","#f1e7da","#403426"],"tenderloin":["#2b4d82","#9ab5df","#dae3f1","#263040"],"westportal":["#47674f","#b0c9b7","#e1eae3","#293d2f"]};
 function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
+function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+var jumped = false;
+function jump(){ if (jumped || !location.hash) return; var e = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (e){ jumped = true; e.scrollIntoView(); } }
 function buildGrid(){
 grid.textContent = ""; gsec = null; N = HOODS.length;
 document.getElementById("heroLabel").textContent = "San Francisco · " + N + " walks";
 HOODS.forEach(function(h, i){
-  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
+  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.id = slug(tr[1]); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
   h.k = i;
   var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.pic);
   var a = el("div", "art"); a.innerHTML = pic(art(h, "card"), true);
@@ -726,7 +729,7 @@ HOODS.forEach(function(h, i){
   gsec.append(c);
 });
 }
-buildGrid();
+buildGrid(); jump();
 
 /* ---------- sheet ---------- */
 var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
