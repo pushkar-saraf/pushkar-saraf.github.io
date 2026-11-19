@@ -133,6 +133,28 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%, 16px); background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font:400 15px/1.3 var(--sans); opacity:0; pointer-events:none; transition:all .3s ease; z-index:40; max-width:calc(100vw - 32px); text-align:center}
 .toast.show{opacity:1; transform:translate(-50%, 0)}
 
+
+/* markets and booths */
+.mk{display:grid; gap:56px; margin-top:48px}
+@media (min-width:860px){.mk{grid-template-columns:1fr 1fr; gap:72px}}
+.mk-h{font:400 22px/1.2 var(--serif); letter-spacing:-.01em; margin:0}
+.mk-note{margin:8px 0 0; color:var(--muted); font-size:14px}
+.mkt{list-style:none; margin:20px 0 0; padding:0}
+.mkt li{display:grid; grid-template-columns:1fr auto; gap:2px 16px; padding:16px 0; border-top:1px solid var(--line)}
+.mkt li:last-child{border-bottom:1px solid var(--line)}
+.mkt b{font:400 19px/1.3 var(--serif)}
+.mkt .when{font-size:14px; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.mkt a{grid-column:1 / -1; font-size:13.5px; color:var(--muted); text-decoration:none; justify-self:start; border-bottom:1px solid var(--line)}
+.mkt a:hover{color:var(--accent); border-color:var(--accent)}
+.booth{list-style:none; margin:20px 0 0; padding:0; display:grid; gap:28px}
+.booth li{padding-left:18px; border-left:2px solid var(--line)}
+.booth li:first-child{border-left-color:var(--done)}
+.booth .label{color:var(--accent)}
+.booth b{display:block; font:400 20px/1.3 var(--serif); margin-top:6px}
+.booth p{margin:6px 0 0; font-size:15px; max-width:46ch}
+.booth a{display:inline-block; margin-top:8px; font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.booth a:hover{color:var(--accent); border-color:var(--accent)}
+@media (max-width:420px){.mkt li{grid-template-columns:1fr}.mkt .when{text-align:left}}
 /* each walk borrows its painting's sky color */
 .card,.sheet{--t:var(--tl, var(--accent)); --w:var(--wl, var(--soft))}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .card,:root:not([data-theme="light"]) .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}}
@@ -190,7 +212,38 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <p class="sub">Ranked by foot traffic, notice boards and how open the shops are to flyers. Start at the top, or pick whatever is close.</p>
   <div id="grid"></div>
 
-  <p class="foot">A volunteer guide. Not an official Art of Living page. Board spots come from the SF community bulletin board guide. Treats and parks were checked in November 2026. Shops change, so a quick look before you head out never hurts.</p>
+
+  <h2 class="sec" id="markets">Markets and booths</h2>
+  <p class="sub">Farmers markets bring hundreds of people to one spot. Flyer the crowd on the way in, or set up a table and invite people to sit and breathe.</p>
+  <div class="mk">
+    <div class="mk-col">
+      <h3 class="mk-h">Farmers markets</h3>
+      <p class="mk-note">Open year round. Mission Community Market on Thursdays is back March 18, 2027.</p>
+      <ol class="mkt">
+      <li><b>Ferry Plaza</b><span class="when">Tue and Thu 10 to 2 · Sat 8 to 2</span><a href="https://www.google.com/maps/search/?api=1&query=Ferry%20Building%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">Outside the Ferry Building</a></li>
+      <li><b>Heart of the City</b><span class="when">Wed and Sun 7 to 4</span><a href="https://www.google.com/maps/search/?api=1&query=Fulton%20St%20and%20Larkin%20St%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">Fulton Plaza, Civic Center</a></li>
+      <li><b>Alemany</b><span class="when">Sat 7 to 2</span><a href="https://www.google.com/maps/search/?api=1&query=100%20Alemany%20Blvd%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">100 Alemany Blvd</a></li>
+      <li><b>Fillmore</b><span class="when">Sat 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&query=1700%20O%27Farrell%20St%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">1700 O&#x27;Farrell St</a></li>
+      <li><b>Noe Valley</b><span class="when">Sat 8 to 1</span><a href="https://www.google.com/maps/search/?api=1&query=3861%2024th%20St%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">3861 24th St</a></li>
+      <li><b>Divisadero</b><span class="when">Sun 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&query=1377%20Fell%20St%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">1377 Fell St</a></li>
+      <li><b>Inner Sunset</b><span class="when">Sun 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&query=1315%208th%20Ave%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">Irving St lot, 8th to 9th Ave</a></li>
+      <li><b>Clement Street</b><span class="when">Sun 9 to 2</span><a href="https://www.google.com/maps/search/?api=1&query=244%20Clement%20St%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">244 Clement St</a></li>
+      <li><b>Stonestown</b><span class="when">Sun 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&query=501%20Buckingham%20Way%2C%20San%20Francisco%2C%20CA" target="_blank" rel="noopener">501 Buckingham Way</a></li>
+      </ol>
+    </div>
+    <div class="mk-col">
+      <h3 class="mk-h">Where to set up a table</h3>
+      <ol class="booth">
+      <li><div class="label">Now</div><b>Heart of the City Farmers Market</b><p>Free tables for nonprofits offering something to the community, set up wherever there&#x27;s open space. Ask at the market info tent at Larkin and Fulton on a Wednesday or Sunday.</p><a href="https://heartofthecity-farmersmar.squarespace.com/questions" target="_blank" rel="noopener">Market's tabling page</a></li>
+      <li><div class="label">Now</div><b>San Francisco Public Library</b><p>Offer a free program, like a short breathing or meditation session, through the library&#x27;s program proposal form. Branches also host free community events in their meeting rooms.</p><a href="https://sfpl.org/services/exhibits-programs" target="_blank" rel="noopener">Present a program</a></li>
+      <li><div class="label">Now</div><b>City College, Ocean campus</b><p>Sign in at the Student Activities Office (Student Union, room 205) before handing out flyers. Ram Plaza and the Cloud Science Mall are allowed spots, and the same office posts flyers on campus boards. Ask them about a table.</p><a href="https://www.ccsf.edu/sites/default/files/2022/document/Posting-Distribution-Guidelines.pdf" target="_blank" rel="noopener">Campus guidelines</a></li>
+      <li><div class="label">Other markets</div><b>Ferry Plaza, Alemany and the rest</b><p>None of them post a table program for community groups. Ask at each market&#x27;s info booth, since space and rules vary week to week.</p></li>
+      <li><div class="label">Next year</div><b>Sunday Streets</b><p>A 10 by 10 spot on a car-free street. Free for groups based in that neighborhood, otherwise $45 to $65 for small nonprofits, and the fee can be waived. You must offer a free activity, and no fundraising. The 2026 deadlines have passed, so watch for the 2027 form.</p><a href="https://www.sundaystreetssf.com/exhibit/" target="_blank" rel="noopener">Exhibitor info</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <p class="foot">A volunteer guide. Not an official Art of Living page. Board spots come from the SF community bulletin board guide. Treats, parks, markets and booth rules were checked in November 2026 on each organizer's own site. Shops change, so a quick look before you head out never hurts.</p>
 </div>
 
 <div class="veil" id="veil"></div>
