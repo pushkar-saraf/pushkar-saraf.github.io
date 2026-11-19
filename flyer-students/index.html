@@ -259,15 +259,15 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <div id="grid"></div>
   <p class="fempty" id="fEmpty" hidden></p>
   <section class="addw" id="addWalk" hidden>
-    <button class="b" type="button" id="awOpen">Add your own walk</button>
+    <button class="b" type="button" id="awOpen">Add a walk you did</button>
     <form id="awForm" hidden novalidate autocomplete="off">
-      <h3>Add your own walk</h3>
-      <p class="small">Know streets that need flyers? Add them here and anyone can reserve the walk.</p>
+      <h3>Add a walk you did</h3>
+      <p class="small">Flyered somewhere that isn't listed? Add it and it shows as covered by you.</p>
       <label class="fld"><span>Walk name</span><input id="awName" maxlength="60" placeholder="For example, Piedmont Avenue"></label>
-      <label class="fld"><span>Area or notes (optional)</span><textarea id="awNotes" maxlength="300" rows="3" placeholder="Which streets, good boards, anything that helps"></textarea></label>
-      <label class="fld"><span>Where to start (optional)</span><input id="awAddr" maxlength="120" placeholder="An address or a corner"></label>
+      <label class="fld"><span>Places covered</span><textarea id="awPlaces" maxlength="300" rows="3" placeholder="Streets, shops and boards you flyered"></textarea></label>
+      <label class="fld"><span>Your name</span><input id="awWho" maxlength="40" autocomplete="given-name"></label>
       <input class="hp" id="awHp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="small">The walk shows on this page for anyone with the link. The team can remove it.</p>
+      <p class="small">Your name and the walk show on this page for anyone with the link.</p>
       <div class="acts"><button class="b" type="button" id="awCancel">Cancel</button><button class="b main" type="submit" id="awGo">Add walk</button></div>
     </form>
   </section>
@@ -282,7 +282,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <p class="sub">Who lets outside groups table or post, as of November 2026. Rules change by term, so check before you go.</p>
   <div class="mk">
   <div class="mk-col"><h3 class="mk-h">Tables and approvals</h3><ol class="booth">
-  <li><div class="label">Now</div><b>City College, Ram Plaza</b><p>Sign in at the Student Activities Office, Student Union 205, then hand out or post on the boards.</p></li>
+  <li><div class="label">Now</div><b>City College, Ram Plaza</b><p>Sign in at the Student Activities Office, Student Union 205, then hand out flyers. Flyers for the boards go to that office, which posts them.</p></li>
   <li><div class="label">Now</div><b>UC Berkeley, Sproul Plaza</b><p>Anyone can hand out non-commercial flyers, 6 am to midnight. No table without a student group.</p></li>
   <li><div class="label">Now</div><b>Laney College</b><p>Outside groups can submit flyers for approval in 24 to 48 hours.</p></li>
   <li><div class="label">Now</div><b>Stanford White Plaza</b><p>Post on the public kiosks and hand out leaflets. No tables for visitors.</p></li>
@@ -335,8 +335,8 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 (function(){
 function S(k, t, n, a){ return {k:k, t:t, n:n, a:a}; }
 var HOODS = [
- {"id": "sfstate", "name": "SF State", "vibe": "A big commuter campus with a busy plaza and a mall next door.", "start": {"t": "19th Ave and Holloway Ave", "n": "Take the M Ocean View to the SF State stop.", "a": "19th Ave and Holloway Ave, San Francisco, CA"}, "rule": "Flyers in the Cesar Chavez Student Center are approved, stamped and posted by the AS Information Center on the Plaza Level. They stay up about two weeks. Nothing on columns, windows or railings.", stops:[S("campus","AS Information Center, Cesar Chavez Student Center","Bring flyers to the Plaza Level desk for a stamp. Staff post them on the general boards for you.","1650 Holloway Ave, San Francisco, CA"),S("board","J. Paul Leonard Library","Flyers go only on the blue cloth boards in the elevator lobbies and near room 83 on the ground floor. Ask at the desk first.","1630 Holloway Ave, San Francisco, CA"),S("shops","Stonestown Galleria","Heytea, Wanpo Tea, Matcha Cafe Maiko and 85C are here. Ask each counter if a flyer or small card can go out.","3251 20th Ave, San Francisco, CA"),S("board","Merced Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","155 Winston Dr, San Francisco, CA"),S("treat","George's Donuts, West Portal","A student favorite one stop up the M line. Grab a donut and ask about their counter.","163 West Portal Ave, San Francisco, CA")]},
- {"id": "ccsf", "name": "City College, Ocean Campus", "vibe": "A friendly community college with an open plaza and Ocean Ave cafes.", "start": {"t": "Balboa Park BART", "n": "Walk up Frida Kahlo Way from the station.", "a": "401 Geneva Ave, San Francisco, CA"}, "rule": "Outside groups sign in first at the Student Activities Office, Student Union room 205. It is a notice, not an approval. Post only on posting boards, up to 11x17, tacks only, one per board, 20 flyers at most.", stops:[S("campus","Student Activities Office, Student Union 205","Sign in and pick up the posting rules. Ask which boards have room today.","50 Frida Kahlo Way, San Francisco, CA"),S("campus","Ram Plaza","Between Smith Hall and the Student Union. After signing in you can hand out flyers here.","50 Frida Kahlo Way, San Francisco, CA"),S("shops","Diamond Coffee N' Pastry","A camping-themed cafe on Ocean Ave. Ask about their counter or board.","1181 Ocean Ave, San Francisco, CA"),S("shops","Philz Coffee, Ocean Ave","Busy with students all day. Ask the staff before leaving anything.","1110 Ocean Ave, San Francisco, CA"),S("board","Ingleside Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","1298 Ocean Ave, San Francisco, CA")]},
+ {"id": "sfstate", "name": "SF State", "vibe": "A big commuter campus with a busy plaza and a mall next door.", "start": {"t": "19th Ave and Holloway Ave", "n": "Take the M Ocean View to the SF State stop.", "a": "19th Ave and Holloway Ave, San Francisco, CA"}, "rule": "Flyers in the Cesar Chavez Student Center are approved, stamped and posted by the AS Information Center on the Plaza Level. They stay up about two weeks. Nothing on columns, windows or railings.", stops:[S("campus","AS Information Center, Cesar Chavez Student Center","Bring flyers to the Plaza Level desk for a stamp. Staff post them on the general boards for you.","1650 Holloway Ave, San Francisco, CA"),S("board","J. Paul Leonard Library","Flyers go only on the blue cloth boards in the elevator lobbies and near room 83 on the ground floor. Ask at the desk first.","1630 Holloway Ave, San Francisco, CA"),S("shops","Stonestown Galleria","Heytea, Wanpo Tea, Matcha Cafe Maiko and 85C are here. Ask each counter if a flyer or small card can go out.","3251 20th Ave, San Francisco, CA"),S("board","Merced Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","155 Winston Dr, San Francisco, CA"),S("treat","George's Donuts, West Portal","A student favorite at West Portal, a short ride on the M line. Grab a donut and ask about their counter.","163 West Portal Ave, San Francisco, CA")]},
+ {"id": "ccsf", "name": "City College, Ocean Campus", "vibe": "A friendly community college with an open plaza and Ocean Ave cafes.", "start": {"t": "Balboa Park BART", "n": "Walk up Frida Kahlo Way from the station.", "a": "401 Geneva Ave, San Francisco, CA"}, "rule": "Outside groups sign in first at the Student Activities Office, Student Union room 205. It is a notice, not an approval. Flyers for the boards go to that office, which posts them, up to 11x17 and 20 at most.", stops:[S("campus","Student Activities Office, Student Union 205","Sign in, and hand over flyers for the boards. The office posts them.","50 Frida Kahlo Way, San Francisco, CA"),S("campus","Ram Plaza","Between Smith Hall and the Student Union. After signing in you can hand out flyers here.","50 Frida Kahlo Way, San Francisco, CA"),S("shops","Diamond Coffee N' Pastry","A camping-themed cafe on Ocean Ave. Ask about their counter or board.","1181 Ocean Ave, San Francisco, CA"),S("shops","Philz Coffee, Ocean Ave","Busy with students all day. Ask the staff before leaving anything.","1110 Ocean Ave, San Francisco, CA"),S("board","Ingleside Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","1298 Ocean Ave, San Francisco, CA")]},
  {"id": "latenight", "name": "Late-night study cafes", "vibe": "Where students and young builders work after dark.", "start": {"t": "Montgomery St BART", "n": "Take BART or Muni Metro to Montgomery.", "a": "Market St and Montgomery St, San Francisco, CA"}, "rule": "No campus rules here. Ask staff at each cafe before leaving a flyer, and take it back if they say no.", stops:[S("shops","Corgi Cafe","The 24/7 cafe run by the startup Corgi, on a small lane off Kearny. Mostly founders and young tech workers. Last seen open in late September, so check first.","9 Claude Ln, San Francisco, CA"),S("shops","Delah Coffee, Sansome St","A Yemeni coffee house open until 8 pm daily. Ask about their counter.","450 Sansome St, San Francisco, CA"),S("treat","Sana'a Cafe","Yemeni coffee and pastries, open until about 10 pm, near Academy of Art buildings.","199 New Montgomery St, San Francisco, CA"),S("shops","Heyma Coffee","Another late-night Yemeni cafe in SoMa. Ask the staff first.","248 9th St, San Francisco, CA"),S("shops","Haraz Coffee House","Open daily until 11 pm and full of laptops. Ask about a flyer spot.","1452 Franklin St, San Francisco, CA")]},
  {"id": "usf", "name": "USF", "vibe": "A hilltop campus ringed by Haight and NoPa coffee shops.", "start": {"t": "Fulton St and Masonic Ave", "n": "Take the 5 Fulton or 43 Masonic.", "a": "Fulton St and Masonic Ave, San Francisco, CA"}, "rule": "USF posts only flyers from its own clubs and departments for campus events. Outside groups can't post, so focus on the cafes. A USF student club could co-host.", stops:[S("shops","Flywheel Coffee Roasters","A laptop-friendly roastery by the park. Ask about their board.","672 Stanyan St, San Francisco, CA"),S("shops","Matching Half","A calm neighborhood cafe close to campus. Ask the barista first.","1799 McAllister St, San Francisco, CA"),S("shops","Souvenir Coffee","A small Divisadero cafe students recommend. Ask about window space.","262 Divisadero St, San Francisco, CA"),S("treat","Sightglass Coffee","A big bright room with lots of seating. Treat yourself and ask about posting.","301 Divisadero St, San Francisco, CA")]},
  {"id": "ucsf", "name": "UCSF Parnassus and Inner Sunset", "vibe": "Health science students spilling down the hill to 9th Avenue.", "start": {"t": "9th Ave and Irving St", "n": "Take the N Judah to 9th and Irving.", "a": "9th Ave and Irving St, San Francisco, CA"}, "rule": "UCSF boards are only for UCSF people and registered campus groups. Outside groups need an invitation from a campus organization, so stick to the 9th Ave shops.", stops:[S("board","Arizmendi Bakery","A worker-owned bakery, open Tuesday to Sunday. Ask the counter about flyers.","1331 9th Ave, San Francisco, CA"),S("treat","Tadaima","Japanese sando and matcha. A nice treat between stops.","1248 9th Ave, San Francisco, CA"),S("rest","SF Botanical Garden","Right at the park end of 9th Ave. Take a breather.","1199 9th Ave, San Francisco, CA")], bonus:{"t": "Still got flyers?", "n": "One more cafe on Irving.", "list": [["Art's Cafe", "747 Irving St, San Francisco, CA"]]}},
@@ -730,23 +730,30 @@ var gotWalks = false;
 function setupAdd(){
   var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), op = document.getElementById("awOpen"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
   function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ f.hidden = !on; op.hidden = on; if (on) nm.focus(); }
+  function show(on){ f.hidden = !on; op.hidden = on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); nm.focus(); } }
   sec.hidden = false;
   op.addEventListener("click", function(){ show(true); });
   document.getElementById("awCancel").addEventListener("click", function(){ show(false); });
   f.addEventListener("submit", function(ev){ ev.preventDefault();
     if (go.disabled) return;
-    var title = val("awName", 60), notes = val("awNotes", 300), addr = val("awAddr", 120);
+    var title = val("awName", 60), places = val("awPlaces", 300), who = val("awWho", 40);
     if (!title){ nm.focus(); toast("Give the walk a name first"); return; }
     if (HOODS.some(function(h){ return h.name.toLowerCase() === title.toLowerCase(); })){ nm.focus(); toast("There's already a walk called " + title + "."); return; }
+    if (!places){ document.getElementById("awPlaces").focus(); toast("Add the places you covered"); return; }
+    if (!who){ document.getElementById("awWho").focus(); toast("Add your name first"); return; }
+    store("flyer-quest-name", who);
     if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
     go.disabled = true; go.textContent = "Adding…";
-    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, notes: notes, addr: addr, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
+    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, places: places, name: who, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
       if (!res || !res.ok) throw new Error(res && res.error || "add");
       f.reset(); show(false);
       if (!res.walk) return;
-      filt = "all"; var h = addWalk(res.walk);
-      if (h){ toast(h.name + " is added as walk " + h.id + ". It's ready to reserve."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
+      filt = "all";
+      var ev = {t: typeof res.t === "string" ? res.t : new Date().toISOString(), w: String(res.walk.id), a: "done", n: who, d: "", p: ""};
+      hoods[ev.w] = {status: "done", by: who, at: ev.t};
+      var h = addWalk(res.walk);
+      if (h){ events.push(ev); if (v2) coverEvs.push(ev); renderFeed();
+        toast(h.name + " is added as walk " + h.id + ", covered by you. Thank you."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
     }).catch(function(e){
       toast(e && e.message && e.message !== "add" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
     }).then(function(){ go.disabled = false; go.textContent = "Add walk"; });

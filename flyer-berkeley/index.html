@@ -263,15 +263,15 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <div id="grid"></div>
   <p class="fempty" id="fEmpty" hidden></p>
   <section class="addw" id="addWalk" hidden>
-    <button class="b" type="button" id="awOpen">Add your own walk</button>
+    <button class="b" type="button" id="awOpen">Add a walk you did</button>
     <form id="awForm" hidden novalidate autocomplete="off">
-      <h3>Add your own walk</h3>
-      <p class="small">Know streets that need flyers? Add them here and anyone can reserve the walk.</p>
+      <h3>Add a walk you did</h3>
+      <p class="small">Flyered somewhere that isn't listed? Add it and it shows as covered by you.</p>
       <label class="fld"><span>Walk name</span><input id="awName" maxlength="60" placeholder="For example, Piedmont Avenue"></label>
-      <label class="fld"><span>Area or notes (optional)</span><textarea id="awNotes" maxlength="300" rows="3" placeholder="Which streets, good boards, anything that helps"></textarea></label>
-      <label class="fld"><span>Where to start (optional)</span><input id="awAddr" maxlength="120" placeholder="An address or a corner"></label>
+      <label class="fld"><span>Places covered</span><textarea id="awPlaces" maxlength="300" rows="3" placeholder="Streets, shops and boards you flyered"></textarea></label>
+      <label class="fld"><span>Your name</span><input id="awWho" maxlength="40" autocomplete="given-name"></label>
       <input class="hp" id="awHp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="small">The walk shows on this page for anyone with the link. The team can remove it.</p>
+      <p class="small">Your name and the walk show on this page for anyone with the link.</p>
       <div class="acts"><button class="b" type="button" id="awCancel">Cancel</button><button class="b main" type="submit" id="awGo">Add walk</button></div>
     </form>
   </section>
@@ -358,7 +358,7 @@ var HOODS = [
  {"id": "hopkins", "name": "Hopkins and Monterey Market", "vibe": "A beloved produce market, a new cafe and a quiet library.", "start": {"t": "Hopkins St and Monterey Ave", "n": "Bus 18 stops nearby on Monterey Ave.", "a": "Hopkins St and Monterey Ave, Berkeley, CA 94707"}, stops:[S("board","Monterey Market","A famous independent produce market. Ask staff if there is a spot for community flyers.","1550 Hopkins St, Berkeley, CA 94707"),S("treat","Hopkins Cafe","A new cafe in the old Espresso Roma spot. Grab a drink and ask about the window.","1549 Hopkins St, Berkeley, CA 94707"),S("board","North Branch Library","Open Sundays too. Hand flyers to staff at the desk.","1170 The Alameda, Berkeley, CA 94707"),S("rest","Live Oak Park","A short walk east. Rest by the creek.","1301 Shattuck Ave, Berkeley, CA 94709")]},
  {"id": "sanpablo", "name": "San Pablo and University", "vibe": "Everyday errands, a laundromat and an eco store on a working street.", "start": {"t": "University Ave and San Pablo Ave", "n": "Bus 72 runs on San Pablo and bus 51B on University.", "a": "University Ave and San Pablo Ave, Berkeley, CA 94702"}, stops:[S("board","West Branch Library","Hand flyers to staff at the desk. Staff approve and pin them.","1125 University Ave, Berkeley, CA 94702"),S("board","The Laundry Room","Open 7am to 10pm. Laundromats often have a board, so ask the attendant first.","2052 San Pablo Ave, Berkeley, CA 94702"),S("board","Ecology Center EcoStore","Open Wednesday to Saturday, 12 to 6. Ask staff if they post community notices.","2530 San Pablo Ave, Berkeley, CA 94702"),S("rest","San Pablo Park","A big neighborhood park a few blocks east. Sit and rest.","2800 Park St, Berkeley, CA 94702")], bonus:{"t": "Still got flyers?", "n": "A small park nearby.", "list": [["Strawberry Creek Park", "1260 Allston Way, Berkeley, CA 94702"]]}},
  {"id": "fourthst", "name": "Fourth Street and Bowl West", "vibe": "Polished shops, a lagoon walk and a big grocery near the bay.", "start": {"t": "Fourth St and Hearst Ave", "n": "Berkeley Amtrak is close by. Bus 51B ends near University and Fourth.", "a": "Fourth St and Hearst Ave, Berkeley, CA 94710"}, stops:[S("shops","Builders Booksource","A bookstore for design and general readers. Ask about a board or the window.","1817 Fourth St, Berkeley, CA 94710"),S("rest","Aquatic Park","Walk along the lagoon and watch the birds.","80 Bolivar Dr, Berkeley, CA 94710"),S("shops","flying noir art + chocolate","A chocolate and art shop inside a cafe. Ask about posting.","2570 Ninth St, Berkeley, CA 94710"),S("treat","Berkeley Bowl West","Ask at the service desk about a community board, then grab a snack at the cafe.","920 Heinz Ave, Berkeley, CA 94710")]},
- {"id": "colusa", "name": "Colusa Circle", "vibe": "A tiny village circle with a bakery and a Sunday market.", "start": {"t": "Colusa Circle", "n": "Just north of Solano up Colusa Ave. This bit is Kensington, not Berkeley city.", "a": "Colusa Ave and Oak View Ave, Kensington, CA 94707"}, stops:[S("shops","Nubo Spa","On the team's sheet for Nov 21. Say hello and ask about a flyer by the front desk.","379 Colusa Ave, Kensington, CA 94707"),S("shops","Kensington Farmers' Market (Sundays)","Sunday mornings at the circle. Chat with the manager about a community table.","Oak View Ave and Colusa Ave, Kensington, CA 94707"),S("treat","Semifreddi's","The original Semifreddi's shop. Grab bread or a cookie and ask about the window.","372 Colusa Ave, Kensington, CA 94707"),S("rest","Kensington Park","Next to the library, with a hilltop field and a bay view.","61 Arlington Ave, Kensington, CA 94707")]}
+ {"id": "colusa", "name": "Colusa Circle", "vibe": "A tiny village circle with a bakery and a Sunday market.", "start": {"t": "Colusa Circle", "n": "Just north of Solano up Colusa Ave. This bit is Kensington, not Berkeley city.", "a": "Colusa Ave and Oak View Ave, Kensington, CA 94707"}, stops:[S("shops","Nubo Spa","On the team's sheet for Nov 21. Say hello and ask about a flyer by the front desk.","379 Colusa Ave, Kensington, CA 94707"),S("shops","Kensington Farmers' Market (Sundays)","Sunday mornings at the circle. Chat with the manager about a community table.","Oak View Ave and Colusa Ave, Kensington, CA 94707"),S("treat","Semifreddi's","The original Semifreddi's shop. Grab bread or a cookie and ask about the window.","372 Colusa Ave, Kensington, CA 94707"),S("rest","Kensington Park","Next to the library, with a hilltop field and a bay view.","59 Arlington Ave, Kensington, CA 94707")]}
 ];
 
 var N = HOODS.length;
@@ -732,23 +732,30 @@ var gotWalks = false;
 function setupAdd(){
   var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), op = document.getElementById("awOpen"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
   function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ f.hidden = !on; op.hidden = on; if (on) nm.focus(); }
+  function show(on){ f.hidden = !on; op.hidden = on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); nm.focus(); } }
   sec.hidden = false;
   op.addEventListener("click", function(){ show(true); });
   document.getElementById("awCancel").addEventListener("click", function(){ show(false); });
   f.addEventListener("submit", function(ev){ ev.preventDefault();
     if (go.disabled) return;
-    var title = val("awName", 60), notes = val("awNotes", 300), addr = val("awAddr", 120);
+    var title = val("awName", 60), places = val("awPlaces", 300), who = val("awWho", 40);
     if (!title){ nm.focus(); toast("Give the walk a name first"); return; }
     if (HOODS.some(function(h){ return h.name.toLowerCase() === title.toLowerCase(); })){ nm.focus(); toast("There's already a walk called " + title + "."); return; }
+    if (!places){ document.getElementById("awPlaces").focus(); toast("Add the places you covered"); return; }
+    if (!who){ document.getElementById("awWho").focus(); toast("Add your name first"); return; }
+    store("flyer-quest-name", who);
     if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
     go.disabled = true; go.textContent = "Adding…";
-    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, notes: notes, addr: addr, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
+    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, places: places, name: who, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
       if (!res || !res.ok) throw new Error(res && res.error || "add");
       f.reset(); show(false);
       if (!res.walk) return;
-      filt = "all"; var h = addWalk(res.walk);
-      if (h){ toast(h.name + " is added as walk " + h.id + ". It's ready to reserve."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
+      filt = "all";
+      var ev = {t: typeof res.t === "string" ? res.t : new Date().toISOString(), w: String(res.walk.id), a: "done", n: who, d: "", p: ""};
+      hoods[ev.w] = {status: "done", by: who, at: ev.t};
+      var h = addWalk(res.walk);
+      if (h){ events.push(ev); if (v2) coverEvs.push(ev); renderFeed();
+        toast(h.name + " is added as walk " + h.id + ", covered by you. Thank you."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
     }).catch(function(e){
       toast(e && e.message && e.message !== "add" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
     }).then(function(){ go.disabled = false; go.textContent = "Add walk"; });

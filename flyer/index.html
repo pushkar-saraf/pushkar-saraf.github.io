@@ -260,15 +260,15 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <div id="grid"></div>
   <p class="fempty" id="fEmpty" hidden></p>
   <section class="addw" id="addWalk" hidden>
-    <button class="b" type="button" id="awOpen">Add your own walk</button>
+    <button class="b" type="button" id="awOpen">Add a walk you did</button>
     <form id="awForm" hidden novalidate autocomplete="off">
-      <h3>Add your own walk</h3>
-      <p class="small">Know streets that need flyers? Add them here and anyone can reserve the walk.</p>
+      <h3>Add a walk you did</h3>
+      <p class="small">Flyered somewhere that isn't listed? Add it and it shows as covered by you.</p>
       <label class="fld"><span>Walk name</span><input id="awName" maxlength="60" placeholder="For example, Piedmont Avenue"></label>
-      <label class="fld"><span>Area or notes (optional)</span><textarea id="awNotes" maxlength="300" rows="3" placeholder="Which streets, good boards, anything that helps"></textarea></label>
-      <label class="fld"><span>Where to start (optional)</span><input id="awAddr" maxlength="120" placeholder="An address or a corner"></label>
+      <label class="fld"><span>Places covered</span><textarea id="awPlaces" maxlength="300" rows="3" placeholder="Streets, shops and boards you flyered"></textarea></label>
+      <label class="fld"><span>Your name</span><input id="awWho" maxlength="40" autocomplete="given-name"></label>
       <input class="hp" id="awHp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="small">The walk shows on this page for anyone with the link. The team can remove it.</p>
+      <p class="small">Your name and the walk show on this page for anyone with the link.</p>
       <div class="acts"><button class="b" type="button" id="awCancel">Cancel</button><button class="b main" type="submit" id="awGo">Add walk</button></div>
     </form>
   </section>
@@ -643,13 +643,13 @@ var HOODS = [
   ]},
 
  {id:"japantown", name:"Japantown", vibe:"Peace Plaza, the Japan Center malls and a pagoda over it all.",
-  start:{t:"Peace Plaza", n:"Post St and Buchanan St, under the pagoda.", a:"Post St and Buchanan St"},
+  start:{t:"Peace Plaza", n:"Post St and Buchanan St. The plaza is still being rebuilt, so follow the posted detours.", a:"Post St and Buchanan St"},
   stops:[
    S("shops","Buchanan Mall","The pedestrian block north of Post. Small shops, ask at the counter.","Buchanan St and Post St"),
    S("shops","Japan Center malls","Shops along the indoor walkways. Some owners are happy to tape one up.","1737 Post St"),
    S("treat","Matcha Cafe Maiko","Matcha soft serve in the Kinokuniya building.","1581 Webster St"),
    S("shops","Over to Fillmore","Cross Geary and try the cafes on Fillmore.","Fillmore St and Geary Blvd"),
-   S("rest","Back to Peace Plaza","Sit by the pagoda for a quiet minute.","Peace Plaza, San Francisco")
+   S("rest","Japan Center malls","The plaza is still under construction, so rest on a bench inside the malls.","1737 Post St, San Francisco")
   ]},
 
  {id:"tenderloin", name:"Tenderloin and Little Saigon", vibe:"Dense blocks and busy laundromats around Little Saigon.",
@@ -1052,23 +1052,30 @@ var gotWalks = false;
 function setupAdd(){
   var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), op = document.getElementById("awOpen"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
   function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ f.hidden = !on; op.hidden = on; if (on) nm.focus(); }
+  function show(on){ f.hidden = !on; op.hidden = on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); nm.focus(); } }
   sec.hidden = false;
   op.addEventListener("click", function(){ show(true); });
   document.getElementById("awCancel").addEventListener("click", function(){ show(false); });
   f.addEventListener("submit", function(ev){ ev.preventDefault();
     if (go.disabled) return;
-    var title = val("awName", 60), notes = val("awNotes", 300), addr = val("awAddr", 120);
+    var title = val("awName", 60), places = val("awPlaces", 300), who = val("awWho", 40);
     if (!title){ nm.focus(); toast("Give the walk a name first"); return; }
     if (HOODS.some(function(h){ return h.name.toLowerCase() === title.toLowerCase(); })){ nm.focus(); toast("There's already a walk called " + title + "."); return; }
+    if (!places){ document.getElementById("awPlaces").focus(); toast("Add the places you covered"); return; }
+    if (!who){ document.getElementById("awWho").focus(); toast("Add your name first"); return; }
+    store("flyer-quest-name", who);
     if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
     go.disabled = true; go.textContent = "Adding…";
-    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, notes: notes, addr: addr, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
+    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, places: places, name: who, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
       if (!res || !res.ok) throw new Error(res && res.error || "add");
       f.reset(); show(false);
       if (!res.walk) return;
-      filt = "all"; var h = addWalk(res.walk);
-      if (h){ toast(h.name + " is added as walk " + h.id + ". It's ready to reserve."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
+      filt = "all";
+      var ev = {t: typeof res.t === "string" ? res.t : new Date().toISOString(), w: String(res.walk.id), a: "done", n: who, d: "", p: ""};
+      hoods[ev.w] = {status: "done", by: who, at: ev.t};
+      var h = addWalk(res.walk);
+      if (h){ events.push(ev); if (v2) coverEvs.push(ev); renderFeed();
+        toast(h.name + " is added as walk " + h.id + ", covered by you. Thank you."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
     }).catch(function(e){
       toast(e && e.message && e.message !== "add" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
     }).then(function(){ go.disabled = false; go.textContent = "Add walk"; });
