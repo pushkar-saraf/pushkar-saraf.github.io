@@ -82,6 +82,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .card .st::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
 .card.progress .st{display:flex; color:var(--warm)}
 .card.done .st{display:flex; color:var(--done)}
+.card.claimed .st{display:flex; color:var(--accent)}
 .card .seal{position:absolute; top:10px; left:10px; padding:5px 10px; font:500 11px/1 var(--sans); letter-spacing:.06em; color:#1f2328; background:rgba(255,253,249,.92); border-radius:999px; display:none; backdrop-filter:blur(4px)}
 .card.done .seal{display:inline-block}
 .card.done .art img{filter:saturate(.75)}
@@ -357,8 +358,8 @@ function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query="
 function fmt(iso){ var d = new Date(iso); if (isNaN(d)) return ""; var day = d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); return /T00:00:00/.test(iso) ? day : day + ", " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); }
 function who(id){ if (backend){ if (!id) return "Someone"; if (id === "team") return "the team"; return id === myName() ? "You" : id; }
   if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
-function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
-function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
+function status(id){ var h = hoods[id]; return h && (h.status === "claimed" || h.status === "progress" || h.status === "done") ? h.status : "open"; }
+function counts(){ var d = 0, p = 0, c = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; else if (s === "claimed") c++; }); return {d:d, p:p, c:c}; }
 function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 function pad(n){ return (n < 10 ? "0" : "") + n; }
 var KIND = {board:"Notice board", shops:"Ask the shops", treat:"Treat", rest:"Relax", campus:"On campus"};
@@ -441,14 +442,16 @@ var WA_NUMBER = "14159350575";
 function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent((verb || "Covered ") + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
-  if (s === "open") return ["Open", "Anyone can begin this walk"];
+  if (s === "open") return ["Open", "Claim it for later, or begin now"];
+  if (s === "claimed") return [who(rec.by) === "You" ? "You claimed this walk" : "Claimed by " + who(rec.by), rec.at ? "Since " + fmt(rec.at) : ""];
   if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
   return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
 function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
   var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
   var a = document.getElementById("sActs"); a.textContent = "";
-  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); }));
+  if (s === "open"){ a.append(btn("Claim", "", function(){ act(h, "claimed"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
+  else if (s === "claimed"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
   else if (s === "progress"){ a.append(btn("Let go", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
   else a.append(btn("Reopen", "", function(){ act(h, "open"); }));
   renderWalkFeed(h);
@@ -456,13 +459,13 @@ function renderSheet(){
 function render(){
   HOODS.forEach(function(h){
     var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
-    c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done");
-    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+    c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done"); c.classList.toggle("claimed", s === "claimed");
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "claimed" ? "Claimed · " + who(rec.by) : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
   });
   var k = counts();
   document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
   var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
-  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "");
+  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "") + (k.c ? " · " + k.c + " claimed" : "");
   renderSheet();
   var need = HOODS.map(function(h){ return hoods[h.id] && hoods[h.id].by; }).filter(function(id){ return id && id !== me && !names[id]; });
   if (userApi && need.length){ userApi.profiles(need).then(function(ps){ var ch = false; Object.keys(ps || {}).forEach(function(x){ if (!names[x]){ names[x] = ps[x]; ch = true; } }); if (ch) render(); }).catch(function(){}); }
@@ -478,6 +481,7 @@ function setStatus(h, next){
   var rec = next === "open" ? null : {status: next, by: (next === "done" && prev && prev.by) ? prev.by : me, at: new Date().toISOString()};
   if (rec) hoods[h.id] = rec; else delete hoods[h.id];
   render();
+  if (next === "claimed") toast(h.name + " is yours. Begin whenever you're ready.");
   if (next === "progress") toast("Enjoy the walk through " + h.name);
   if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
   if (!live){ saveLocal(); return; }
@@ -496,7 +500,7 @@ var LS_KEY = "oak-flyer-quest-team-v1";
 var DEFAULTS = {};
 function saveLocal(){ try{ var out = {}; Object.keys(hoods).forEach(function(k){ out[k] = hoods[k]; }); Object.keys(DEFAULTS).forEach(function(k){ if (!out[k]) out[k] = {status: "open"}; }); localStorage.setItem(LS_KEY, JSON.stringify(out)); }catch(e){} }
 function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
-  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
+  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "claimed" || x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
   hoods = next; }
 
 loadLocal(); render();
@@ -514,6 +518,7 @@ function okId(id){ return /^[\w-]{10,}$/.test(id || ""); }
 function act(h, next){
   if (!backend){ setStatus(h, next); if (next === "progress") tellTeam(h, "Starting "); if (next === "done") tellTeam(h); return; }
   if (next === "open"){ send(h, "open", {}); return; }
+  if (next === "claimed" && myName()){ send(h, "claimed", {name: myName()}); return; }
   if (next === "progress" && myName()){ send(h, "progress", {name: myName()}, true); tellTeam(h, "Starting "); return; }
   openBox(h, next);
 }
@@ -521,18 +526,20 @@ var box = document.getElementById("doneBox"), bar = sheet.querySelector(".bar");
 function closeBox(){ box.hidden = true; bar.hidden = false; }
 function openBox(h, next){
   var done = next === "done";
-  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : "Who's walking " + h.name + "?";
+  var claim = next === "claimed", rec0 = hoods[h.id] || {};
+  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Claim " + h.name : "Who's walking " + h.name + "?";
   document.getElementById("dbFields").hidden = false; document.getElementById("dbNote").hidden = false;
   document.getElementById("dbPhotoRow").hidden = !done;
-  var nm = document.getElementById("dbName"); nm.value = myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
+  var nm = document.getElementById("dbName"); nm.value = (done && rec0.by && rec0.by !== "team") ? rec0.by : myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
   var a = document.getElementById("dbActs"); a.textContent = "";
   var cancel = el("button", "b", "Cancel"); cancel.type = "button"; cancel.addEventListener("click", closeBox);
-  var go = el("button", "b main", done ? "Save" : "Begin"); go.type = "submit";
+  var go = el("button", "b main", done ? "Save" : claim ? "Claim" : "Begin"); go.type = "submit";
   a.append(cancel, go);
   box.onsubmit = function(ev){ ev.preventDefault();
     var name = nm.value.replace(/\s+/g, " ").trim().slice(0, 40);
     if (!name){ nm.focus(); toast("Add your name first"); return; }
     store("flyer-quest-name", name);
+    if (claim){ closeBox(); send(h, "claimed", {name: name}); return; }
     if (!done){ closeBox(); send(h, "progress", {name: name}, true); tellTeam(h, "Starting "); return; }
     var file = document.getElementById("dbPhoto").files[0];
     go.disabled = true; cancel.disabled = true; go.textContent = file ? "Uploading…" : "Saving…";
@@ -559,7 +566,7 @@ function shrink(file){ return new Promise(function(ok, no){
     c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", 0.8)); };
   img.onerror = function(){ URL.revokeObjectURL(url); no(new Error("photo")); };
   img.src = url; }); }
-var ACT = {progress: "start", done: "done", open: "open"};
+var ACT = {claimed: "claim", progress: "start", done: "done", open: "open"};
 function send(h, next, o, quick){
   if (pending[h.id]) return Promise.resolve(false);
   var prev = hoods[h.id];
@@ -570,6 +577,7 @@ function send(h, next, o, quick){
   return fetch(BACKEND, {method: "POST", body: body, keepalive: !!quick && body.length < 60000}).then(function(r){ return r.json(); }).then(function(res){
     if (!res || !res.ok) throw new Error(res && res.error || "save");
     events.push({t: res.t, w: h.id, a: ACT[next], n: o.name || "", p: res.p || ""});
+    if (next === "claimed") toast(h.name + " is yours. Begin whenever you're ready.");
     if (next === "progress") toast("Enjoy the walk through " + h.name);
     if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
     return true;
@@ -604,7 +612,8 @@ function apply(evs){
   events = evs.filter(function(e){ return e && byId[e.w] && typeof e.t === "string"; });
   var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
   events.forEach(function(e){
-    if (e.a === "start") next[e.w] = {status: "progress", by: e.n, at: e.t};
+    if (e.a === "claim") next[e.w] = {status: "claimed", by: e.n, at: e.t};
+    else if (e.a === "start") next[e.w] = {status: "progress", by: e.n, at: e.t};
     else if (e.a === "done") next[e.w] = {status: "done", by: e.n, at: e.t};
     else if (e.a === "open") delete next[e.w];
   });
@@ -641,7 +650,7 @@ Promise.all([api.use("db"), api.use("user")]).then(function(res){
     var wait = setTimeout(function(){ syncEl.textContent = "Can't reach shared progress yet"; }, 10000);
     db.collection(COLL).onSnapshot(function(snap){
       var next = {};
-      snap.docs.forEach(function(d){ var x = d.data(); if (x && (x.status === "progress" || x.status === "done")) next[d.id] = {status:x.status, by: typeof x.by === "string" ? x.by : null, at: typeof x.at === "string" ? x.at : null}; });
+      snap.docs.forEach(function(d){ var x = d.data(); if (x && (x.status === "claimed" || x.status === "progress" || x.status === "done")) next[d.id] = {status:x.status, by: typeof x.by === "string" ? x.by : null, at: typeof x.at === "string" ? x.at : null}; });
       Object.keys(pending).forEach(function(k){ if (hoods[k]) next[k] = hoods[k]; else delete next[k]; });
       hoods = next; render();
       if (!snap.metadata.fromCache){ clearTimeout(wait); syncEl.textContent = canWrite ? "Shared live: anyone with the link can begin a walk" : "View only: ask the page owner for access to begin walks"; }
