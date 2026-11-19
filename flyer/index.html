@@ -666,7 +666,7 @@ document.addEventListener("keydown", function(e){
 
 /* Mark done opens WhatsApp with a short note to the team lead already written. Nothing is sent until the volunteer taps send. */
 var WA_NUMBER = "14159350575";
-function tellTeam(h){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Covered " + h.name + "!"); var w = window.open(url, "_blank", "noopener"); if (!w) location.href = url; }
+function tellTeam(h){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Covered " + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
   if (s === "open") return ["Open", "Anyone can begin this walk"];
