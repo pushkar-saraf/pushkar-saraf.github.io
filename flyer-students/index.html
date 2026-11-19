@@ -186,6 +186,26 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   .card .nm{font-size:18px}
   .card .vb{font-size:12.5px}
 }
+/* shared backend: mark-done form and covers feed */
+.sheet > .bar[hidden]{display:none}
+.donebox{flex:none; max-height:75%; overflow-y:auto; padding:18px var(--gutr) calc(16px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--paper); display:grid; gap:14px}
+.donebox[hidden]{display:none}
+.donebox h4{margin:0; font:400 21px/1.2 var(--serif)}
+.fld{display:grid; gap:6px; font-size:13.5px; color:var(--muted)}
+.fld input{font:inherit; font-size:16px; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 14px; min-height:46px; width:100%; box-sizing:border-box}
+.fld input[type=file]{padding:10px 12px}
+.donebox .small{margin:0; font-size:12.5px; line-height:1.45; color:var(--muted)}
+.donebox .acts .b{flex:1}
+.hp{position:absolute; left:-9999px; width:1px; height:1px; opacity:0}
+.feedlist{display:grid; gap:14px; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); margin-top:24px}
+.fi{background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; min-width:0}
+.fi .ph{display:block; aspect-ratio:4/3; background:var(--soft)}
+.fi .ph img{width:100%; height:100%; object-fit:cover; display:block}
+.fi .tx{padding:10px 12px 12px; font-size:13px; color:var(--muted); line-height:1.4; overflow-wrap:anywhere}
+.fi .tx b{display:block; color:var(--ink); font:400 16px/1.25 var(--serif)}
+.feedmore{margin-top:18px}
+.sfeed{margin:40px 0 0}
+.sfeed .feedlist{grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); margin-top:14px}
 @media (prefers-reduced-motion: reduce){.sheet,.veil,.card .art,.toast{transition:none}}
 </style>
 </head>
@@ -214,6 +234,11 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <h2 class="sec">The walks</h2>
   <p class="sub">Grouped by area: San Francisco, Berkeley, Oakland, then the rest of the Bay. Each walk says how posting works on that campus.</p>
   <div id="grid"></div>
+  <section class="feed" id="feed" hidden>
+    <h2 class="sec">Recent covers</h2>
+    <p class="sub">Who walked where, and when. Add yours with Mark done.</p>
+    <div class="feedlist" id="feedList"></div>
+  </section>
 
 
     <h2 class="sec" id="markets">Campus tables and posting</h2>
@@ -251,8 +276,19 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
       </div>
       <ol class="trail" id="sTrail"></ol>
       <div class="bonus" id="sBonus"></div>
+      <div class="sfeed" id="sFeed" hidden><div class="label">Covered so far</div><div class="feedlist"></div></div>
     </div>
   </div>
+  <form class="donebox" id="doneBox" hidden novalidate>
+    <h4 id="dbTitle">Mark this walk covered</h4>
+    <div id="dbFields">
+      <label class="fld"><span>Your name</span><input id="dbName" maxlength="40" autocomplete="given-name" enterkeyhint="done"></label>
+      <label class="fld" id="dbPhotoRow" style="margin-top:12px"><span>A photo from the walk (optional)</span><input id="dbPhoto" type="file" accept="image/*"></label>
+      <input class="hp" id="dbHp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </div>
+    <p class="small" id="dbNote">Your name, the time and any photo appear on this page for anyone with the link.</p>
+    <div class="acts" id="dbActs"></div>
+  </form>
   <div class="bar"><div class="who" id="sWho"></div><div class="acts" id="sActs"></div></div>
 </section>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -309,9 +345,11 @@ function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  "
 
 /* ---------- state ---------- */
 var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
+var backend = false, events = [];
 function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(/,/.test(addr) ? addr : addr + ", " + "San Francisco, CA"); }
-function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
-function who(id){ if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function fmt(iso){ var d = new Date(iso); if (isNaN(d)) return ""; var day = d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); return /T00:00:00/.test(iso) ? day : day + ", " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); }
+function who(id){ if (backend){ if (!id) return "Someone"; if (id === "team") return "the team"; return id === myName() ? "You" : id; }
+  if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
 function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
 function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
 function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -379,6 +417,7 @@ function openSheet(h, from){
 }
 function closeSheet(){
   sheet.classList.remove("on"); veil.classList.remove("on"); sheet.setAttribute("aria-hidden", "true");
+  if (typeof closeBox === "function") closeBox();
   document.body.style.overflow = ""; cur = null; if (lastFocus) lastFocus.focus({preventScroll:true});
 }
 document.getElementById("close").addEventListener("click", closeSheet);
@@ -386,7 +425,7 @@ veil.addEventListener("click", closeSheet);
 document.addEventListener("keydown", function(e){
   if (!cur) return;
   if (e.key === "Escape") closeSheet();
-  if (e.key === "Tab"){ var f = sheet.querySelectorAll("button:not([disabled]), a[href]"); if (!f.length) return; var a = f[0], z = f[f.length-1];
+  if (e.key === "Tab"){ var f = Array.prototype.filter.call(sheet.querySelectorAll("button:not([disabled]), a[href], input:not(.hp)"), function(x){ return x.offsetParent !== null; }); if (!f.length) return; var a = f[0], z = f[f.length-1];
     if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
 });
 
@@ -402,9 +441,10 @@ function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
   var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
   var a = document.getElementById("sActs"); a.textContent = "";
-  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); tellTeam(h, "Starting "); }));
-  else if (s === "progress"){ a.append(btn("Let go", "", function(){ setStatus(h, "open"); })); a.append(btn("Mark done", "main", function(){ setStatus(h, "done"); tellTeam(h); })); }
-  else a.append(btn("Reopen", "", function(){ setStatus(h, "open"); }));
+  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); }));
+  else if (s === "progress"){ a.append(btn("Let go", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
+  else a.append(btn("Reopen", "", function(){ act(h, "open"); }));
+  renderWalkFeed(h);
 }
 function render(){
   HOODS.forEach(function(h){
@@ -453,6 +493,132 @@ function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ 
   hoods = next; }
 
 loadLocal(); render();
+
+/* ---------- shared backend (Google Apps Script) ---------- */
+/* Paste the web app URL here to share progress, names, times and photos across everyone. Empty means progress stays on this device. */
+var BACKEND = "";
+var SITE = "students";
+var byId = {}; HOODS.forEach(function(h){ byId[h.id] = h; });
+function store(k, v){ try{ if (v === undefined) return localStorage.getItem(k) || ""; localStorage.setItem(k, v); }catch(e){ return ""; } }
+function myName(){ return store("flyer-quest-name"); }
+function device(){ var d = store("flyer-quest-device"); if (!d){ d = Math.random().toString(36).slice(2) + Date.now().toString(36); store("flyer-quest-device", d); } return d; }
+function thumb(id){ return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w800"; }
+function okId(id){ return /^[\w-]{10,}$/.test(id || ""); }
+function act(h, next){
+  if (!backend){ setStatus(h, next); if (next === "progress") tellTeam(h, "Starting "); if (next === "done") tellTeam(h); return; }
+  if (next === "open"){ send(h, "open", {}); return; }
+  if (next === "progress" && myName()){ send(h, "progress", {name: myName()}, true); tellTeam(h, "Starting "); return; }
+  openBox(h, next);
+}
+var box = document.getElementById("doneBox"), bar = sheet.querySelector(".bar");
+function closeBox(){ box.hidden = true; bar.hidden = false; }
+function openBox(h, next){
+  var done = next === "done";
+  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : "Who's walking " + h.name + "?";
+  document.getElementById("dbFields").hidden = false; document.getElementById("dbNote").hidden = false;
+  document.getElementById("dbPhotoRow").hidden = !done;
+  var nm = document.getElementById("dbName"); nm.value = myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
+  var a = document.getElementById("dbActs"); a.textContent = "";
+  var cancel = el("button", "b", "Cancel"); cancel.type = "button"; cancel.addEventListener("click", closeBox);
+  var go = el("button", "b main", done ? "Save" : "Begin"); go.type = "submit";
+  a.append(cancel, go);
+  box.onsubmit = function(ev){ ev.preventDefault();
+    var name = nm.value.replace(/\s+/g, " ").trim().slice(0, 40);
+    if (!name){ nm.focus(); toast("Add your name first"); return; }
+    store("flyer-quest-name", name);
+    if (!done){ closeBox(); send(h, "progress", {name: name}, true); tellTeam(h, "Starting "); return; }
+    var file = document.getElementById("dbPhoto").files[0];
+    go.disabled = true; cancel.disabled = true; go.textContent = file ? "Uploading…" : "Saving…";
+    (file ? shrink(file) : Promise.resolve("")).then(function(photo){
+      return send(h, "done", {name: name, photo: photo, hp: document.getElementById("dbHp").value});
+    }).then(function(ok){
+      if (!ok){ go.disabled = false; cancel.disabled = false; go.textContent = "Try again"; return; }
+      document.getElementById("dbTitle").textContent = "Saved. Thank you for the seva, " + name + ".";
+      document.getElementById("dbFields").hidden = true; document.getElementById("dbNote").hidden = true;
+      a.textContent = "";
+      var close = el("button", "b", "Close"); close.type = "button"; close.addEventListener("click", closeBox);
+      var wa = el("button", "b main", "Tell the team"); wa.type = "button"; wa.addEventListener("click", function(){ tellTeam(h); closeBox(); });
+      a.append(close, wa); wa.focus();
+    }, function(){ go.disabled = false; cancel.disabled = false; go.textContent = "Try again"; toast("Couldn't read that photo. Try another, or save without one."); });
+  };
+  bar.hidden = true; box.hidden = false;
+  setTimeout(function(){ (nm.value ? go : nm).focus({preventScroll:true}); }, 30);
+}
+/* Shrink photos in the browser to 1280px JPEG before upload. */
+function shrink(file){ return new Promise(function(ok, no){
+  var url = URL.createObjectURL(file), img = new Image();
+  img.onload = function(){ var s = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(img.naturalWidth * s)); c.height = Math.max(1, Math.round(img.naturalHeight * s));
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", 0.8)); };
+  img.onerror = function(){ URL.revokeObjectURL(url); no(new Error("photo")); };
+  img.src = url; }); }
+var ACT = {progress: "start", done: "done", open: "open"};
+function send(h, next, o, quick){
+  if (pending[h.id]) return Promise.resolve(false);
+  var prev = hoods[h.id];
+  var rec = next === "open" ? null : {status: next, by: o.name, at: new Date().toISOString()};
+  if (rec) hoods[h.id] = rec; else delete hoods[h.id];
+  pending[h.id] = true; render();
+  var body = JSON.stringify({site: SITE, walk: h.id, action: ACT[next], name: o.name || "", photo: o.photo || "", hp: o.hp || "", device: device()});
+  return fetch(BACKEND, {method: "POST", body: body, keepalive: !!quick && body.length < 60000}).then(function(r){ return r.json(); }).then(function(res){
+    if (!res || !res.ok) throw new Error(res && res.error || "save");
+    events.push({t: res.t, w: h.id, a: ACT[next], n: o.name || "", p: res.p || ""});
+    if (next === "progress") toast("Enjoy the walk through " + h.name);
+    if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
+    return true;
+  }).catch(function(e){
+    if (prev) hoods[h.id] = prev; else delete hoods[h.id];
+    toast(e && e.message && e.message !== "save" && e.message !== "Failed to fetch" ? "Couldn't save: " + e.message : "Couldn't save that. Check your connection and try again.");
+    return false;
+  }).then(function(ok){ delete pending[h.id]; render(); renderFeed(); return ok; });
+}
+function feedItem(e, withWalk){
+  var it = el("div", "fi");
+  if (okId(e.p)){ var a = el("a", "ph"); a.href = "https://drive.google.com/file/d/" + e.p + "/view"; a.target = "_blank"; a.rel = "noopener";
+    var im = el("img"); im.src = thumb(e.p); im.alt = "Photo from " + e.n; im.loading = "lazy"; im.decoding = "async"; a.append(im); it.append(a); }
+  var tx = el("div", "tx"); tx.append(el("b", "", e.n || "Someone"), document.createTextNode((withWalk ? byId[e.w].name + " · " : "") + fmt(e.t)));
+  it.append(tx); return it; }
+function covers(id){ return events.filter(function(e){ return e.a === "done" && byId[e.w] && (!id || e.w === id); }).reverse(); }
+var feedMax = 12;
+function renderFeed(){
+  var sec = document.getElementById("feed"), list = document.getElementById("feedList");
+  sec.hidden = !backend; if (!backend) return; list.textContent = "";
+  var all = covers(), old = sec.querySelector(".feedmore"); if (old) old.remove();
+  if (!all.length){ list.append(el("p", "sub", "No covers yet. Yours could be the first.")); return; }
+  all.slice(0, feedMax).forEach(function(e){ list.append(feedItem(e, true)); });
+  if (all.length > feedMax){ var m = el("button", "b feedmore", "Show more"); m.type = "button"; m.addEventListener("click", function(){ feedMax += 24; renderFeed(); }); sec.append(m); }
+}
+function renderWalkFeed(h){
+  var w = document.getElementById("sFeed"), list = w.querySelector(".feedlist"), mine = backend ? covers(h.id) : [];
+  w.hidden = !mine.length; list.textContent = "";
+  mine.slice(0, 12).forEach(function(e){ list.append(feedItem(e, false)); });
+}
+function apply(evs){
+  events = evs.filter(function(e){ return e && byId[e.w] && typeof e.t === "string"; });
+  var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
+  events.forEach(function(e){
+    if (e.a === "start") next[e.w] = {status: "progress", by: e.n, at: e.t};
+    else if (e.a === "done") next[e.w] = {status: "done", by: e.n, at: e.t};
+    else if (e.a === "open") delete next[e.w];
+  });
+  Object.keys(pending).forEach(function(k){ if (hoods[k]) next[k] = hoods[k]; else delete next[k]; });
+  hoods = next; render(); renderFeed();
+}
+var pulled = false;
+function pull(){
+  return fetch(BACKEND + (BACKEND.indexOf("?") < 0 ? "?" : "&") + "site=" + encodeURIComponent(SITE)).then(function(r){ return r.json(); }).then(function(res){
+    if (!res || !res.ok || !Array.isArray(res.events)) throw new Error("feed");
+    apply(res.events); pulled = true;
+    syncEl.textContent = "Shared live. Names, times and photos are visible to anyone with this link.";
+  }).catch(function(){ syncEl.textContent = pulled ? "Can't reach shared progress right now. Retrying." : "Can't reach shared progress yet. Retrying."; });
+}
+if (BACKEND){
+  backend = true; live = true; hoods = {}; Object.keys(DEFAULTS).forEach(function(k){ hoods[k] = DEFAULTS[k]; });
+  render(); renderFeed(); syncEl.textContent = "Loading shared progress…";
+  pull(); setInterval(function(){ if (!document.hidden) pull(); }, 30000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) pull(); });
+  return;
+}
 
 var api = window.claude;
 function offline(){ syncEl.textContent = "Progress is saved on this device"; }
