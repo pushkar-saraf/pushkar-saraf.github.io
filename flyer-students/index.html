@@ -284,6 +284,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
     <h4 id="dbTitle">Mark this walk covered</h4>
     <div id="dbFields">
       <label class="fld"><span>Your name</span><input id="dbName" maxlength="40" autocomplete="given-name" enterkeyhint="done"></label>
+      <label class="fld" id="dbDateRow" style="margin-top:12px"><span>The day you plan to walk it</span><input id="dbDate" type="date"></label>
       <label class="fld" id="dbPhotoRow" style="margin-top:12px"><span>A photo from the walk (optional)</span><input id="dbPhoto" type="file" accept="image/*"></label>
       <input class="hp" id="dbHp" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
@@ -327,6 +328,9 @@ var COLL = "quest";
 var COORD = {};
 var RANK = ["sfstate", "ccsf", "latenight", "usf", "ucsf", "artu", "missionbay", "uclaw", "sproul", "durant", "tele", "moffitt", "calshattuck", "dorms", "northside", "ihouse", "calelmwood", "laney", "mills", "stanford", "sjsu", "csueb"];
 HOODS.sort(function(a, b){ var x = RANK.indexOf(a.id), y = RANK.indexOf(b.id); return (x < 0 ? 999 : x) - (y < 0 ? 999 : y); });
+/* Walks are keyed by number (01, 02, ...), the same numbers as the Google Sheet. h.pic keeps the painting's file name. */
+var OLD2NUM = {}, PICS = {};
+HOODS.forEach(function(h, i){ var n = (i < 9 ? "0" : "") + (i + 1); OLD2NUM[h.id] = n; h.pic = h.id; h.id = n; PICS[n] = h.pic; });
 var TIERS = [[0, "San Francisco", "City College, SF State and late-night study spots."], [8, "Berkeley", "Sproul Plaza and the streets around Cal."], [17, "Oakland", "Laney and Mills."], [19, "South Bay and East Bay", "Stanford, San Jose State and Cal State East Bay."]];
 function rng(seed){ var h = 2166136261; for (var i=0;i<seed.length;i++){ h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
   return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -340,7 +344,8 @@ function openPath(pts){ var d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
     d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
   return d; }
 var uid = 0;
-function pic(name, lazy){ return '<img src="art/'+name+'.webp" alt=""'+(lazy ? ' loading="lazy" decoding="async"' : '')+'>'; }
+function pic(name, lazy){ return '<img src="art/'+name+'.webp" alt=""'+(lazy ? ' loading="lazy" decoding="async"' : '')+' onerror="this.onerror=null;this.src=\'art/hero.webp\'">'; }
+function art(h, kind){ return h.pic ? h.pic + "-" + kind : "hero"; }
 
 function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  " + c[1].toFixed(4) + "° W" : ""; }
 
@@ -348,6 +353,8 @@ function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  "
 var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
 var backend = false, events = [];
 function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(/,/.test(addr) ? addr : addr + ", " + "San Francisco, CA"); }
+function day(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ""); return m ? new Date(+m[1], m[2]-1, +m[3]).toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}) : ""; }
+function ymd(dt){ return dt.getFullYear() + "-" + ("0" + (dt.getMonth()+1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2); }
 function fmt(iso){ var d = new Date(iso); if (isNaN(d)) return ""; var day = d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); return /T00:00:00/.test(iso) ? day : day + ", " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); }
 function who(id){ if (backend){ if (!id) return "Someone"; if (id === "team") return "the team"; return id === myName() ? "You" : id; }
   if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
@@ -364,26 +371,30 @@ var grid = document.getElementById("grid"), gsec = null;
 /* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
 var TINT = {"sfstate": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ccsf": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "latenight": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "usf": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "ucsf": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "artu": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "missionbay": ["#203953", "#a4b5c8", "#e5eef4", "#202b37"], "uclaw": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sproul": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "durant": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "tele": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "moffitt": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "calshattuck": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "dorms": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "northside": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ihouse": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "calelmwood": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "laney": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "mills": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "stanford": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sjsu": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "csueb": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"]};
 function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
+function buildGrid(){
+grid.textContent = ""; gsec = null; N = HOODS.length;
 document.getElementById("heroLabel").textContent = "Bay Area students" + " · " + N + " walks";
 HOODS.forEach(function(h, i){
   TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
   h.k = i;
-  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.id);
-  var a = el("div", "art"); a.innerHTML = pic(h.id + "-card", true);
+  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.pic);
+  var a = el("div", "art"); a.innerHTML = pic(art(h, "card"), true);
   var seal = el("div", "seal", "Covered");
   var meta = el("div", "meta");
-  meta.append(el("div", "no", pad(i+1)), el("div", "nm", h.name), el("div", "vb", h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
+  meta.append(el("div", "no", h.id), el("div", "nm", h.name), el("div", "vb", h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
   c.append(a, seal, meta);
   c.addEventListener("click", function(){ openSheet(h, c); });
   gsec.append(c);
 });
+}
+buildGrid();
 
 /* ---------- sheet ---------- */
 var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
 function openSheet(h, from){
-  cur = h; lastFocus = from || null; tint(document.getElementById("sheet"), h.id);
-  document.getElementById("sArt").innerHTML = pic(h.id + "-wide") + '<span class="coord">' + coordText(h.id) + '</span>';
-  document.getElementById("sNo").textContent = "No. " + (h.k+1) + " of " + N;
+  cur = h; lastFocus = from || null; tint(document.getElementById("sheet"), h.pic);
+  document.getElementById("sArt").innerHTML = pic(art(h, "wide")) + '<span class="coord">' + coordText(h.pic) + '</span>';
+  document.getElementById("sNo").textContent = "No. " + h.id;
   document.getElementById("sTitle").textContent = h.name;
   document.getElementById("sVibe").textContent = h.vibe;
   var f = document.getElementById("sFacts"); f.textContent = "";
@@ -435,15 +446,15 @@ var WA_NUMBER = "14159350575";
 function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent((verb || "Covered ") + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
-  if (s === "open") return ["Open", "Claim it for later, or begin now"];
-  if (s === "claimed") return [who(rec.by) === "You" ? "You claimed this walk" : "Claimed by " + who(rec.by), rec.at ? "Since " + fmt(rec.at) : ""];
+  if (s === "open") return ["Open", "Reserve it for a day, or begin now"];
+  if (s === "claimed") return [who(rec.by) === "You" ? "You reserved this walk" : "Reserved by " + who(rec.by), rec.date ? "For " + day(rec.date) : (rec.at ? "Since " + fmt(rec.at) : "")];
   if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
   return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
 function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
   var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
   var a = document.getElementById("sActs"); a.textContent = "";
-  if (s === "open"){ a.append(btn("Claim", "", function(){ act(h, "claimed"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
+  if (s === "open"){ a.append(btn("Reserve", "", function(){ act(h, "claimed"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
   else if (s === "claimed"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
   else if (s === "progress"){ a.append(btn("Let go", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
   else a.append(btn("Reopen", "", function(){ act(h, "open"); }));
@@ -453,12 +464,12 @@ function render(){
   HOODS.forEach(function(h){
     var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
     c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done"); c.classList.toggle("claimed", s === "claimed");
-    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "claimed" ? "Claimed · " + who(rec.by) : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "claimed" ? "Reserved · " + who(rec.by) + (rec.date ? " · " + day(rec.date).replace(/^\w+, /, "") : "") : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
   });
   var k = counts();
   document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
   var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
-  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "") + (k.c ? " · " + k.c + " claimed" : "");
+  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "") + (k.c ? " · " + k.c + " reserved" : "");
   renderSheet();
   var need = HOODS.map(function(h){ return hoods[h.id] && hoods[h.id].by; }).filter(function(id){ return id && id !== me && !names[id]; });
   if (userApi && need.length){ userApi.profiles(need).then(function(ps){ var ch = false; Object.keys(ps || {}).forEach(function(x){ if (!names[x]){ names[x] = ps[x]; ch = true; } }); if (ch) render(); }).catch(function(){}); }
@@ -474,7 +485,7 @@ function setStatus(h, next){
   var rec = next === "open" ? null : {status: next, by: (next === "done" && prev && prev.by) ? prev.by : me, at: new Date().toISOString()};
   if (rec) hoods[h.id] = rec; else delete hoods[h.id];
   render();
-  if (next === "claimed") toast(h.name + " is yours. Begin whenever you're ready.");
+  if (next === "claimed") toast(h.name + " is reserved for you.");
   if (next === "progress") toast("Enjoy the walk through " + h.name);
   if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
   if (!live){ saveLocal(); return; }
@@ -491,9 +502,10 @@ function setStatus(h, next){
 var LS_KEY = "stu-flyer-quest-team-v1";
 /* Walks already covered by the team, shown as covered for every visitor. A device can still reopen one. */
 var DEFAULTS = {};
+Object.keys(DEFAULTS).forEach(function(k){ if (OLD2NUM[k]){ DEFAULTS[OLD2NUM[k]] = DEFAULTS[k]; delete DEFAULTS[k]; } });
 function saveLocal(){ try{ var out = {}; Object.keys(hoods).forEach(function(k){ out[k] = hoods[k]; }); Object.keys(DEFAULTS).forEach(function(k){ if (!out[k]) out[k] = {status: "open"}; }); localStorage.setItem(LS_KEY, JSON.stringify(out)); }catch(e){} }
 function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
-  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "claimed" || x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
+  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (OLD2NUM[k]) k = OLD2NUM[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "claimed" || x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
   hoods = next; }
 
 loadLocal(); render();
@@ -511,7 +523,6 @@ function okId(id){ return /^[\w-]{10,}$/.test(id || ""); }
 function act(h, next){
   if (!backend){ setStatus(h, next); if (next === "progress") tellTeam(h, "Starting "); if (next === "done") tellTeam(h); return; }
   if (next === "open"){ send(h, "open", {}); return; }
-  if (next === "claimed" && myName()){ send(h, "claimed", {name: myName()}); return; }
   if (next === "progress" && myName()){ send(h, "progress", {name: myName()}, true); tellTeam(h, "Starting "); return; }
   openBox(h, next);
 }
@@ -520,19 +531,21 @@ function closeBox(){ box.hidden = true; bar.hidden = false; }
 function openBox(h, next){
   var done = next === "done";
   var claim = next === "claimed", rec0 = hoods[h.id] || {};
-  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Claim " + h.name : "Who's walking " + h.name + "?";
+  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Reserve " + h.name : "Who's walking " + h.name + "?";
+  document.getElementById("dbDateRow").hidden = !claim;
+  var dt = document.getElementById("dbDate"), today = ymd(new Date()); dt.min = today; dt.value = today;
   document.getElementById("dbFields").hidden = false; document.getElementById("dbNote").hidden = false;
   document.getElementById("dbPhotoRow").hidden = !done;
   var nm = document.getElementById("dbName"); nm.value = (done && rec0.by && rec0.by !== "team") ? rec0.by : myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
   var a = document.getElementById("dbActs"); a.textContent = "";
   var cancel = el("button", "b", "Cancel"); cancel.type = "button"; cancel.addEventListener("click", closeBox);
-  var go = el("button", "b main", done ? "Save" : claim ? "Claim" : "Begin"); go.type = "submit";
+  var go = el("button", "b main", done ? "Save" : claim ? "Reserve" : "Begin"); go.type = "submit";
   a.append(cancel, go);
   box.onsubmit = function(ev){ ev.preventDefault();
     var name = nm.value.replace(/\s+/g, " ").trim().slice(0, 40);
     if (!name){ nm.focus(); toast("Add your name first"); return; }
     store("flyer-quest-name", name);
-    if (claim){ closeBox(); send(h, "claimed", {name: name}); return; }
+    if (claim){ if (!/^\d{4}-\d{2}-\d{2}$/.test(dt.value)){ dt.focus(); toast("Pick the day you plan to walk"); return; } closeBox(); send(h, "claimed", {name: name, date: dt.value}); return; }
     if (!done){ closeBox(); send(h, "progress", {name: name}, true); tellTeam(h, "Starting "); return; }
     var file = document.getElementById("dbPhoto").files[0];
     go.disabled = true; cancel.disabled = true; go.textContent = file ? "Uploading…" : "Saving…";
@@ -563,14 +576,14 @@ var ACT = {claimed: "claim", progress: "start", done: "done", open: "open"};
 function send(h, next, o, quick){
   if (pending[h.id]) return Promise.resolve(false);
   var prev = hoods[h.id];
-  var rec = next === "open" ? null : {status: next, by: o.name, at: new Date().toISOString()};
+  var rec = next === "open" ? null : {status: next, by: o.name, at: new Date().toISOString(), date: o.date || ""};
   if (rec) hoods[h.id] = rec; else delete hoods[h.id];
   pending[h.id] = true; render();
-  var body = JSON.stringify({site: SITE, walk: h.id, action: ACT[next], name: o.name || "", photo: o.photo || "", hp: o.hp || "", device: device()});
+  var body = JSON.stringify({site: SITE, walk: h.id, action: ACT[next], name: o.name || "", date: o.date || "", photo: o.photo || "", hp: o.hp || "", device: device()});
   return fetch(BACKEND, {method: "POST", body: body, keepalive: !!quick && body.length < 60000}).then(function(r){ return r.json(); }).then(function(res){
     if (!res || !res.ok) throw new Error(res && res.error || "save");
-    events.push({t: res.t, w: h.id, a: ACT[next], n: o.name || "", p: res.p || ""});
-    if (next === "claimed") toast(h.name + " is yours. Begin whenever you're ready.");
+    events.push({t: res.t, w: h.id, a: ACT[next], n: o.name || "", d: o.date || "", p: res.p || ""});
+    if (next === "claimed") toast(h.name + " is reserved for you" + (o.date ? " on " + day(o.date) : "") + ".");
     if (next === "progress") toast("Enjoy the walk through " + h.name);
     if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
     return true;
@@ -605,7 +618,7 @@ function apply(evs){
   events = evs.filter(function(e){ return e && byId[e.w] && typeof e.t === "string"; });
   var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
   events.forEach(function(e){
-    if (e.a === "claim") next[e.w] = {status: "claimed", by: e.n, at: e.t};
+    if (e.a === "claim") next[e.w] = {status: "claimed", by: e.n, at: e.t, date: e.d || ""};
     else if (e.a === "start") next[e.w] = {status: "progress", by: e.n, at: e.t};
     else if (e.a === "done") next[e.w] = {status: "done", by: e.n, at: e.t};
     else if (e.a === "open") delete next[e.w];
@@ -614,9 +627,31 @@ function apply(evs){
   hoods = next; render(); renderFeed();
 }
 var pulled = false;
+function str(v, n){ return typeof v === "string" ? v.slice(0, n || 600) : ""; }
+/* Replace the built-in walks with the Sheet's, if it has any. */
+function useWalks(ws){
+  var out = [];
+  ws.forEach(function(w){
+    if (!w || !/^\d{2}$/.test(w.id) || !str(w.name)) return;
+    var stops = (Array.isArray(w.stops) ? w.stops : []).filter(function(s){ return s && KIND[s.k] && str(s.t); }).map(function(s){ return S(s.k, str(s.t), str(s.n), str(s.a)); });
+    var st = w.start || {}, h = {id: w.id, pic: PICS[w.id] || null, name: str(w.name, 80), vibe: str(w.vibe), stops: stops,
+      start: {t: str(st.t) || (stops[0] ? stops[0].t : ""), n: str(st.n), a: str(st.a) || (stops[0] ? stops[0].a : "")}};
+    if (str(w.rule)) h.rule = str(w.rule);
+    if (w.bonus && Array.isArray(w.bonus.list) && w.bonus.list.length) h.bonus = {t: str(w.bonus.t, 80), n: str(w.bonus.n), list: w.bonus.list.filter(function(x){ return Array.isArray(x) && str(x[1]); }).map(function(x){ return [str(x[0], 80), str(x[1])]; })};
+    out.push(h);
+  });
+  if (!out.length) return;
+  out.sort(function(a, b){ return a.id < b.id ? -1 : 1; });
+  HOODS.length = 0; out.forEach(function(h){ HOODS.push(h); });
+  byId = {}; HOODS.forEach(function(h){ byId[h.id] = h; });
+  if (cur) closeSheet();
+  buildGrid();
+}
+var gotWalks = false;
 function pull(){
-  return fetch(BACKEND + (BACKEND.indexOf("?") < 0 ? "?" : "&") + "site=" + encodeURIComponent(SITE)).then(function(r){ return r.json(); }).then(function(res){
+  return fetch(BACKEND + (BACKEND.indexOf("?") < 0 ? "?" : "&") + "site=" + encodeURIComponent(SITE) + (gotWalks ? "" : "&content=1")).then(function(r){ return r.json(); }).then(function(res){
     if (!res || !res.ok || !Array.isArray(res.events)) throw new Error("feed");
+    if (!gotWalks && Array.isArray(res.walks)){ gotWalks = true; useWalks(res.walks); }
     apply(res.events); pulled = true;
     syncEl.textContent = "Shared live. Names, times and photos are visible to anyone with this link.";
   }).catch(function(){ syncEl.textContent = pulled ? "Can't reach shared progress right now. Retrying." : "Can't reach shared progress yet. Retrying."; });
