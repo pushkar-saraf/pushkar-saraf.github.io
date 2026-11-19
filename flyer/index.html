@@ -572,7 +572,7 @@ function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  "
 var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
 function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr + ", San Francisco, CA"); }
 function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
-function who(id){ if (!id) return "Someone"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function who(id){ if (!id) return "Someone"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
 function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
 function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
 function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -699,8 +699,12 @@ function setStatus(h, next){
     }).then(function(){ delete pending[h.id]; });
 }
 var LS_KEY = "sf-flyer-quest-team-v1";
-function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(hoods)); }catch(e){} }
-function loadLocal(){ try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") hoods = v; }catch(e){} }
+/* Walks already covered by the team, shown as covered for every visitor. A device can still reopen one. */
+var DEFAULTS = {mission: {status: "done", by: "team", at: "2026-11-19T00:00:00Z"}};
+function saveLocal(){ try{ var out = {}; Object.keys(hoods).forEach(function(k){ out[k] = hoods[k]; }); Object.keys(DEFAULTS).forEach(function(k){ if (!out[k]) out[k] = {status: "open"}; }); localStorage.setItem(LS_KEY, JSON.stringify(out)); }catch(e){} }
+function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
+  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
+  hoods = next; }
 
 loadLocal(); render();
 
