@@ -586,7 +586,7 @@ function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  "
 var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
 function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr + ", San Francisco, CA"); }
 function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
-function who(id){ if (!id) return "Someone"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function who(id){ if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
 function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
 function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
 function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
@@ -670,7 +670,7 @@ function tellTeam(h){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encode
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
   if (s === "open") return ["Open", "Anyone can begin this walk"];
-  if (s === "progress") return [(rec.by && rec.by === me ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
+  if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
   return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
 function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
