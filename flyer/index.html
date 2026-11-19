@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SF Flyer Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Mulish:wght@400;500;600;700&display=swap">
+<style>
+/* A calm field guide: a navy-and-gold hero, a grid of route prints, and a sheet with each neighborhood's walk. */
+:root{
+  --paper:#fbfaf7; --card:#ffffff; --ink:#2b394d; --muted:#667180; --line:#e1e5ea;
+  --gold:#d98a00; --gold-soft:#fff3d9; --btn:#f5a400; --btn-ink:#2b2210; --teal:#4a8291; --slate:#3c4d65; --star:#2f6bd8;
+  --serif:"Montserrat", "Avenir Next", system-ui, sans-serif;
+  --sans:"Mulish", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gut:max(16px, env(safe-area-inset-left)); --gutr:max(16px, env(safe-area-inset-right));
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121a26; --card:#1a2433; --ink:#eef1f4; --muted:#a3adba; --line:#2b3646;
+  --gold:#f7b733; --gold-soft:#33291a; --btn:#f7b733; --btn-ink:#231a08; --teal:#6aa3b1; --slate:#2a3a50; --star:#6f9bff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121a26; --card:#1a2433; --ink:#eef1f4; --muted:#a3adba; --line:#2b3646;
+  --gold:#f7b733; --gold-soft:#33291a; --btn:#f7b733; --btn-ink:#231a08; --teal:#6aa3b1; --slate:#2a3a50; --star:#6f9bff; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font:15.5px/1.55 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:hidden; -webkit-text-size-adjust:100%}
+button,a{touch-action:manipulation; -webkit-tap-highlight-color:transparent}
+button{font:inherit; color:inherit}
+a{color:inherit}
+.wrap{max-width:1080px; margin:0 auto; padding:0 var(--gutr) 80px var(--gut)}
+.label{font:600 11px/1 var(--sans); letter-spacing:.2em; text-transform:uppercase}
+.art{position:relative; overflow:hidden; background:#efe6d4}
+.art img{display:block; width:100%; height:100%; object-fit:cover}
+.art .coord{position:absolute; right:16px; bottom:14px; font-size:11px; letter-spacing:2px; color:#fff; opacity:.8; text-shadow:0 1px 2px rgba(0,0,0,.35)}
+
+/* hero */
+.hero{margin:12px 0 0; border-radius:10px; overflow:hidden; position:relative; background:#3c4d65; color:#ffffff}
+.hero .art{aspect-ratio:4/5; max-height:600px; width:100%}
+@media (min-width:600px){.hero .art{aspect-ratio:16/10}}
+@media (min-width:900px){.hero .art{aspect-ratio:16/7}}
+.hero-copy{position:absolute; inset:0; padding:24px 20px; background:linear-gradient(180deg, rgba(20,30,45,.38), rgba(20,30,45,0) 55%); display:flex; flex-direction:column; justify-content:flex-start; pointer-events:none}
+.hero-copy .label{color:#ffd27a}
+.hero h1{font:500 clamp(42px, 11.5vw, 84px)/.98 var(--serif); letter-spacing:-.02em; margin:14px 0 12px; text-shadow:0 2px 18px rgba(30,45,60,.25)}
+.hero h1 em{font-style:normal; font-weight:400; color:#ffd27a}
+.hero p{margin:0; max-width:30ch; font:400 clamp(16px, 4.2vw, 20px)/1.45 var(--serif); color:#f2f6f8}
+.prog{position:absolute; left:22px; right:22px; bottom:20px; display:flex; align-items:center; gap:12px; color:#f2f6f8; font-size:13px; font-weight:600}
+.prog .bar{flex:1; height:4px; border-radius:4px; background:rgba(255,255,255,.25); position:relative; overflow:hidden}
+.prog .bar i{position:absolute; left:0; top:0; bottom:0; background:#f5a400}
+.prog .bar b{position:absolute; top:0; bottom:0; background:rgba(255,210,122,.6)}
+
+/* intro */
+.intro{display:grid; gap:18px; margin:28px 0 0}
+@media (min-width:760px){.intro{grid-template-columns:1.2fr 1fr; gap:32px; align-items:start}}
+.steps{list-style:none; margin:0; padding:0; border-top:1px solid var(--line)}
+.steps li{display:flex; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); align-items:baseline}
+.steps b{font:600 18px/1 var(--serif); color:var(--gold); min-width:22px}
+.ask{padding:20px 22px; border:1px solid var(--line); background:var(--card); border-radius:10px; border-top:3px solid var(--btn)}
+.ask .label{color:var(--gold)}
+.ask q{display:block; margin-top:10px; font:500 21px/1.35 var(--serif); quotes:"\201C" "\201D"}
+.ask p{margin:10px 0 0; color:var(--muted); font-size:14px}
+.sync{font-size:12.5px; color:var(--muted); margin:16px 0 0; display:flex; align-items:center; gap:8px}
+.sync::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--gold); flex:none}
+
+h2.sec{font:500 32px/1.1 var(--serif); letter-spacing:-.01em; margin:44px 0 6px}
+.sub{color:var(--muted); margin:0 0 18px}
+
+/* route prints */
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:22px 12px}
+.tier{margin:30px 0 14px; padding-top:14px; border-top:1px solid var(--line)}
+.tier:first-child{margin-top:8px}
+.tier .label{color:var(--gold)}
+.tier p{margin:6px 0 0; color:var(--muted); font-size:14px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:30px 20px}}
+@media (min-width:960px){.grid{grid-template-columns:repeat(4, minmax(0,1fr))}}
+.card{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; position:relative}
+.card .art{aspect-ratio:4/5; border-radius:10px; transition:transform .3s ease}
+@media (hover:hover){.card:hover .art{transform:translateY(-3px)}}
+.card:focus-visible{outline:2px solid var(--gold); outline-offset:4px}
+.card .meta{padding:12px 2px 0; display:flex; flex-direction:column; gap:4px}
+.card .no{font:600 11px/1 var(--sans); letter-spacing:.2em; color:var(--gold)}
+.card .nm{font:600 18px/1.2 var(--serif); letter-spacing:-.01em}
+.card .vb{font-size:12.5px; color:var(--muted); line-height:1.4}
+.card .st{font:600 10.5px/1.2 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-top:4px; display:flex; align-items:center; gap:7px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+.card .st::before{content:""; width:7px; height:7px; border-radius:50%; border:1.2px solid currentColor; flex:none}
+.card.progress .st{color:var(--gold)} .card.progress .st::before{border-color:var(--gold); background:var(--gold)}
+.card.done .st{color:var(--teal)} .card.done .st::before{background:var(--teal); border-color:var(--teal)}
+.card .seal{position:absolute; top:10px; left:10px; padding:6px 9px 6px 7px; font:700 10.5px/1 var(--sans); letter-spacing:.1em; text-transform:uppercase; color:#fff; background:#4a8291; border-radius:999px; display:none; align-items:center; gap:5px; box-shadow:0 4px 12px rgba(20,40,60,.25)}
+.card.done .seal{display:inline-flex}
+
+/* sheet */
+.veil{position:fixed; inset:0; background:rgba(25,35,50,.55); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:20}
+.veil.on{opacity:1; pointer-events:auto}
+.sheet{position:fixed; left:0; right:0; bottom:0; top:max(24px, env(safe-area-inset-top)); z-index:21; margin:0 auto; max-width:640px; background:var(--paper); border-radius:14px 14px 0 0; transform:translateY(105%); visibility:hidden; transition:transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s linear .4s; display:flex; flex-direction:column; overflow:hidden}
+.sheet.on{transform:none; visibility:visible; transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:720px){.sheet{top:32px; bottom:32px; border-radius:6px}}
+.sheet-scroll{overflow-y:auto; flex:1; overscroll-behavior:contain}
+.sheet .art{aspect-ratio:16/11}
+.x{position:absolute; top:12px; right:12px; z-index:2; width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,.92); color:#2b394d; cursor:pointer; display:grid; place-items:center; backdrop-filter:blur(6px)}
+.x:focus-visible{outline:2px solid #f5a400; outline-offset:2px}
+.body{padding:22px var(--gutr) 28px var(--gut)}
+.body .label{color:var(--gold)}
+.body h3{font:500 36px/1.05 var(--serif); letter-spacing:-.02em; margin:10px 0 10px}
+.body .lede{font:400 17px/1.5 var(--serif); color:var(--muted); margin:0 0 18px}
+.facts{display:flex; gap:18px; flex-wrap:wrap; padding:12px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:22px; font-size:13px; color:var(--muted)}
+.facts span b{color:var(--ink); font-weight:600}
+.start{padding:16px 18px; background:var(--card); border:1px solid var(--line); border-left:3px solid var(--btn); border-radius:10px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+.start .tx{flex:1; min-width:170px}
+.start .label{color:var(--gold)}
+.start b{display:block; font:600 19px/1.25 var(--serif); margin-top:6px}
+.start p{margin:4px 0 0; font-size:13.5px; color:var(--muted)}
+.maplink{flex:none; display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:14px; text-decoration:none; padding:12px 18px; min-height:44px; background:var(--btn); color:var(--btn-ink); border-radius:999px}
+.maplink:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.trail{list-style:none; margin:26px 0 0; padding:0}
+.trail li{display:grid; grid-template-columns:44px 1fr; gap:14px; position:relative; padding-bottom:24px}
+.trail li:not(:last-child)::before{content:""; position:absolute; left:15px; top:36px; bottom:6px; width:1px; background:var(--line)}
+.trail .n{width:31px; height:31px; border-radius:50%; background:var(--teal); color:#fff; display:grid; place-items:center; font:600 14px/1 var(--serif)}
+.trail .label{color:var(--teal); margin-top:7px; font-size:10.5px}
+.trail b{display:block; font:600 18px/1.25 var(--serif); margin-top:6px}
+.trail p{margin:5px 0 0; font-size:14.5px}
+.trail a{display:inline-flex; gap:6px; align-items:center; margin-top:6px; min-height:36px; font-size:13px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line); padding-bottom:1px}
+.trail a:hover{color:var(--ink)}
+.bonus{margin-top:2px; padding:16px 18px; border:1px dashed var(--line); border-radius:10px}
+.quote{margin-top:16px; padding:18px 20px; border-radius:10px; background:var(--slate); color:#eef3f6}
+.quote .label{color:#ffd27a}
+.quote q{display:block; margin-top:8px; font:500 18px/1.4 var(--serif); quotes:"\201C" "\201D"}
+.quote span{display:block; margin-top:6px; font-size:13px; color:#c3cfd9}
+.bonus .label{color:var(--gold)}
+.bonus p{margin:8px 0 10px; font-size:14px; color:var(--muted)}
+.bonus ul{margin:0; padding:0; list-style:none; display:grid; gap:8px}
+.bonus li{font-size:14px; display:flex; justify-content:space-between; gap:4px 12px; flex-wrap:wrap}
+.bonus li a{color:var(--muted); font-size:13px; text-decoration:none; border-bottom:1px solid var(--line)}
+.bar{flex:none; padding:12px var(--gutr) calc(12px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--card); display:flex; gap:12px; align-items:center}
+.bar .who{flex:1; min-width:0; font-size:13px; color:var(--muted); line-height:1.35}
+.bar .who b{display:block; color:var(--ink); font:600 15px/1.25 var(--serif)}
+.acts{display:flex; gap:8px; flex:none}
+.b{cursor:pointer; padding:12px 18px; min-height:46px; border-radius:999px; font-weight:600; font-size:14px; background:transparent; border:1px solid var(--line); white-space:nowrap}
+.b.main{background:var(--btn); color:var(--btn-ink); border-color:transparent}
+.b:disabled{opacity:.5; cursor:not-allowed}
+.b:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.foot{margin:46px 0 0; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted)}
+.toast{position:fixed; left:50%; bottom:calc(22px + env(safe-area-inset-bottom)); transform:translate(-50%, 16px); background:#3c4d65; color:#fff; border:0; border-left:4px solid #f5a400; padding:12px 16px; border-radius:10px; font:500 15px/1.3 var(--serif); opacity:0; pointer-events:none; transition:all .3s ease; z-index:40; max-width:calc(100vw - 32px); text-align:center}
+.toast.show{opacity:1; transform:translate(-50%, 0)}
+@media (max-width:520px){
+  .bar{flex-wrap:wrap; gap:10px}
+  .bar .who{flex:1 1 100%}
+  .acts{flex:1 1 100%}
+  .acts .b{flex:1}
+  .body h3{font-size:30px}
+  .start{padding:14px}
+  .start .maplink{width:100%; justify-content:center}
+  .hero h1{margin:10px 0 8px}
+  h2.sec{font-size:28px; margin-top:36px}
+  .card .nm{font-size:16px}
+  .card .vb{font-size:12px}
+  .intro{margin-top:22px}
+  .ask q{font-size:19px}
+}
+@media (max-width:360px){.grid{gap:18px 10px} .card .st{letter-spacing:.08em}}
+@media (prefers-reduced-motion: reduce){.sheet,.veil,.card .art,.toast{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="hero">
+    <div class="art" id="heroArt"></div>
+    <div class="hero-copy">
+      <div class="label" id="heroLabel">San Francisco walks</div>
+      <h1>Flyer <em>Quest</em></h1>
+      <p>Walk the city slowly. Leave a little calm in every window you pass.</p>
+    </div>
+    <div class="prog"><div class="bar" id="pbar"><b id="pbarP"></b><i id="pbarD"></i></div><span id="ptext"></span></div>
+  </header>
+
+  <section class="intro">
+    <ol class="steps">
+      <li><b>1</b><span>Choose a neighborhood below.</span></li>
+      <li><b>2</b><span>Begin at its corner and follow the walk: boards, friendly shops, a treat, a spot to relax.</span></li>
+      <li><b>3</b><span>Mark it done, so everyone knows where's covered.</span></li>
+    </ol>
+    <div class="ask">
+      <div class="label">The ask</div>
+      <q>Hi! Mind if I put a flyer in your window?</q>
+      <p>If they say no: accept people and situations as they are. Smile, thank them, next door.</p>
+    </div>
+  </section>
+  <div class="sync" id="sync">Loading…</div>
+
+  <h2 class="sec">The walks</h2>
+  <p class="sub">Ranked by foot traffic, notice boards and how open the shops are to flyers. Start at the top, or pick whatever is close.</p>
+  <div id="grid"></div>
+
+  <p class="foot">A volunteer guide. Not an official Art of Living page. Board spots come from the SF community bulletin board guide. Treats and parks were checked in November 2026. Shops change, so a quick look before you head out never hurts.</p>
+</div>
+
+<div class="veil" id="veil"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle" aria-hidden="true">
+  <button class="x" id="close" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+  <div class="sheet-scroll" id="sScroll">
+    <div class="art" id="sArt"></div>
+    <div class="body">
+      <div class="label" id="sNo"></div>
+      <h3 id="sTitle"></h3>
+      <p class="lede" id="sVibe"></p>
+      <div class="facts" id="sFacts"></div>
+      <div class="start">
+        <div class="tx"><div class="label">Begin here</div><b id="sStart"></b><p id="sStartNote"></p></div>
+        <a class="maplink" id="sStartMap" target="_blank" rel="noopener">Map</a>
+      </div>
+      <ol class="trail" id="sTrail"></ol>
+      <div class="bonus" id="sBonus"></div>
+    </div>
+  </div>
+  <div class="bar"><div class="who" id="sWho"></div><div class="acts" id="sActs"></div></div>
+</section>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+function S(k, t, n, a){ return {k:k, t:t, n:n, a:a}; }
+var HOODS = [
+ {id:"mission", name:"Mission", vibe:"Murals, palm trees and the friendliest windows in town. This is where it all began.",
+  art:{pal:"dawn", layers:["skyline","park","palms"]},
+  start:{t:"16th St and Valencia St", n:"Where the first walk began. 16th St BART is a block east if you come by train.", a:"16th St and Valencia St"},
+  stops:[
+   S("board","Muddy Waters","Coffee shop with a busy board just south of 16th. Pin one at eye level and grab a cup for the road.","521 Valencia St"),
+   S("shops","Window walk down Valencia","Go door to door from 16th to 20th. Bookshops, vintage and little cafes say yes the most. Leave one wherever someone smiles.","Valencia St and 18th St"),
+   S("board","City Laundry and Paxton Gate","Two boards a few doors apart near 19th. Laundromat boards get read because people are waiting.","789 Valencia St"),
+   S("treat","Bi-Rite Creamery","Pause for a scoop, then carry it up the block to the park.","3692 18th St"),
+   S("rest","Sit by Dolores Park","Find a spot on the hill by the palms, look back at the skyline, and count how many flyers you left behind.","Dolores Park")
+  ],
+  bonus:{t:"Still got flyers?", n:"Hit the big boards at Rainbow, or keep going down Valencia. 24th Street has its own walk.", list:[["Rainbow Grocery (2 boards)","1745 Folsom St"],["Arizmendi Bakery","1268 Valencia St"]]}},
+
+ {id:"dolores", name:"Mission Dolores", vibe:"Quiet blocks, old church bells and laundromats with very readable walls.",
+  art:{pal:"gold", layers:["church","palms"]},
+  start:{t:"Church St and 15th St", n:"Right by the J Church stop.", a:"Church St and 15th St"},
+  stops:[
+   S("board","Thorough Bread","A bakery board on Church. Grab a pastry while you're in there.","248 Church St"),
+   S("board","Washateria","Over to Guerrero. The laundromat crowd has time to read.","485 Guerrero St"),
+   S("shops","Say hi along Guerrero","Corner shops and cafes between 16th and 20th. Ask nicely, leave one in the window.","Guerrero St and 18th St"),
+   S("board","Java Supreme","Neighborhood coffee spot with a board.","703 Guerrero St"),
+   S("board","Star Wash","One more laundromat on Dolores St on your way to the park.","392 Dolores St"),
+   S("rest","Dolores Park, top of the hill","Sit up near Church and 20th for one of the best views in the city.","Dolores Park")
+  ]},
+
+ {id:"castro", name:"Castro", vibe:"Rainbow crosswalks, a big neighborhood board and lots of foot traffic.",
+  art:{pal:"rose", layers:["hills","victorians","flag"]},
+  start:{t:"Castro St and Market St", n:"Castro Muni station, under the big flag.", a:"Castro St and Market St"},
+  stops:[
+   S("board","Castro Eureka Valley board","The neighborhood's main community board, on 18th.","4122 18th St"),
+   S("shops","Chat up 18th and Castro","Shops around the corner are used to event posters. Ask for a window spot.","18th St and Castro St"),
+   S("treat","Philz Coffee","Coffee and a board in one stop.","549 Castro St"),
+   S("board","Wash & Dry Launderland","Swing over to Sanchez for one more board.","390 Sanchez St"),
+   S("rest","Corona Heights","A short climb to a rocky top with the whole city below you.","Corona Heights Park")
+  ]},
+
+ {id:"noe", name:"Noe Valley", vibe:"Strollers, bakeries and a town square that's practically made for notices.",
+  art:{pal:"noon", layers:["hills","houses"]},
+  start:{t:"24th St and Church St", n:"The J Church stops right here. Walk west up 24th.", a:"24th St and Church St"},
+  stops:[
+   S("board","Bubbles & Beans","Laundromat plus coffee. A perfect board.","3547 24th St"),
+   S("shops","Shop hop up 24th St","From Church to Diamond it's all small shops. Owners know their regulars, so ask warmly.","24th St and Sanchez St"),
+   S("treat","Noe Valley Bakery","Something warm for the walk.","Noe Valley Bakery, 24th St"),
+   S("rest","Noe Valley Town Square","Benches, sun, and a community board right there. Post one, then sit.","3861 24th St")
+  ],
+  bonus:{t:"Down Church St", n:"Two laundromats a few blocks south.", list:[["Bubble Up Laundromat","1364 Church St"],["Coin Wash & Dry","1732 Church St"]]}},
+
+ {id:"bernal", name:"Bernal Heights", vibe:"One sweet main street, a hill with a radio tower, and classic ice cream at the bottom.",
+  art:{pal:"dusk", layers:["bernal"]},
+  start:{t:"Cortland Ave and Bennington St", n:"The heart of Cortland. Everything here is a short walk.", a:"Cortland Ave and Bennington St"},
+  stops:[
+   S("board","Progressive Grounds and Bernal Bubbles","Coffee and laundry, across the street from each other.","400 Cortland Ave"),
+   S("board","The Good Life Grocery","The neighborhood grocer and its well loved board.","448 Cortland Ave"),
+   S("shops","Walk the length of Cortland","A small-town strip where every shopkeeper knows everyone, so word travels.","Cortland Ave and Andover St"),
+   S("board","Andi's Market","At the east end of Cortland.","820 Cortland Ave"),
+   S("rest","Bernal Hill","Climb up for the view all the way around. Golden hour is lovely here.","Bernal Heights Park"),
+   S("treat","Mitchell's Ice Cream","Head down the west side for a scoop at the city's classic, open since 1953.","688 San Jose Ave")
+  ]},
+
+ {id:"glenpark", name:"Glen Park and CCSF", vibe:"A tiny village by a canyon, with a whole college campus nearby.",
+  art:{pal:"noon", layers:["canyon"]},
+  start:{t:"Glen Park BART", n:"Step out of the station and you're in the village.", a:"Glen Park BART station"},
+  stops:[
+   S("board","Bird & Beckett","Neighborhood bookstore with a board.","653 Chenery St"),
+   S("board","Canyon Market","The local grocery. Ask at the front.","2815 Diamond St"),
+   S("treat","Cuppa","Coffee across the street, and another place to ask.","2810 Diamond St"),
+   S("rest","Glen Canyon Park","Wander into the canyon. Rocks, creek, eucalyptus. Breathe.","Glen Canyon Park")
+  ],
+  bonus:{t:"CCSF campus", n:"Flyers on campus need approval first. Drop by Student Activities.", list:[["Student Activities, Student Union 205","50 Frida Kahlo Way"]]}},
+
+ {id:"excelsior", name:"Excelsior", vibe:"A lively Mission Street with panaderías, families and laundromats every few blocks.",
+  art:{pal:"gold", layers:["hills","stalls","papel"]},
+  start:{t:"Mission St and Excelsior Ave", n:"The 14 Mission bus runs the whole route.", a:"Mission St and Excelsior Ave"},
+  stops:[
+   S("board","Wash N Dry","First laundromat on the strip.","4520 Mission St"),
+   S("board","Bay Wash Laundry","A few blocks south.","4815 Mission St"),
+   S("shops","Say hola down Mission St","Family shops, bakeries and phone stores. A Spanish version of your flyer goes a long way here.","Mission St and Ocean Ave"),
+   S("board","Karina's and The Laundry Hub","Two laundromats almost side by side. Hit both.","5046 Mission St"),
+   S("treat","Pick a panadería","Any bakery on Mission St with a warm case. Pan dulce for the walk.",""),
+   S("rest","McLaren Park","One of the city's biggest, wildest parks, just east. Find a bench with a view.","John McLaren Park")
+  ]},
+
+ {id:"hayes", name:"Hayes Valley", vibe:"Boutiques, a little green in the middle of it all, and ice cream around the corner.",
+  art:{pal:"rose", layers:["victorians","tree"]},
+  start:{t:"Hayes St and Octavia St", n:"Right at Patricia's Green.", a:"Hayes St and Octavia St"},
+  stops:[
+   S("board","Mercury Cafe","Corner cafe with a board, a short walk south on Octavia.","201 Octavia St"),
+   S("treat","Hometown Creamery","Small-batch ice cream, a block from the green.","432A Octavia St"),
+   S("shops","Boutique crawl on Hayes","Design shops like a nice-looking poster. Ask for the window.","Hayes St and Laguna St"),
+   S("board","The Hayes Laundry","A few blocks west on Hayes.","800 Hayes St"),
+   S("rest","Patricia's Green","Back to the green. Watch the skaters, rest your feet.","Patricia's Green")
+  ],
+  bonus:{t:"More laundromats nearby", n:"", list:[["Azul Eco Laundromat","477 Fulton St"],["Neighbors Laundromat","530 Buchanan St"]]}},
+
+ {id:"lowerhaight", name:"Lower Haight", vibe:"Bars, records and cafes, with two parks that both have boards.",
+  art:{pal:"dusk", layers:["victorians"]},
+  start:{t:"Haight St and Fillmore St", n:"The 22 Fillmore and the 7 Haight both stop here.", a:"Haight St and Fillmore St"},
+  stops:[
+   S("board","Cafe International","Classic spot with a packed board.","508 Haight St"),
+   S("board","Haight To Wash","A few doors down.","540 Haight St"),
+   S("shops","Chat along Haight toward Divisadero","Record shops and bars love gig and event flyers.","Haight St and Steiner St"),
+   S("board","The Grind","Another cafe board on the way.","783 Haight St"),
+   S("board","Koshland Park board","A little park board on Page St.","Page St and Buchanan St"),
+   S("rest","Duboce Park","A board by the playground, and grass for the dogs and you.","Duboce Park")
+  ]},
+
+ {id:"haight", name:"Haight-Ashbury", vibe:"Bookstores, vintage and a famous hill in the park to end the day.",
+  art:{pal:"rose", layers:["sunburst","victorians"]},
+  start:{t:"Haight St and Masonic Ave", n:"Start at the east end and walk toward the park.", a:"Haight St and Masonic Ave"},
+  stops:[
+   S("board","Coffee To The People","A big cafe board, just off Haight.","1206 Masonic Ave"),
+   S("board","Bound Together","Collective bookstore, a natural home for notices.","1369 Haight St"),
+   S("shops","Vintage shops on Haight","Ask the vintage and record stores. They love flyers.","Haight St and Ashbury St"),
+   S("board","Booksmith and Amoeba","Two must-hit boards near the park end.","1727 Haight St"),
+   S("treat","The Ice Cream Bar","A short detour to Cole Valley for a proper soda fountain scoop.","815 Cole St"),
+   S("rest","Hippie Hill","Into Golden Gate Park. Drums, sun, grass.","Hippie Hill, Golden Gate Park")
+  ]},
+
+ {id:"nopa", name:"NOPA and Panhandle", vibe:"The Painted Ladies, Divisadero's cafes and a long green strip to wander.",
+  art:{pal:"noon", layers:["skyline","painted"]},
+  start:{t:"Alamo Square", n:"Start at the park, facing the famous row of Victorians.", a:"Alamo Square Park"},
+  stops:[
+   S("board","Alamo Square board","On the Hayes St side of the park.","Hayes St and Scott St"),
+   S("shops","Cafe hop on Divisadero","Cafes and shops between Hayes and Oak. Ask for windows.","Divisadero St and Hayes St"),
+   S("board","Falletti Foods","Grocery board by the door.","308 Broderick St"),
+   S("board","Oak Street and Suds laundromats","Two laundry boards close together.","1130 Oak St"),
+   S("treat","The Sacred Grounds Cafe","Old neighborhood cafe. Warm drink, one more board.","2095 Hayes St"),
+   S("rest","Stroll the Panhandle","Walk the long green strip toward Golden Gate Park.","The Panhandle")
+  ],
+  bonus:{t:"One more laundry", n:"", list:[["Suds Wash & Dry","1911 Hayes St"]]}},
+
+ {id:"innersunset", name:"Inner Sunset", vibe:"Foggy mornings, the N Judah rumbling by, and Golden Gate Park a block away.",
+  art:{pal:"fog", layers:["trees","tram"]},
+  start:{t:"9th Ave and Irving St", n:"The N Judah stops right here.", a:"9th Ave and Irving St"},
+  stops:[
+   S("board","Neighborhood board on 9th","A proper community board.","1318 9th Ave"),
+   S("board","Luke's Local","Grocery board a few doors up.","1266 9th Ave"),
+   S("treat","Hometown Creamery","Small-batch scoops right on 9th.","1290 9th Ave"),
+   S("shops","Irving St shops","Walk Irving from 5th to 11th. Lots of small owners.","Irving St and 7th Ave"),
+   S("board","Andronico's","Grocery board on Irving.","1200 Irving St"),
+   S("rest","Golden Gate Park","Head north on 9th into the park. Find a tree.","9th Ave and Lincoln Way")
+  ],
+  bonus:{t:"Both ends of Irving", n:"", list:[["Community board","502 Irving St"],["Sunset Blues Coin Laundry","1401 Irving St"]]}},
+
+ {id:"outersunset", name:"Outer Sunset", vibe:"Surf shops, cozy cafes, salt air and the edge of the city.",
+  art:{pal:"sea", layers:["waves","windmill"]},
+  start:{t:"Judah St and 46th Ave", n:"Ride the N Judah to the end of the line.", a:"Judah St and 46th Ave"},
+  stops:[
+   S("board","Other Avenues","Worker-owned grocery with a great board.","3930 Judah St"),
+   S("board","Old Sea Breeze Cafe wall","Next door. A wall of local notices.","3940 Judah St"),
+   S("shops","Surf and coffee shops on Judah","People out here are relaxed and friendly. Ask away.","Judah St and 45th Ave"),
+   S("rest","Ocean Beach","Walk to the sand. Sit, breathe, done.","Ocean Beach")
+  ],
+  bonus:{t:"Laundromats inland", n:"", list:[["Beach Wash","3745 Noriega St"],["1932 Wash House","1932 Irving St"],["Circle Wash","1655 Noriega St"]]}},
+
+ {id:"innerrichmond", name:"Inner Richmond", vibe:"Clement Street: dumplings, bookstores and a crepe stop.",
+  art:{pal:"fog", layers:["trees","lanterns"]},
+  start:{t:"Clement St and 4th Ave", n:"The 2 Clement runs right along here.", a:"Clement St and 4th Ave"},
+  stops:[
+   S("treat","Genki Crepes","Begin with something sweet.","330 Clement St"),
+   S("board","Green Apple Books","A much loved bookstore with a busy board.","506 Clement St"),
+   S("board","540 Bar","Right next door.","540 Clement St"),
+   S("shops","Clement St shops","Bakeries, markets and gift shops to ask, all the way to 12th.","Clement St and 8th Ave"),
+   S("board","Clement Laundry","At the far end.","1024 Clement St"),
+   S("rest","Mountain Lake Park","A quiet lake a few blocks north.","Mountain Lake Park")
+  ]},
+
+ {id:"outerrichmond", name:"Outer Richmond", vibe:"Cozy cafes, a beloved ice cream shop and ruins by the sea.",
+  art:{pal:"sea", layers:["waves","cliff"]},
+  start:{t:"Geary Blvd and 18th Ave", n:"The 38 Geary gets you here.", a:"Geary Blvd and 18th Ave"},
+  stops:[
+   S("treat","Joe's Ice Cream","A family-run favorite. Begin with a scoop.","5420 Geary Blvd"),
+   S("board","Bazaar Cafe","Cozy cafe with a board.","5927 California St"),
+   S("board","Cafe Enchante","Further out on Geary.","6157 Geary Blvd"),
+   S("board","Balboa St cafes","Simple Pleasures and La Promenade, a few blocks apart.","3434 Balboa St"),
+   S("rest","Sutro Baths","End at the old ruins at the edge of the city. Sunsets here are unreal.","Sutro Baths")
+  ],
+  bonus:{t:"By the beach", n:"", list:[["La Promenade Cafe","3643 Balboa St"],["Andytown Coffee Roasters","800 Great Hwy"]]}},
+
+ {id:"northbeach", name:"North Beach", vibe:"Poets, espresso and a tower on the hill.",
+  art:{pal:"gold", layers:["tower","lights"]},
+  start:{t:"Columbus Ave and Broadway", n:"Under the neon, by the bookstore.", a:"Columbus Ave and Broadway"},
+  stops:[
+   S("board","City Lights Booksellers","The Beat generation's bookstore. Ask about their board.","261 Columbus Ave"),
+   S("treat","Caffe Trieste","Espresso where the poets wrote.","601 Vallejo St"),
+   S("shops","Grant Ave shops","Tiny old shops. Ask, and you might hear a story.","Grant Ave and Green St"),
+   S("board","Luke's Local and Cafe Jacqueline","A grocery board on Green, a soufflé spot on Grant.","580 Green St"),
+   S("rest","Washington Square","Lie on the grass under the church spires. There's a board here too.","Washington Square Park")
+  ]},
+
+ {id:"marina", name:"Marina and Cow Hollow", vibe:"Union and Chestnut, sailboats, and the Golden Gate in view.",
+  art:{pal:"noon", layers:["bridge","boats"]},
+  start:{t:"Union St and Fillmore St", n:"Start up in Cow Hollow and walk down to the water.", a:"Union St and Fillmore St"},
+  stops:[
+   S("board","Luke's Local","Grocery board on Union.","2190 Union St"),
+   S("shops","Boutiques on Union","Ask the shops on your way down Fillmore.","Union St and Webster St"),
+   S("treat","Coffee Roastery","Down on Chestnut. Coffee and a board.","2331 Chestnut St"),
+   S("board","Missing Sock Laundry","A block further.","2423 Chestnut St"),
+   S("rest","Marina Green","Walk to the water and look at the bridge.","Marina Green")
+  ]},
+
+ {id:"pacheights", name:"Pacific Heights and Polk", vibe:"Grand houses, a hilltop park, and Polk Street's bookstores.",
+  art:{pal:"dawn", layers:["hills","victorians"]},
+  start:{t:"Fillmore St and Sacramento St", n:"Start on Upper Fillmore.", a:"Fillmore St and Sacramento St"},
+  stops:[
+   S("board","Browser Books","A cozy bookstore board.","2195 Fillmore St"),
+   S("rest","Alta Plaza Park","A block up. Stairs, views, a breather before Polk.","Alta Plaza Park"),
+   S("board","Russian Hill Bookstore","Over on Polk.","2162 Polk St"),
+   S("board","Philz Coffee","Another board up the block.","2234 Polk St"),
+   S("shops","Polk St shops","Lots of independents between Broadway and Union.","Polk St and Vallejo St"),
+   S("treat","Swensen's","Finish with a scoop at the original, up on Hyde.","1999 Hyde St")
+  ]},
+
+ {id:"potrero", name:"Potrero Hill", vibe:"A sunny hilltop village with views of downtown.",
+  art:{pal:"gold", layers:["skyline","potrero"]},
+  start:{t:"17th St and Connecticut St", n:"Bottom of the hill. It's a climb, but a pretty one.", a:"17th St and Connecticut St"},
+  stops:[
+   S("board","Philz Coffee","Begin with coffee and a board.","1775 17th St"),
+   S("board","Goat Hill Pizza","Neighborhood pizza place with a community feel.","300 Connecticut St"),
+   S("shops","18th and 20th St shops","Small shops up top. Neighbors read everything.","18th St and Connecticut St"),
+   S("board","The Good Life Grocery","The hill's grocery board.","1524 20th St"),
+   S("treat","Loard's Ice Cream","Right on 20th.","1601 20th St"),
+   S("rest","McKinley Square","Sit with the skyline in front of you.","McKinley Square")
+  ]},
+
+ {id:"dogpatch", name:"Dogpatch and Mission Bay", vibe:"Old warehouses, cranes on the bay and a park by the water.",
+  art:{pal:"sea", layers:["cranes","sawtooth"]},
+  start:{t:"4th St and King St", n:"By the Caltrain station.", a:"4th St and King St"},
+  stops:[
+   S("board","Philz Coffee","Mission Bay board.","201 Berry St"),
+   S("board","Woodland Creatures","Another Mission Bay board.","1310 4th St"),
+   S("shops","22nd St in Dogpatch","Small shops and makers. Ask for windows.","22nd St and Tennessee St"),
+   S("board","Center Hardware","The neighborhood hardware store board.","3003 3rd St"),
+   S("rest","Crane Cove Park","End by the water, next to the giant old cranes.","Crane Cove Park")
+  ]},
+
+ {id:"mission24", name:"24th Street", vibe:"Calle 24: panaderias, murals, papel picado and shopkeepers who know everyone.",
+  start:{t:"24th St and Mission St", n:"Right at 24th St BART. Walk east toward the murals.", a:"24th St and Mission St"},
+  stops:[
+   S("treat","Cafe La Boheme","A coffee and a board in one stop, steps from BART.","3318 24th St"),
+   S("shops","Window walk down 24th","Go door to door toward Bryant. Small family shops here often say yes, and some are glad to have a flyer in Spanish too.","24th St and Folsom St"),
+   S("board","Five Markets","A neighborhood market with a board.","2824 24th St"),
+   S("board","Lavanderia","A laundromat board. People waiting on a load actually read it.","2750 24th St"),
+   S("rest","Garfield Square","A block south. Sit by the trees and catch your breath.","Garfield Square")
+  ]},
+
+ {id:"westportal", name:"West Portal", vibe:"A small-town main street at the end of the tunnel, with three boards within a block.",
+  start:{t:"West Portal Station", n:"The K, L and M come out of the tunnel right here.", a:"West Portal Ave and Ulloa St"},
+  stops:[
+   S("board","Invisible Jet Comics","A comic shop with a board, close to the station.","159 W Portal Ave"),
+   S("treat","George's Donuts & Merriment","Right next door. Donut holes and coffee.","163 W Portal Ave"),
+   S("board","Goat Hill Pizza","Across the street, another board.","170 W Portal Ave"),
+   S("shops","Window walk down West Portal Ave","Bookshops, cafes and family businesses for three blocks. Ask wherever it feels friendly.","W Portal Ave and 14th Ave"),
+   S("board","Annabelle's French Cleaners","One more board near the far end.","363 W Portal Ave"),
+   S("rest","West Portal Playground","A little green just off the main street.","West Portal Playground")
+  ]},
+
+ {id:"parkside", name:"Parkside and Taraval", vibe:"The L Taraval line, quiet avenues, and laundromat boards every few blocks.",
+  start:{t:"Taraval St and 17th Ave", n:"The L Taraval runs the whole way, so hop on and off as you like.", a:"Taraval St and 17th Ave"},
+  stops:[
+   S("board","Bubbloo Laundry","First laundromat board of the walk.","747 Taraval St"),
+   S("board","Parkside Mailboxes","A mailbox shop with a board.","945 Taraval St"),
+   S("board","Wen's 123 Cleaners","Keep heading west.","1501 Taraval St"),
+   S("board","Taraval Launderland","Another laundromat crowd with time to read.","2222 Taraval St"),
+   S("rest","Pine Lake Park","Head south to the lake. There's a community board at the Sloat and Vale entrance, then a quiet path by the water.","Pine Lake Park")
+  ],
+  bonus:{t:"Still got flyers?", n:"Keep going west on Taraval toward the beach.", list:[["Bright N' Clean Laundromat","2900 Taraval St"],["Andytown Coffee Roasters","3016 Taraval St"]]}},
+
+ {id:"oceanave", name:"Ocean Ave and City College", vibe:"Students, the K streetcar, and a busy little main street by City College.",
+  start:{t:"Ocean Ave and Frida Kahlo Way", n:"Right by City College's Ocean campus.", a:"Ocean Ave and Frida Kahlo Way"},
+  stops:[
+   S("board","Philz Coffee","Coffee shop board near campus.","1110 Ocean Ave"),
+   S("rest","Unity Plaza","A small plaza on Ocean. A good spot to sit for a minute.","Unity Plaza, Ocean Ave"),
+   S("board","Ocean Wash & Dry","A laundromat board a few blocks west.","1306 Ocean Ave"),
+   S("shops","Window walk along Ocean","Cafes, bakeries and small shops toward 19th Ave. Students pass here all day.","Ocean Ave and Faxon Ave"),
+   S("treat","A-1 Bakery","A neighborhood bakery for the walk back.","1727 Ocean Ave")
+  ],
+  bonus:{t:"Still got flyers?", n:"Keep going west to Lakeside Village.", list:[["Lakeside Landing","2504 Ocean Ave"]]}},
+
+ {id:"duboce", name:"Duboce Triangle", vibe:"Upper Market, the N Judah portal, and a park full of neighbors and dogs.",
+  start:{t:"Church St and Market St", n:"Church St Muni station. Walk north on Church.", a:"Church St and Market St"},
+  stops:[
+   S("shops","Window walk on Market St","Shops and cafes between Church and Sanchez. Ask for a window spot.","Market St and Sanchez St"),
+   S("shops","Up Church St","Small businesses between Market and Duboce. Keep it friendly and quick.","Church St and 14th St"),
+   S("treat","Duboce Park Cafe","A cafe at the corner of the park.","2 Sanchez St"),
+   S("board","Duboce Park board","The park's community board. Neighbors check it on their dog walks.","Duboce Park"),
+   S("rest","Duboce Park lawn","Sit on the grass and watch the N Judah roll by.","Duboce Park")
+  ]},
+
+ {id:"embarcadero", name:"Embarcadero and Salesforce Park", vibe:"The Ferry Building, office crowds, and a park four stories up.",
+  start:{t:"Ferry Building", n:"Start at the clock tower on the Embarcadero.", a:"Ferry Building, San Francisco"},
+  stops:[
+   S("treat","Humphry Slocombe","An ice cream counter inside the Ferry Building.","1 Ferry Building"),
+   S("board","Philz Coffee, Embarcadero Center","Across the plaza, a board for the office crowd.","5 Embarcadero Center"),
+   S("board","Philz Coffee, Front St","Another board a couple of blocks in.","1 Front St"),
+   S("board","Andytown Coffee Roasters","Up in Salesforce Park.","181 Fremont St"),
+   S("rest","Salesforce Park","Walk the garden loop above the street. Quiet, green and calm.","Salesforce Park")
+  ]},
+
+ {id:"japantown", name:"Japantown", vibe:"Peace Plaza, the Japan Center malls and a pagoda over it all.",
+  start:{t:"Peace Plaza", n:"Post St and Buchanan St, under the pagoda.", a:"Post St and Buchanan St"},
+  stops:[
+   S("shops","Buchanan Mall","The pedestrian block north of Post. Small shops, ask at the counter.","Buchanan St and Post St"),
+   S("shops","Japan Center malls","Shops along the indoor walkways. Some owners are happy to tape one up.","1737 Post St"),
+   S("treat","Matcha Cafe Maiko","Matcha soft serve in the Kinokuniya building.","1581 Webster St"),
+   S("shops","Over to Fillmore","Cross Geary and try the cafes on Fillmore.","Fillmore St and Geary Blvd"),
+   S("rest","Back to Peace Plaza","Sit by the pagoda for a quiet minute.","Peace Plaza, San Francisco")
+  ]},
+
+ {id:"tenderloin", name:"Tenderloin and Little Saigon", vibe:"Dense blocks, busy laundromats and banh mi on Larkin.",
+  start:{t:"Larkin St and Eddy St", n:"Little Saigon runs along Larkin here.", a:"Larkin St and Eddy St"},
+  stops:[
+   S("treat","Sweet Glory","Crepe cakes and drinks on Larkin.","721 Larkin St"),
+   S("board","First Coin Laundry","A laundromat board on Eddy.","365 Eddy St"),
+   S("board","Hyde & O'Farrell Laundry","Another board a couple of blocks over.","467 Hyde St"),
+   S("board","SF Laundromat","Last board, up on Jones.","850 Jones St"),
+   S("rest","Boeddeker Park","A neighborhood park with benches and a garden.","Boeddeker Park")
+  ]},
+
+ {id:"bayview", name:"Bayview", vibe:"Third Street, the T line, and the wildest shoreline in the city.",
+  start:{t:"3rd St and Palou Ave", n:"The T Third stops nearby.", a:"3rd St and Palou Ave"},
+  stops:[
+   S("board","BayView Plaza Launderland","A laundromat board on Third.","3801 3rd St"),
+   S("shops","Window walk on Third St","Small businesses along Third. Ask nicely and keep it short.","3rd St and Oakdale Ave"),
+   S("board","Southeast Community Center","A community center with a board.","1550 Evans Ave"),
+   S("treat","Cafe Alma","A cafe near the water for a bite.","888 Innes Ave"),
+   S("rest","India Basin Waterfront Park","Sit by the bay and watch the shorebirds.","India Basin Shoreline Park")
+  ],
+  bonus:{t:"Still got flyers?", n:"Head south on Third.", list:[["Maria's Wash N' Dry","5205 3rd St"]]}},
+
+ {id:"portola", name:"Portola", vibe:"San Bruno Ave, the old greenhouse district, and laundromat boards all along it.",
+  start:{t:"San Bruno Ave and Silver Ave", n:"The 8 and 9 buses run down San Bruno.", a:"San Bruno Ave and Silver Ave"},
+  stops:[
+   S("board","San Bruno Coin Launderland","First board on the avenue.","2444 San Bruno Ave"),
+   S("treat","Hey Neighbor Cafe","A cafe at the corner of Burrows.","2 Burrows St"),
+   S("board","V.I.P. Coin-op Laundry","A couple of blocks south.","2556 San Bruno Ave"),
+   S("board","A & A Laundry Wash & Dry","Keep going down the avenue.","2812 San Bruno Ave"),
+   S("shops","Say hi along San Bruno","Bakeries and small shops. Ask for a window spot.","San Bruno Ave and Felton St"),
+   S("rest","McLaren Park","Head west into the city's second-biggest park.","John McLaren Park")
+  ]}
+];
+
+var N = HOODS.length;
+var COLL = "quest";
+var COORD = {mission:[37.7599,122.4214], dolores:[37.7614,122.4260], castro:[37.7609,122.4350], noe:[37.7502,122.4337], bernal:[37.7389,122.4152], glenpark:[37.7340,122.4337], excelsior:[37.7244,122.4290], hayes:[37.7766,122.4247], lowerhaight:[37.7718,122.4310], haight:[37.7692,122.4481], nopa:[37.7750,122.4380], innersunset:[37.7633,122.4664], outersunset:[37.7553,122.4944], innerrichmond:[37.7830,122.4630], outerrichmond:[37.7778,122.4950], northbeach:[37.8061,122.4103], marina:[37.8037,122.4368], pacheights:[37.7925,122.4382], potrero:[37.7605,122.4009], dogpatch:[37.7583,122.3889], mission24:[37.7527,122.4120], westportal:[37.7406,122.4660], parkside:[37.7429,122.4800], oceanave:[37.7234,122.4540], duboce:[37.7695,122.4300], embarcadero:[37.7946,122.3940], japantown:[37.7853,122.4296], tenderloin:[37.7838,122.4155], bayview:[37.7340,122.3910], portola:[37.7273,122.4057]};
+var RANK = ["mission","mission24","haight","castro","hayes","noe","lowerhaight","dolores","innersunset","nopa","bernal","northbeach","glenpark","oceanave","innerrichmond","duboce","pacheights","outersunset","potrero","marina","westportal","dogpatch","outerrichmond","excelsior","parkside","embarcadero","japantown","tenderloin","bayview","portola"];
+HOODS.sort(function(a, b){ var x = RANK.indexOf(a.id), y = RANK.indexOf(b.id); return (x < 0 ? 999 : x) - (y < 0 ? 999 : y); });
+var TIERS = [[0, "Start here", "The busiest, friendliest streets. Most flyers seen per hour."], [10, "Next up", "Good boards and a steady flow of people."], [20, "When you're on a roll", "Quieter or farther out, but every window counts."]];
+function rng(seed){ var h = 2166136261; for (var i=0;i<seed.length;i++){ h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function r1(n){ return Math.round(n*10)/10; }
+function closedPath(pts){ var n = pts.length, d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<n;i++){ var p0 = pts[(i-1+n)%n], p1 = pts[i], p2 = pts[(i+1)%n], p3 = pts[(i+2)%n];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d + "Z"; }
+function openPath(pts){ var d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<pts.length-1;i++){ var p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d; }
+var uid = 0;
+function pic(name, lazy){ return '<img src="art/'+name+'.webp" alt=""'+(lazy ? ' loading="lazy" decoding="async"' : '')+'>'; }
+
+function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  " + c[1].toFixed(4) + "° W" : ""; }
+
+/* ---------- state ---------- */
+var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
+function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr + ", San Francisco, CA"); }
+function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
+function who(id){ if (!id) return "Someone"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
+function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
+function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+var KIND = {board:"Notice board", shops:"Ask the shops", treat:"Treat", rest:"Relax"};
+var MAPI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9"/></svg>';
+
+/* ---------- build ---------- */
+document.getElementById("heroArt").innerHTML = pic("hero");
+var grid = document.getElementById("grid"), gsec = null;
+document.getElementById("heroLabel").textContent = "San Francisco · " + N + " walks";
+HOODS.forEach(function(h, i){
+  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
+  h.k = i;
+  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk");
+  var a = el("div", "art"); a.innerHTML = pic(h.id + "-card", true);
+  var seal = el("div", "seal", "Covered");
+  var meta = el("div", "meta");
+  meta.append(el("div", "no", "No. " + (i+1)), el("div", "nm", h.name), el("div", "vb", h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
+  c.append(a, seal, meta);
+  c.addEventListener("click", function(){ openSheet(h, c); });
+  gsec.append(c);
+});
+
+/* ---------- sheet ---------- */
+var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
+function openSheet(h, from){
+  cur = h; lastFocus = from || null;
+  document.getElementById("sArt").innerHTML = pic(h.id + "-wide") + '<span class="coord">' + coordText(h.id) + '</span>';
+  document.getElementById("sNo").textContent = "No. " + (h.k+1) + " of " + N;
+  document.getElementById("sTitle").textContent = h.name;
+  document.getElementById("sVibe").textContent = h.vibe;
+  var f = document.getElementById("sFacts"); f.textContent = "";
+  var nb = h.stops.filter(function(s){ return s.k === "board"; }).length;
+  function fact(n, l){ var sp = el("span"); sp.append(el("b", "", n), document.createTextNode(" " + l)); f.append(sp); }
+  fact(h.stops.length, "stops"); fact(nb, nb === 1 ? "board" : "boards");
+  if (h.stops.some(function(s){ return s.k === "treat"; })) fact(1, "treat");
+  if (h.stops.some(function(s){ return s.k === "rest"; })) fact(1, "place to relax");
+  document.getElementById("sStart").textContent = h.start.t;
+  document.getElementById("sStartNote").textContent = h.start.n;
+  var sm = document.getElementById("sStartMap"); sm.href = mapUrl(h.start.a); sm.innerHTML = "Open in Maps " + MAPI;
+  var ol = document.getElementById("sTrail"); ol.textContent = "";
+  h.stops.forEach(function(s, i){
+    var li = el("li");
+    var tx = el("div");
+    tx.append(el("div", "label", KIND[s.k]), el("b", "", s.t), el("p", "", s.n));
+    if (s.a){ var a = el("a"); a.href = mapUrl(s.a); a.target = "_blank"; a.rel = "noopener"; a.innerHTML = MAPI; a.prepend(document.createTextNode((/^\d/.test(s.a) ? s.a : "Open in Maps") + " ")); tx.append(a); }
+    li.append(el("div", "n", String(i+1)), tx); ol.append(li);
+  });
+  var bx = document.getElementById("sBonus"); bx.textContent = "";
+  if (h.bonus){
+    bx.hidden = false; bx.append(el("div", "label", "If you have flyers left · " + h.bonus.t));
+    bx.append(el("p", "", h.bonus.n || "A few more boards nearby."));
+    var ul = el("ul"); h.bonus.list.forEach(function(x){ var li = el("li"); var a = el("a", "", x[1]); a.href = mapUrl(x[1]); a.target = "_blank"; a.rel = "noopener"; li.append(el("span", "", x[0]), a); ul.append(li); }); bx.append(ul);
+  } else bx.hidden = true;
+  renderSheet();
+  document.getElementById("sScroll").scrollTop = 0;
+  sheet.setAttribute("aria-hidden", "false"); sheet.classList.add("on"); veil.classList.add("on");
+  document.body.style.overflow = "hidden";
+  setTimeout(function(){ document.getElementById("close").focus({preventScroll:true}); }, 60);
+}
+function closeSheet(){
+  sheet.classList.remove("on"); veil.classList.remove("on"); sheet.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = ""; cur = null; if (lastFocus) lastFocus.focus({preventScroll:true});
+}
+document.getElementById("close").addEventListener("click", closeSheet);
+veil.addEventListener("click", closeSheet);
+document.addEventListener("keydown", function(e){
+  if (!cur) return;
+  if (e.key === "Escape") closeSheet();
+  if (e.key === "Tab"){ var f = sheet.querySelectorAll("button:not([disabled]), a[href]"); if (!f.length) return; var a = f[0], z = f[f.length-1];
+    if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
+});
+
+function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
+function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
+  if (s === "open") return ["Open", "Anyone can begin this walk"];
+  if (s === "progress") return [(rec.by && rec.by === me ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
+  return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
+function renderSheet(){
+  if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
+  var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
+  var a = document.getElementById("sActs"); a.textContent = "";
+  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); }));
+  else if (s === "progress"){ a.append(btn("Let go", "", function(){ setStatus(h, "open"); })); a.append(btn("Mark done", "main", function(){ setStatus(h, "done"); })); }
+  else a.append(btn("Reopen", "", function(){ setStatus(h, "open"); }));
+}
+function render(){
+  HOODS.forEach(function(h){
+    var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
+    c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done");
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+  });
+  var k = counts();
+  document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
+  var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
+  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "");
+  renderSheet();
+  var need = HOODS.map(function(h){ return hoods[h.id] && hoods[h.id].by; }).filter(function(id){ return id && id !== me && !names[id]; });
+  if (userApi && need.length){ userApi.profiles(need).then(function(ps){ var ch = false; Object.keys(ps || {}).forEach(function(x){ if (!names[x]){ names[x] = ps[x]; ch = true; } }); if (ch) render(); }).catch(function(){}); }
+}
+var toastEl = document.getElementById("toast"), tt;
+function toast(m){ toastEl.textContent = m; toastEl.classList.add("show"); clearTimeout(tt); tt = setTimeout(function(){ toastEl.classList.remove("show"); }, 2800); }
+
+/* ---------- shared writes: one document per neighborhood ---------- */
+var syncEl = document.getElementById("sync"), pending = {};
+function setStatus(h, next){
+  if (!canWrite || pending[h.id]) return;
+  var prev = hoods[h.id];
+  var rec = next === "open" ? null : {status: next, by: (next === "done" && prev && prev.by) ? prev.by : me, at: new Date().toISOString()};
+  if (rec) hoods[h.id] = rec; else delete hoods[h.id];
+  render();
+  if (next === "progress") toast("Enjoy the walk through " + h.name);
+  if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
+  if (!live){ saveLocal(); return; }
+  pending[h.id] = true;
+  var ref = db.doc(COLL + "/" + h.id);
+  (rec ? ref.set(rec) : ref.delete()).then(function(){ syncEl.textContent = "Shared live: anyone with the link can begin a walk"; })
+    .catch(function(e){
+      if (prev) hoods[h.id] = prev; else delete hoods[h.id];
+      if (e && e.code === "invalid_argument"){ canWrite = false; syncEl.textContent = "View only: ask the page owner for access to begin walks"; }
+      else syncEl.textContent = "Couldn't save that change. Try again.";
+      render();
+    }).then(function(){ delete pending[h.id]; });
+}
+var LS_KEY = "sf-flyer-quest-team-v1";
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(hoods)); }catch(e){} }
+function loadLocal(){ try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") hoods = v; }catch(e){} }
+
+loadLocal(); render();
+
+var api = window.claude;
+function offline(){ syncEl.textContent = "Progress is saved on this device"; }
+if (!api || typeof api.use !== "function") { offline(); return; }
+Promise.all([api.use("db"), api.use("user")]).then(function(res){
+  db = res[0]; userApi = res[1];
+  if (!db) { offline(); return; }
+  var ready = userApi ? Promise.all([userApi.id(), userApi.can("data.write")]) : Promise.resolve([null, null]);
+  return ready.then(function(v){
+    me = v[0]; if (v[1] === false) canWrite = false;
+    live = true; hoods = {};
+    syncEl.textContent = "Loading shared progress…";
+    var wait = setTimeout(function(){ syncEl.textContent = "Can't reach shared progress yet"; }, 10000);
+    db.collection(COLL).onSnapshot(function(snap){
+      var next = {};
+      snap.docs.forEach(function(d){ var x = d.data(); if (x && (x.status === "progress" || x.status === "done")) next[d.id] = {status:x.status, by: typeof x.by === "string" ? x.by : null, at: typeof x.at === "string" ? x.at : null}; });
+      Object.keys(pending).forEach(function(k){ if (hoods[k]) next[k] = hoods[k]; else delete next[k]; });
+      hoods = next; render();
+      if (!snap.metadata.fromCache){ clearTimeout(wait); syncEl.textContent = canWrite ? "Shared live: anyone with the link can begin a walk" : "View only: ask the page owner for access to begin walks"; }
+    }, function(){ clearTimeout(wait); live = false; loadLocal(); render(); offline(); });
+  });
+}).catch(offline);
+})();
+</script>
+
+</body>
+</html>
