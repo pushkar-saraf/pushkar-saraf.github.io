@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bay Area Student Flyer Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500&display=swap">
+<style>
+/* Quiet and minimal: one serif for headings, one sans for reading, warm paper, one accent, lots of air. */
+:root{
+  /* Colors pulled from the paintings: apricot sky for paper, night navy for ink, plum dusk for the accent, park grass for done, marigold for underway. */
+  --paper:#faf3ec; --card:#fffaf5; --ink:#1d2b45; --muted:#5d6577; --line:#ecdfd3; --soft:#f3e7dc;
+  --accent:#87485f; --done:#2f6e4e; --warm:#c98a22; --btn:#1d2b45; --btn-ink:#faf3ec;
+  --serif:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gut:max(20px, env(safe-area-inset-left)); --gutr:max(20px, env(safe-area-inset-right));
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:hidden; -webkit-text-size-adjust:100%; text-rendering:optimizeLegibility}
+button,a{touch-action:manipulation; -webkit-tap-highlight-color:transparent}
+button{font:inherit; color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.wrap{max-width:1040px; margin:0 auto; padding:0 var(--gutr) 96px var(--gut)}
+.label{font:500 12px/1.2 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.art{position:relative; overflow:hidden; background:var(--soft)}
+.art img{display:block; width:100%; height:100%; object-fit:cover}
+.art .coord{position:absolute; right:14px; bottom:12px; font:500 11px/1 var(--sans); letter-spacing:.12em; color:#fff; opacity:.85; text-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+/* header */
+.top{padding:72px 0 36px; max-width:640px}
+.top h1{font:400 clamp(48px, 12vw, 96px)/.95 var(--serif); letter-spacing:-.035em; margin:18px 0 20px; font-variation-settings:"opsz" 144}
+.top h1 em{font-style:italic; font-weight:300}
+.top p{margin:0; font:400 clamp(18px, 4.4vw, 21px)/1.5 var(--serif); color:var(--muted); max-width:30ch}
+.prog{display:flex; align-items:center; gap:16px; margin-top:36px; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
+.prog .bar{flex:1; padding:0; border:0; max-width:260px; height:2px; background:var(--line); position:relative; overflow:hidden}
+.prog .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--done)}
+.prog .bar b{position:absolute; top:0; bottom:0; background:var(--warm)}
+.hero{border-radius:4px; aspect-ratio:4/5; max-height:620px}
+@media (min-width:600px){.hero{aspect-ratio:16/10}}
+@media (min-width:900px){.hero{aspect-ratio:16/7}}
+
+/* how it works */
+.intro{display:grid; gap:56px; margin:88px 0 0}
+@media (min-width:800px){.intro{grid-template-columns:1fr 1fr; gap:80px; align-items:start}}
+.steps{list-style:none; margin:0; padding:0; display:grid; gap:28px}
+.steps li{display:grid; grid-template-columns:36px 1fr; align-items:baseline}
+.steps b{font:400 15px/1 var(--serif); color:var(--accent); font-style:italic}
+.steps span{font-size:17px; line-height:1.55; max-width:36ch}
+.ask q{display:block; margin-top:16px; font:300 clamp(28px, 6vw, 38px)/1.2 var(--serif); letter-spacing:-.015em; quotes:"\201C" "\201D"; font-style:italic}
+.ask p{margin:18px 0 0; color:var(--muted); font-size:15px; max-width:40ch}
+.sync{font-size:13px; color:var(--muted); margin:56px 0 0}
+
+h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em; margin:112px 0 14px}
+.sub{color:var(--muted); margin:0; max-width:52ch; font-size:16px}
+
+/* the walks */
+.tier{margin:72px 0 28px; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px}
+.tier:first-child{margin-top:48px}
+.tier .label{font:400 22px/1.2 var(--serif); letter-spacing:-.01em; text-transform:none; color:var(--ink)}
+.tier p{margin:0; color:var(--muted); font-size:14px}
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:40px 16px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:52px 28px}}
+@media (min-width:960px){.grid{grid-template-columns:repeat(4, minmax(0,1fr))}}
+.card{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; position:relative}
+.card .art{aspect-ratio:4/5; border-radius:4px; transition:opacity .25s ease}
+@media (hover:hover){.card:hover .art{opacity:.88}}
+.card:focus-visible{outline:2px solid var(--accent); outline-offset:6px; border-radius:4px}
+.card .meta{padding:14px 0 0; display:flex; flex-direction:column; gap:3px}
+.card .no{font:400 13px/1 var(--serif); font-style:italic; color:var(--muted); font-variant-numeric:tabular-nums}
+.card .nm{font:400 20px/1.2 var(--serif); letter-spacing:-.01em; margin-top:4px}
+.card .vb{font-size:13px; color:var(--muted); line-height:1.45}
+.card .st{display:none; font-size:12.5px; font-weight:500; margin-top:6px; align-items:center; gap:7px}
+.card .st::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
+.card.progress .st{display:flex; color:var(--warm)}
+.card.done .st{display:flex; color:var(--done)}
+.card .seal{position:absolute; top:10px; left:10px; padding:5px 10px; font:500 11px/1 var(--sans); letter-spacing:.06em; color:#1f2328; background:rgba(255,253,249,.92); border-radius:999px; display:none; backdrop-filter:blur(4px)}
+.card.done .seal{display:inline-block}
+.card.done .art img{filter:saturate(.75)}
+
+/* sheet */
+.veil{position:fixed; inset:0; background:rgba(20,18,16,.45); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:20}
+.veil.on{opacity:1; pointer-events:auto}
+.sheet{position:fixed; left:0; right:0; bottom:0; top:max(24px, env(safe-area-inset-top)); z-index:21; margin:0 auto; max-width:620px; background:var(--paper); border-radius:16px 16px 0 0; transform:translateY(105%); visibility:hidden; transition:transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s; display:flex; flex-direction:column; overflow:hidden}
+.sheet.on{transform:none; visibility:visible; transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:720px){.sheet{top:32px; bottom:32px; border-radius:8px}}
+.sheet-scroll{overflow-y:auto; flex:1; overscroll-behavior:contain}
+.sheet .art{aspect-ratio:16/11}
+.x{position:absolute; top:12px; right:12px; z-index:2; width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,253,249,.92); color:#1f2328; cursor:pointer; display:grid; place-items:center; backdrop-filter:blur(6px)}
+.body{padding:32px var(--gutr) 40px var(--gut)}
+.body h3{font:400 clamp(34px, 8vw, 44px)/1.05 var(--serif); letter-spacing:-.025em; margin:12px 0 14px}
+.body .lede{font:400 18px/1.55 var(--serif); color:var(--muted); margin:0 0 24px}
+.facts{display:flex; gap:22px; flex-wrap:wrap; padding:0 0 24px; margin-bottom:28px; border-bottom:1px solid var(--line); font-size:14px; color:var(--muted)}
+.facts span b{color:var(--ink); font-weight:500}
+.start{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.start .tx{flex:1; min-width:180px}
+.start b{display:block; font:400 21px/1.3 var(--serif); margin-top:8px}
+.start p{margin:6px 0 0; font-size:14.5px; color:var(--muted)}
+.maplink{flex:none; display:inline-flex; align-items:center; gap:8px; font-weight:500; font-size:14px; text-decoration:none; padding:11px 18px; min-height:44px; border:1px solid var(--line); color:var(--ink); border-radius:999px; background:var(--card)}
+.trail{list-style:none; margin:40px 0 0; padding:0}
+.trail li{display:grid; grid-template-columns:40px 1fr; gap:12px; position:relative; padding-bottom:32px}
+.trail li:not(:last-child)::before{content:""; position:absolute; left:13px; top:34px; bottom:4px; width:1px; background:var(--line)}
+.trail .n{width:27px; height:27px; border-radius:50%; border:1px solid var(--ink); display:grid; place-items:center; font:400 14px/1 var(--serif); font-style:italic}
+.trail .label{margin-top:5px; font-size:11px; color:var(--accent)}
+.trail b{display:block; font:400 20px/1.3 var(--serif); margin-top:6px}
+.trail p{margin:6px 0 0; font-size:15px; color:var(--ink); max-width:46ch}
+.trail a{display:inline-flex; gap:6px; align-items:center; margin-top:8px; min-height:32px; font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.trail a:hover{color:var(--ink); border-color:var(--ink)}
+.bonus{margin-top:8px; padding-top:28px; border-top:1px solid var(--line)}
+.quote{margin-top:28px; padding:0 0 0 18px; border-left:2px solid var(--accent)}
+.quote q{display:block; margin-top:8px; font:300 21px/1.4 var(--serif); font-style:italic; quotes:"\201C" "\201D"}
+.quote span{display:block; margin-top:6px; font-size:13px; color:var(--muted)}
+.bonus p{margin:10px 0 14px; font-size:15px; color:var(--muted)}
+.bonus ul{margin:0; padding:0; list-style:none; display:grid; gap:10px}
+.bonus li{font-size:15px; display:flex; justify-content:space-between; gap:4px 12px; flex-wrap:wrap}
+.bonus li a{color:var(--muted); font-size:13.5px; text-decoration:none; border-bottom:1px solid var(--line)}
+.sheet > .bar{flex:none; padding:14px var(--gutr) calc(14px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--paper); display:flex; gap:12px; align-items:center}
+.bar .who{flex:1; min-width:0; font-size:13.5px; color:var(--muted); line-height:1.4}
+.bar .who b{display:block; color:var(--ink); font:400 17px/1.25 var(--serif)}
+.acts{display:flex; gap:8px; flex:none}
+.b{cursor:pointer; padding:12px 20px; min-height:46px; border-radius:999px; font-weight:500; font-size:14.5px; background:transparent; border:1px solid var(--line); white-space:nowrap}
+.b.main{background:var(--btn); color:var(--btn-ink); border-color:transparent}
+.b:disabled{opacity:.5; cursor:not-allowed}
+.foot{margin:120px 0 0; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); max-width:60ch}
+.toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%, 16px); background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font:400 15px/1.3 var(--sans); opacity:0; pointer-events:none; transition:all .3s ease; z-index:40; max-width:calc(100vw - 32px); text-align:center}
+.toast.show{opacity:1; transform:translate(-50%, 0)}
+
+
+/* other cities, campus rule box */
+.others{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:20px; font-size:14px}
+.others a{color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.others a:hover{color:var(--accent); border-color:var(--accent)}
+.rulebox{margin:0 0 8px; padding:14px 16px; background:var(--soft); border-radius:4px; font-size:14.5px; line-height:1.5}
+.rulebox .label{color:var(--t); margin-bottom:6px}
+.plan{max-width:640px}
+/* markets and booths */
+.mk{display:grid; gap:56px; margin-top:48px}
+@media (min-width:860px){.mk{grid-template-columns:1fr 1fr; gap:72px}}
+.mk-h{font:400 22px/1.2 var(--serif); letter-spacing:-.01em; margin:0}
+.mk-note{margin:8px 0 0; color:var(--muted); font-size:14px}
+.mkt{list-style:none; margin:20px 0 0; padding:0}
+.mkt li{display:grid; grid-template-columns:1fr auto; gap:2px 16px; padding:16px 0; border-top:1px solid var(--line)}
+.mkt li:last-child{border-bottom:1px solid var(--line)}
+.mkt b{font:400 19px/1.3 var(--serif)}
+.mkt .when{font-size:14px; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.mkt a{grid-column:1 / -1; font-size:13.5px; color:var(--muted); text-decoration:none; justify-self:start; border-bottom:1px solid var(--line)}
+.mkt a:hover{color:var(--accent); border-color:var(--accent)}
+.booth{list-style:none; margin:20px 0 0; padding:0; display:grid; gap:28px}
+.booth li{padding-left:18px; border-left:2px solid var(--line)}
+.booth li:first-child{border-left-color:var(--done)}
+.booth .label{color:var(--accent)}
+.booth b{display:block; font:400 20px/1.3 var(--serif); margin-top:6px}
+.booth p{margin:6px 0 0; font-size:15px; max-width:46ch}
+.booth a{display:inline-block; margin-top:8px; font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.booth a:hover{color:var(--accent); border-color:var(--accent)}
+@media (max-width:420px){.mkt li{grid-template-columns:1fr}.mkt .when{text-align:left}}
+/* each walk borrows its painting's sky color */
+.card,.sheet{--t:var(--tl, var(--accent)); --w:var(--wl, var(--soft))}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .card,:root:not([data-theme="light"]) .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}
+.card .art,.sheet .art{background:var(--w)}
+.card .no{color:var(--t); font-style:italic}
+.card .no::after{content:""; display:inline-block; width:18px; height:1px; background:currentColor; vertical-align:middle; margin-left:8px; opacity:.6}
+.sheet #sNo,.sheet .start .label,.trail .label{color:var(--t)}
+.trail .n{border-color:var(--t); color:var(--t)}
+.quote{border-left-color:var(--t)}
+.maplink{border-color:color-mix(in srgb, var(--t) 35%, var(--line))}
+.trail a:hover{color:var(--t); border-color:var(--t)}
+@media (max-width:520px){
+  .top{padding:48px 0 28px}
+  .sheet > .bar{flex-wrap:wrap; gap:10px}
+  .bar .who{flex:1 1 100%}
+  .acts{flex:1 1 100%}
+  .acts .b{flex:1}
+  .start .maplink{width:100%; justify-content:center}
+  .intro{margin-top:64px}
+  h2.sec{margin-top:88px}
+  .card .nm{font-size:18px}
+  .card .vb{font-size:12.5px}
+}
+@media (prefers-reduced-motion: reduce){.sheet,.veil,.card .art,.toast{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="label" id="heroLabel">Student walks</div>
+    <h1>Flyer <em>Quest</em></h1>
+    <p>Find the students where they study, snack and stay up late.</p>
+    <div class="prog"><div class="bar" id="pbar"><b id="pbarP"></b><i id="pbarD"></i></div><span id="ptext"></span></div>
+  </header>
+  <div class="hero art" id="heroArt"></div>
+
+  <section class="intro">
+    <ol class="steps"><li><b>01</b><span>Pick a campus or study street near you.</span></li><li><b>02</b><span>Read how posting works there before you go.</span></li><li><b>03</b><span>Hand out flyers outdoors, and ask before you leave one anywhere.</span></li><li><b>04</b><span>Mark it done so the team knows.</span></li></ol>
+    <div class="ask">
+      <div class="label">The ask</div>
+      <q>Hi! Mind if I leave a flyer for a free breathing session?</q>
+      <p>If they say no: accept people and situations as they are. Smile, thank them, next door.</p>
+    </div>
+  </section>
+  <div class="sync" id="sync">Loading…</div>
+
+  <h2 class="sec">The walks</h2>
+  <p class="sub">Grouped by area: San Francisco, Berkeley, Oakland, then the rest of the Bay. Each walk says how posting works on that campus.</p>
+  <div id="grid"></div>
+
+
+    <h2 class="sec" id="markets">Campus tables and posting</h2>
+  <p class="sub">Who lets outside groups table or post, as of November 2026. Rules change by term, so check before you go.</p>
+  <div class="mk">
+  <div class="mk-col"><h3 class="mk-h">Tables and approvals</h3><ol class="booth">
+  <li><div class="label">Now</div><b>City College, Ram Plaza</b><p>Sign in at the Student Activities Office, Student Union 205, then hand out or post on the boards.</p></li>
+  <li><div class="label">Now</div><b>UC Berkeley, Sproul Plaza</b><p>Anyone can hand out non-commercial flyers, 6 am to midnight. No table without a student group.</p></li>
+  <li><div class="label">Now</div><b>Laney College</b><p>Outside groups can submit flyers for approval in 24 to 48 hours.</p></li>
+  <li><div class="label">Now</div><b>Stanford White Plaza</b><p>Post on the public kiosks and hand out leaflets. No tables for visitors.</p></li>
+  <li><div class="label">Ask</div><b>SKY club at Berkeley</b><p>A student club could sponsor a Sproul table. Its current registration isn&#x27;t confirmed.</p><a href="https://berkeleyclubs.com/club/SKYCampusHappinessClubatBerkeley" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Next term</div><b>SF State lobby tables</b><p>Outside groups can rent a table with an EIN letter and insurance.</p></li>
+  <li><div class="label">Ask</div><b>UCSF</b><p>Only on invitation from a UCSF campus group.</p></li>
+  <li><div class="label">Ask</div><b>SJSU, USF and Cal State East Bay</b><p>Contact student life first. USF doesn&#x27;t let outside groups post.</p></li>
+  </ol></div></div>
+
+  <p class="foot">A volunteer guide. On campus, outside groups usually may hand out non-commercial flyers outdoors but post only on approved boards, and never inside dorms. A paid course flyer may count as commercial, so a flyer for a free intro session is safest. Checked November 2026.</p>
+  <nav class="others"><a href="../flyer/">San Francisco</a> <a href="../flyer-oakland/">Oakland</a> <a href="../flyer-berkeley/">Berkeley</a></nav>
+</div>
+
+<div class="veil" id="veil"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle" aria-hidden="true">
+  <button class="x" id="close" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+  <div class="sheet-scroll" id="sScroll">
+    <div class="art" id="sArt"></div>
+    <div class="body">
+      <div class="label" id="sNo"></div>
+      <h3 id="sTitle"></h3>
+      <p class="lede" id="sVibe"></p>
+      <div class="facts" id="sFacts"></div>
+      <div class="rulebox" id="sRule" hidden><div class="label">How posting works here</div><span></span></div>
+      <div class="start">
+        <div class="tx"><div class="label">Begin here</div><b id="sStart"></b><p id="sStartNote"></p></div>
+        <a class="maplink" id="sStartMap" target="_blank" rel="noopener">Map</a>
+      </div>
+      <ol class="trail" id="sTrail"></ol>
+      <div class="bonus" id="sBonus"></div>
+    </div>
+  </div>
+  <div class="bar"><div class="who" id="sWho"></div><div class="acts" id="sActs"></div></div>
+</section>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+function S(k, t, n, a){ return {k:k, t:t, n:n, a:a}; }
+var HOODS = [
+ {"id": "sfstate", "name": "SF State", "vibe": "A big commuter campus with a busy plaza and a mall next door.", "start": {"t": "19th Ave and Holloway Ave", "n": "Take the M Ocean View to the SF State stop.", "a": "19th Ave and Holloway Ave, San Francisco, CA"}, "rule": "Flyers in the Cesar Chavez Student Center are approved, stamped and posted by the AS Information Center on the Plaza Level. They stay up about two weeks. Nothing on columns, windows or railings.", stops:[S("campus","AS Information Center, Cesar Chavez Student Center","Bring flyers to the Plaza Level desk for a stamp. Staff post them on the general boards for you.","1650 Holloway Ave, San Francisco, CA"),S("board","J. Paul Leonard Library","Flyers go only on the blue cloth boards in the elevator lobbies and near room 83 on the ground floor. Ask at the desk first.","1630 Holloway Ave, San Francisco, CA"),S("shops","Stonestown Galleria","Heytea, Wanpo Tea, Matcha Cafe Maiko and 85C are here. Ask each counter if a flyer or small card can go out.","3251 20th Ave, San Francisco, CA"),S("board","Merced Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","155 Winston Dr, San Francisco, CA"),S("treat","George's Donuts, West Portal","A student favorite one stop up the M line. Grab a donut and ask about their counter.","163 West Portal Ave, San Francisco, CA")]},
+ {"id": "ccsf", "name": "City College, Ocean Campus", "vibe": "A friendly community college with an open plaza and Ocean Ave cafes.", "start": {"t": "Balboa Park BART", "n": "Walk up Frida Kahlo Way from the station.", "a": "401 Geneva Ave, San Francisco, CA"}, "rule": "Outside groups sign in first at the Student Activities Office, Student Union room 205. It is a notice, not an approval. Post only on posting boards, up to 11x17, tacks only, one per board, 20 flyers at most.", stops:[S("campus","Student Activities Office, Student Union 205","Sign in and pick up the posting rules. Ask which boards have room today.","50 Frida Kahlo Way, San Francisco, CA"),S("campus","Ram Plaza","Between Smith Hall and the Student Union. After signing in you can hand out flyers here.","50 Frida Kahlo Way, San Francisco, CA"),S("shops","Diamond Coffee N' Pastry","A camping-themed cafe on Ocean Ave. Ask about their counter or board.","1181 Ocean Ave, San Francisco, CA"),S("shops","Philz Coffee, Ocean Ave","Busy with students all day. Ask the staff before leaving anything.","1110 Ocean Ave, San Francisco, CA"),S("board","Ingleside Branch Library","SF library boards go through the library's information office first. Ask staff how to submit.","1298 Ocean Ave, San Francisco, CA")]},
+ {"id": "latenight", "name": "Late-night study cafes", "vibe": "Where students and young builders work after dark.", "start": {"t": "Montgomery St BART", "n": "Take BART or Muni Metro to Montgomery.", "a": "Market St and Montgomery St, San Francisco, CA"}, "rule": "No campus rules here. Ask staff at each cafe before leaving a flyer, and take it back if they say no.", stops:[S("shops","Corgi Cafe","The 24/7 cafe run by the startup Corgi, on a small lane off Kearny. Mostly founders and young tech workers. Last seen open in late September, so check first.","9 Claude Ln, San Francisco, CA"),S("shops","Delah Coffee, Sansome St","A Yemeni coffee house that stays open late. Ask about their counter.","450 Sansome St, San Francisco, CA"),S("treat","Sana'a Cafe","Yemeni coffee and pastries, open until about 10 pm, near Academy of Art buildings.","199 New Montgomery St, San Francisco, CA"),S("shops","Heyma Coffee","Another late-night Yemeni cafe in SoMa. Ask the staff first.","248 9th St, San Francisco, CA"),S("shops","Haraz Coffee House","Open daily until 11 pm and full of laptops. Ask about a flyer spot.","1452 Franklin St, San Francisco, CA")]},
+ {"id": "usf", "name": "USF", "vibe": "A hilltop campus ringed by Haight and NoPa coffee shops.", "start": {"t": "Fulton St and Masonic Ave", "n": "Take the 5 Fulton or 43 Masonic.", "a": "Fulton St and Masonic Ave, San Francisco, CA"}, "rule": "USF posts only flyers from its own clubs and departments for campus events. Outside groups can't post, so focus on the cafes. A USF student club could co-host.", stops:[S("shops","Flywheel Coffee Roasters","A laptop-friendly roastery by the park. Ask about their board.","672 Stanyan St, San Francisco, CA"),S("shops","Matching Half","A calm neighborhood cafe close to campus. Ask the barista first.","1799 McAllister St, San Francisco, CA"),S("shops","Souvenir Coffee","A small Divisadero cafe students recommend. Ask about window space.","262 Divisadero St, San Francisco, CA"),S("treat","Sightglass Coffee","A big bright room with lots of seating. Treat yourself and ask about posting.","301 Divisadero St, San Francisco, CA")]},
+ {"id": "ucsf", "name": "UCSF Parnassus and Inner Sunset", "vibe": "Health science students spilling down the hill to 9th Avenue.", "start": {"t": "9th Ave and Irving St", "n": "Take the N Judah to 9th and Irving.", "a": "9th Ave and Irving St, San Francisco, CA"}, "rule": "UCSF boards are only for UCSF people and registered campus groups. Outside groups need an invitation from a campus organization, so stick to the 9th Ave shops.", stops:[S("board","Arizmendi Bakery","A worker-owned bakery, open Tuesday to Sunday. Ask the counter about flyers.","1331 9th Ave, San Francisco, CA"),S("shops","Sweet Glory","A small, well-loved cafe. Ask the staff first.","1336 9th Ave, San Francisco, CA"),S("treat","Tadaima","Japanese sando and matcha. A nice treat between stops.","1248 9th Ave, San Francisco, CA"),S("rest","SF Botanical Garden","Right at the park end of 9th Ave. Take a breather.","1199 9th Ave, San Francisco, CA")], bonus:{"t": "Still got flyers?", "n": "One more cafe on Irving.", "list": [["Art's Cafe", "747 Irving St, San Francisco, CA"]]}},
+ {"id": "artu", "name": "Academy of Art, downtown", "vibe": "Art students between New Montgomery classrooms and Sutter Street dorms.", "start": {"t": "Montgomery St BART", "n": "Walk down New Montgomery from the station.", "a": "Market St and New Montgomery St, San Francisco, CA"}, "rule": "Board notices need university approval and the dorms ban outside flyers. Ask Campus Life, then stick to nearby cafes.", stops:[S("campus","Campus Life, 4th floor","Ask whether an outside wellness event can be listed. Nothing in the dorms on Sutter and Pine.","79 New Montgomery St, San Francisco, CA"),S("treat","Sana'a Cafe","Right on New Montgomery and open late. Ask about their counter.","199 New Montgomery St, San Francisco, CA"),S("shops","Capital One Cafe","A free coworking-style cafe on Post, open weekdays. Ask staff about community postings.","101 Post St, San Francisco, CA"),S("shops","Another Cafe","A study-friendly cafe near the Pine St dorms. Ask the staff first.","1191 Pine St, San Francisco, CA")]},
+ {"id": "missionbay", "name": "UCSF Mission Bay", "vibe": "A new waterfront campus with a handful of good cafes.", "start": {"t": "UCSF/Chase Center station", "n": "Take the T Third.", "a": "3rd St and 16th St, San Francisco, CA"}, "rule": "Same UCSF rules as Parnassus: campus boards are for UCSF people only. Stick to the cafes and the library.", stops:[S("shops","Cafe Reveille","A roomy cafe near campus, open daily. Ask about their board.","610 Long Bridge St, San Francisco, CA"),S("shops","Zocalo Coffee","Opened August 2026 on Mission Creek. Ask the new owners about a spot.","290 Channel St, San Francisco, CA"),S("board","Mission Bay Branch Library","SF library boards go through the library's information office first. Ask staff how.","960 4th St, San Francisco, CA"),S("treat","Delah Coffee, 4th St","A Yemeni coffee house open late. A good place to end.","370 4th St, San Francisco, CA")]},
+ {"id": "uclaw", "name": "UC Law SF and Civic Center", "vibe": "Law students around Civic Center and the Main Library.", "start": {"t": "Civic Center BART", "n": "Take BART or Muni Metro to Civic Center.", "a": "Market St and 8th St, San Francisco, CA"}, "rule": "No public posting policy was found for UC Law SF. Ask student services before posting anything on campus.", stops:[S("campus","UC Law SF","Ask at student services whether outside events can be posted. Nothing up without a yes.","200 McAllister St, San Francisco, CA"),S("board","SF Main Library","Boards are cleared by the library's information office. They take cultural and educational items, not commercial ones.","100 Larkin St, San Francisco, CA"),S("shops","Philz Coffee, Civic Center","A steady student and city-worker crowd. Ask the staff first.","399 Golden Gate Ave, San Francisco, CA")]},
+ {"id": "sproul", "name": "Sproul Plaza", "vibe": "The busiest student crossing at Cal. Smile, offer, move on.", "start": {"t": "Bancroft Way and Telegraph Ave", "n": "About 12 minutes from Downtown Berkeley BART along Bancroft.", "a": "Bancroft Way and Telegraph Ave, Berkeley, CA"}, "rule": "Anyone may hand out non-commercial flyers outdoors. Upper and Lower Sproul are open 6 am to midnight with no booking. Non-members can't set up a table, chair or display.", stops:[S("campus","Upper Sproul Plaza","Stand out of the walkway and offer half-sheets to people who slow down. Keep off the fire lane in front of the Savio Steps.","Upper Sproul Plaza, Berkeley, CA"),S("treat","Golden Bear Cafe","The coffee line is long between classes. Offer flyers to people waiting outside, not inside.","Golden Bear Cafe, Sproul Plaza, Berkeley, CA"),S("campus","Sather Gate","A natural funnel. Stand to one side so people can pass.","Sather Gate, Berkeley, CA"),S("board","MLK Jr. Student Union","Ask the info desk which boards are open to the public. Inside, flyers only go on approved boards.","2495 Bancroft Way, Berkeley, CA"),S("campus","Lower Sproul and Eshleman Hall","Also a public expression area. Catch students heading to the food court.","2465 Bancroft Way, Berkeley, CA")]},
+ {"id": "durant", "name": "Durant food court", "vibe": "Late-night food, boba lines and students everywhere after dark.", "start": {"t": "Durant Ave and Telegraph Ave", "n": "Two blocks south of Sproul Plaza.", "a": "Durant Ave and Telegraph Ave, Berkeley, CA"}, "rule": "City sidewalk and private shops. Ask each shop before leaving anything, and keep the sidewalk clear.", stops:[S("treat","Yogurt Park","A classic study-break stop. Ask staff before leaving flyers.","2433 Durant Ave, Berkeley, CA"),S("shops","Sodoi Coffee Tasting House","Voted best coffee shop in 2025. Ask if there is a board or counter spot.","2438 Durant Ave, Berkeley, CA"),S("shops","Durant food court","A cluster of small restaurants. Offer flyers to people waiting for takeout.","2500 Durant Ave, Berkeley, CA"),S("treat","Sweetheart Cafe","Boba and snacks, open very late. Good for evening handouts.","2523 Durant Ave, Berkeley, CA"),S("treat","Top Dog","Voted best late-night food in 2025. Chat with the line, then ask staff about leaving a few.","2534 Durant Ave, Berkeley, CA")]},
+ {"id": "tele", "name": "Telegraph Avenue", "vibe": "Old bookshops, records and boba, one block from campus.", "start": {"t": "Telegraph Ave and Bancroft Way", "n": "About 12 minutes from Downtown Berkeley BART.", "a": "Telegraph Ave and Bancroft Way, Berkeley, CA"}, "rule": "City sidewalk and private shops, not campus. Always ask staff first, and never tape to poles or walls.", stops:[S("treat","Yifang Taiwan Fruit Tea","Voted best boba in Berkeley in 2025. Chat with people in line and ask staff if you can leave a few.","2516 Bancroft Way, Berkeley, CA"),S("shops","Amoeba Music","Open Wednesday to Sunday, 11 to 7. Ask at the counter about community flyers.","2455 Telegraph Ave, Berkeley, CA"),S("shops","Moe's Books","A Telegraph landmark. Ask the front desk politely if they take event flyers.","2476 Telegraph Ave, Berkeley, CA"),S("rest","Mudrakers Cafe","A laid-back study cafe a few blocks south. Ask about a board or counter space.","2801 Telegraph Ave, Berkeley, CA")]},
+ {"id": "moffitt", "name": "Moffitt and Memorial Glade", "vibe": "The study crowd around a newly reopened library.", "start": {"t": "Memorial Glade", "n": "From Sather Gate, walk north past Dwinelle, about 5 minutes.", "a": "Memorial Glade, Berkeley, CA"}, "rule": "Hand out flyers outdoors only. Moffitt needs a Cal ID, and inside buildings you may post only on boards marked public.", stops:[S("campus","Memorial Glade","Students sit and take breaks here. Walk the paths and offer a flyer with a short hello.","Memorial Glade, Berkeley, CA"),S("treat","Free Speech Movement Cafe","At Moffitt's entrance, reopened in 2026. Stand outside and catch people coming for coffee.","Moffitt Library, Berkeley, CA"),S("campus","Dwinelle Plaza","Heavy crossings on the hour. Hand out between class changes.","Dwinelle Plaza, Berkeley, CA"),S("board","Wheeler Hall public boards","Only boards marked public. One flyer per board per group, letter size or smaller.","Wheeler Hall, Berkeley, CA")]},
+ {"id": "calshattuck", "name": "Downtown study cafes", "vibe": "Study cafes along Shattuck, from the library to North Shattuck.", "start": {"t": "Downtown Berkeley BART", "n": "Get off at Downtown Berkeley.", "a": "Shattuck Ave and Center St, Berkeley, CA"}, "rule": "City sidewalk and private shops, so ask first. Library staff post nonprofit notices for up to 30 days.", stops:[S("board","Berkeley Central Library","Hand a flyer to staff and ask for the community board.","2090 Kittredge St, Berkeley, CA"),S("shops","Blue Bottle Coffee","Busy and close to campus. Ask staff before leaving anything.","2118 University Ave, Berkeley, CA"),S("shops","Yali's Cafe","Popular with students at the west edge of campus. Ask about a board.","1920 Oxford St, Berkeley, CA"),S("shops","Berkeley Espresso","Lots of outlets and studiers. Ask kindly.","1900 Shattuck Ave, Berkeley, CA"),S("treat","Victory Point Cafe","A board game cafe open late, full of students in the evening. Ask about community flyers.","1797 Shattuck Ave, Berkeley, CA")]},
+ {"id": "dorms", "name": "Units and Channing", "vibe": "Freshman country: mealtime sidewalks and cafes near the halls.", "start": {"t": "Unit 1 sidewalk", "n": "Three blocks south of Sproul Plaza.", "a": "2650 Durant Ave, Berkeley, CA"}, "rule": "No posting or handing out inside or around residence halls without approval. Stay on the public sidewalk and never enter lobbies or courtyards.", stops:[S("campus","Outside Unit 1","Students head to the dining hall at lunch and dinner. Offer flyers from the public sidewalk.","2650 Durant Ave, Berkeley, CA"),S("campus","Outside Unit 2","Same idea on Haste St. Keep it light and don't follow anyone to the door.","2650 Haste St, Berkeley, CA"),S("shops","1951 Coffee Company","A nonprofit cafe that trains refugee baristas. Ask kindly about a board.","2410 Channing Way, Berkeley, CA"),S("rest","Caffe Strada","A huge patio full of students, open late. Ask staff first, then chat outside.","2300 College Ave, Berkeley, CA")]},
+ {"id": "northside", "name": "Euclid and North Gate", "vibe": "Engineering and science crowd, small cafes, quieter streets.", "start": {"t": "Hearst Ave and Euclid Ave", "n": "About 15 minutes up Hearst from Downtown Berkeley BART.", "a": "Hearst Ave and Euclid Ave, Berkeley, CA"}, "rule": "Euclid is city sidewalk and private shops, so ask first. Across Hearst is campus: handing out is fine, posting is boards only.", stops:[S("campus","North Gate","A steady flow toward the engineering halls. Offer flyers on the sidewalk.","Hearst Ave and Euclid Ave, Berkeley, CA"),S("shops","Mind Coffee","A student favorite with lots of outlets. Ask about leaving a few.","1816 Euclid Ave, Berkeley, CA"),S("treat","La Val's Pizza","A Northside classic. Ask the counter about a community board.","1834 Euclid Ave, Berkeley, CA"),S("campus","V&A Cafe","A small busy cafe by the engineering halls with picnic tables. Offer flyers to people outside.","Etcheverry Hall, Berkeley, CA")]},
+ {"id": "ihouse", "name": "Piedmont Ave and I-House", "vibe": "Grad and international students, Greek Row and a hillside dorm.", "start": {"t": "Caffe Strada", "n": "10 minutes on foot from Sproul.", "a": "2300 College Ave, Berkeley, CA"}, "rule": "Fraternity and sorority houses are private: never post on them or walk in. Clark Kerr is a residence hall, so stay on the sidewalk.", stops:[S("treat","Edmonds Cafe at International House","A walk-in cafe inside I-House. Ask the front desk if there is a community board.","2299 Piedmont Ave, Berkeley, CA"),S("campus","Piedmont Avenue","Wide sidewalks along Greek Row. Offer flyers to passersby only, nothing on houses or cars.","Piedmont Ave and Bancroft Way, Berkeley, CA"),S("campus","Outside Clark Kerr","Offer flyers on the sidewalk near the dining commons at mealtimes.","2601 Warring St, Berkeley, CA")]},
+ {"id": "calelmwood", "name": "College Ave to Elmwood", "vibe": "A calm stroll south where grad students live and study.", "start": {"t": "College Ave and Bancroft Way", "n": "Buses run along College Ave.", "a": "College Ave and Bancroft Way, Berkeley, CA"}, "rule": "All city sidewalk and shops. Ask staff first. The library branch posts nonprofit notices through staff.", stops:[S("shops","Souvenir Coffee","Popular with students. Ask about a board.","2701 College Ave, Berkeley, CA"),S("shops","Cafenated Coffee","Open daily with outdoor seating. Ask staff before leaving flyers.","2960 College Ave, Berkeley, CA"),S("board","Elmwood Branch Library","Hand a flyer to staff and ask for the community board.","3121 Ashby Ave, Berkeley, CA")]},
+ {"id": "laney", "name": "Laney College", "vibe": "A lakeside campus near Chinatown boba and the Main Library.", "start": {"t": "Lake Merritt BART", "n": "Laney is one block east of the station.", "a": "Lake Merritt BART, Oakland, CA"}, "rule": "Outside groups can apply. Student Services approves all flyers through the Laney approvals page, 24 to 48 hours. Up to 12x18, 20 postings, two weeks or until the day after the event.", stops:[S("campus","Student Services, room T-813","Get your approval first, then post only in the marked spots. Not on doors, windows, posts or trees.","900 Fallon St, Oakland, CA"),S("treat","T4 Oakland","A Chinatown boba spot. Ask if they have a board.","1068 Webster St, Oakland, CA"),S("shops","Golden Tea Shop","A loose-leaf tea house in Chinatown. Closed Mondays.","901 Franklin St, Oakland, CA"),S("board","Oakland Main Library","Hand a dated copy to staff for approval. Items stay up to 30 days.","125 14th St, Oakland, CA"),S("rest","Oakland Museum gardens","Across the street from Laney. Rest in the gardens.","1000 Oak St, Oakland, CA")]},
+ {"id": "mills", "name": "Mills at Northeastern", "vibe": "A quiet wooded campus beside the Laurel District shops.", "start": {"t": "Mills campus entrance", "n": "AC Transit runs along MacArthur Blvd.", "a": "5000 MacArthur Blvd, Oakland, CA"}, "rule": "No public posting policy was found. Ask student life on campus before posting, or stick to the Laurel shops.", stops:[S("campus","Tea Shop, Rothwell Center","The campus hangout. Ask staff who approves postings.","5000 MacArthur Blvd, Oakland, CA"),S("shops","Cafe Santana","Roasts on site. Ask about their community board.","4100 MacArthur Blvd, Oakland, CA"),S("treat","Crumble and Whisk","A pastry stop next door. Ask about counter space.","4104 MacArthur Blvd, Oakland, CA"),S("shops","Anasa Yoga","A natural fit for a breathing course. Ask if they share community events.","4232 MacArthur Blvd, Oakland, CA")]},
+ {"id": "stanford", "name": "Stanford and Palo Alto", "vibe": "Open kiosks at White Plaza, then cafes along University Ave.", "start": {"t": "Palo Alto Caltrain", "n": "The free Marguerite shuttle runs to campus.", "a": "95 University Ave, Palo Alto, CA"}, "rule": "Anyone may post at the public kiosks in White Plaza and around campus, and visitors may hand out leaflets in White Plaza. No tables for visitors, and dorm boards are for Stanford only.", stops:[S("campus","White Plaza kiosks","Post on the public kiosks next to Tresidder Union, then hand out in the plaza.","White Plaza, Stanford, CA"),S("shops","Coupa Cafe, Ramona St","The original Coupa, a long-time Stanford hangout. Ask about their board.","538 Ramona St, Palo Alto, CA"),S("shops","Verve Coffee","A popular study spot. Ask the staff first.","162 University Ave, Palo Alto, CA"),S("shops","Blue Bottle Coffee","In the old Varsity Theatre building. Ask about window space.","456 University Ave, Palo Alto, CA"),S("treat","Philz Coffee, Forest Ave","Opens early and fills with students. Grab a cup and ask.","101 Forest Ave, Palo Alto, CA")]},
+ {"id": "sjsu", "name": "San Jose State", "vibe": "A downtown campus with a shared city library and boba on every block.", "start": {"t": "Paseo de San Antonio station", "n": "VTA light rail, Blue or Green line.", "a": "S 2nd St and Paseo de San Antonio, San Jose, CA"}, "rule": "Outside groups must contact Student Involvement or Event Services before any activity on campus. General boards allow one poster per group, up to 11x17, tacks or staples.", stops:[S("campus","SJSU Student Union","Ask at the info desk how an outside group can get flyers on the general boards.","211 S 9th St, San Jose, CA"),S("shops","Nirvana Soul at King Library","Ground floor of the shared city and university library. A real student hub.","150 E San Fernando St, San Jose, CA"),S("treat","Breaktime Tea","Won the student paper's boba ranking. Ask about their counter.","110 E San Fernando St, San Jose, CA"),S("shops","Nirvana Soul, SoFA","The original downtown cafe. Ask about a spot for a flyer.","315 S 1st St, San Jose, CA")]},
+ {"id": "csueb", "name": "Cal State East Bay", "vibe": "A hilltop campus above a small, friendly downtown on B Street.", "start": {"t": "Hayward BART", "n": "Downtown is steps away. Campus is a bus or shuttle up the hill.", "a": "699 B St, Hayward, CA"}, "rule": "The clubs guide says anyone may post on general boards and kiosks without approval, up to 17x22, naming the sponsor, at most 14 days ahead. Another campus page limits boards to campus groups, so check with Student Life, New University Union room 2011.", stops:[S("campus","New University Union","Post on boards marked general, with tacks or staples. Stop by Student Life first to confirm.","25800 Carlos Bee Blvd, Hayward, CA"),S("shops","Peet's Coffee, B St","Steady student traffic near BART. Ask about the community board.","878 B St, Hayward, CA"),S("treat","Concha Dreams","A sweet bakery stop on B Street. Ask about their counter.","926 B St, Hayward, CA"),S("board","Hayward Public Library","The downtown library. Ask staff about the community board.","888 C St, Hayward, CA")]}
+];
+
+var N = HOODS.length;
+var COLL = "quest";
+var COORD = {};
+var RANK = ["sfstate", "ccsf", "latenight", "usf", "ucsf", "artu", "missionbay", "uclaw", "sproul", "durant", "tele", "moffitt", "calshattuck", "dorms", "northside", "ihouse", "calelmwood", "laney", "mills", "stanford", "sjsu", "csueb"];
+HOODS.sort(function(a, b){ var x = RANK.indexOf(a.id), y = RANK.indexOf(b.id); return (x < 0 ? 999 : x) - (y < 0 ? 999 : y); });
+var TIERS = [[0, "San Francisco", "City College, SF State and late-night study spots."], [8, "Berkeley", "Sproul Plaza and the streets around Cal."], [17, "Oakland", "Laney and Mills."], [19, "South Bay and East Bay", "Stanford, San Jose State and Cal State East Bay."]];
+function rng(seed){ var h = 2166136261; for (var i=0;i<seed.length;i++){ h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function r1(n){ return Math.round(n*10)/10; }
+function closedPath(pts){ var n = pts.length, d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<n;i++){ var p0 = pts[(i-1+n)%n], p1 = pts[i], p2 = pts[(i+1)%n], p3 = pts[(i+2)%n];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d + "Z"; }
+function openPath(pts){ var d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<pts.length-1;i++){ var p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d; }
+var uid = 0;
+function pic(name, lazy){ return '<img src="art/'+name+'.webp" alt=""'+(lazy ? ' loading="lazy" decoding="async"' : '')+'>'; }
+
+function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  " + c[1].toFixed(4) + "° W" : ""; }
+
+/* ---------- state ---------- */
+var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
+function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(/,/.test(addr) ? addr : addr + ", " + "San Francisco, CA"); }
+function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
+function who(id){ if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
+function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
+function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+var KIND = {board:"Notice board", shops:"Ask the shops", treat:"Treat", rest:"Relax", campus:"On campus"};
+var MAPI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9"/></svg>';
+
+/* ---------- build ---------- */
+document.getElementById("heroArt").innerHTML = pic("hero");
+var grid = document.getElementById("grid"), gsec = null;
+/* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
+var TINT = {"sfstate": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ccsf": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "latenight": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "usf": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "ucsf": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "artu": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "missionbay": ["#203953", "#a4b5c8", "#e5eef4", "#202b37"], "uclaw": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sproul": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "durant": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "tele": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "moffitt": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "calshattuck": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "dorms": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "northside": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "ihouse": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "calelmwood": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "laney": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "mills": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "stanford": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "sjsu": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "csueb": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"]};
+function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
+document.getElementById("heroLabel").textContent = "Bay Area students" + " · " + N + " walks";
+HOODS.forEach(function(h, i){
+  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
+  h.k = i;
+  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.id);
+  var a = el("div", "art"); a.innerHTML = pic(h.id + "-card", true);
+  var seal = el("div", "seal", "Covered");
+  var meta = el("div", "meta");
+  meta.append(el("div", "no", pad(i+1)), el("div", "nm", h.name), el("div", "vb", h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
+  c.append(a, seal, meta);
+  c.addEventListener("click", function(){ openSheet(h, c); });
+  gsec.append(c);
+});
+
+/* ---------- sheet ---------- */
+var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
+function openSheet(h, from){
+  cur = h; lastFocus = from || null; tint(document.getElementById("sheet"), h.id);
+  document.getElementById("sArt").innerHTML = pic(h.id + "-wide") + '<span class="coord">' + coordText(h.id) + '</span>';
+  document.getElementById("sNo").textContent = "No. " + (h.k+1) + " of " + N;
+  document.getElementById("sTitle").textContent = h.name;
+  document.getElementById("sVibe").textContent = h.vibe;
+  var f = document.getElementById("sFacts"); f.textContent = "";
+  var nb = h.stops.filter(function(s){ return s.k === "board" || s.k === "campus"; }).length;
+  function fact(n, l){ var sp = el("span"); sp.append(el("b", "", n), document.createTextNode(" " + l)); f.append(sp); }
+  fact(h.stops.length, "stops"); fact(nb, nb === 1 ? "board" : "boards");
+  if (h.stops.some(function(s){ return s.k === "treat"; })) fact(1, "treat");
+  if (h.stops.some(function(s){ return s.k === "rest"; })) fact(1, "place to relax");
+  var rb = document.getElementById("sRule"); rb.hidden = !h.rule; rb.querySelector("span").textContent = h.rule || "";
+  document.getElementById("sStart").textContent = h.start.t;
+  document.getElementById("sStartNote").textContent = h.start.n;
+  var sm = document.getElementById("sStartMap"); sm.href = mapUrl(h.start.a); sm.innerHTML = "Open in Maps " + MAPI;
+  var ol = document.getElementById("sTrail"); ol.textContent = "";
+  h.stops.forEach(function(s, i){
+    var li = el("li");
+    var tx = el("div");
+    tx.append(el("div", "label", KIND[s.k]), el("b", "", s.t), el("p", "", s.n));
+    if (s.a){ var a = el("a"); a.href = mapUrl(s.a); a.target = "_blank"; a.rel = "noopener"; a.innerHTML = MAPI; a.prepend(document.createTextNode((/^\d/.test(s.a) ? s.a.split(",")[0] : "Open in Maps") + " ")); tx.append(a); }
+    li.append(el("div", "n", String(i+1)), tx); ol.append(li);
+  });
+  var bx = document.getElementById("sBonus"); bx.textContent = "";
+  if (h.bonus){
+    bx.hidden = false; bx.append(el("div", "label", "If you have flyers left · " + h.bonus.t));
+    bx.append(el("p", "", h.bonus.n || "A few more boards nearby."));
+    var ul = el("ul"); h.bonus.list.forEach(function(x){ var li = el("li"); var a = el("a", "", x[1].split(",")[0]); a.href = mapUrl(x[1]); a.target = "_blank"; a.rel = "noopener"; li.append(el("span", "", x[0]), a); ul.append(li); }); bx.append(ul);
+  } else bx.hidden = true;
+  renderSheet();
+  document.getElementById("sScroll").scrollTop = 0;
+  sheet.setAttribute("aria-hidden", "false"); sheet.classList.add("on"); veil.classList.add("on");
+  document.body.style.overflow = "hidden";
+  setTimeout(function(){ document.getElementById("close").focus({preventScroll:true}); }, 60);
+}
+function closeSheet(){
+  sheet.classList.remove("on"); veil.classList.remove("on"); sheet.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = ""; cur = null; if (lastFocus) lastFocus.focus({preventScroll:true});
+}
+document.getElementById("close").addEventListener("click", closeSheet);
+veil.addEventListener("click", closeSheet);
+document.addEventListener("keydown", function(e){
+  if (!cur) return;
+  if (e.key === "Escape") closeSheet();
+  if (e.key === "Tab"){ var f = sheet.querySelectorAll("button:not([disabled]), a[href]"); if (!f.length) return; var a = f[0], z = f[f.length-1];
+    if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
+});
+
+/* Begin and Mark done open WhatsApp with a short note to the team lead already written. Nothing is sent until the volunteer taps send. */
+var WA_NUMBER = "14159350575";
+function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent((verb || "Covered ") + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
+function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
+function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
+  if (s === "open") return ["Open", "Anyone can begin this walk"];
+  if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
+  return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
+function renderSheet(){
+  if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
+  var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
+  var a = document.getElementById("sActs"); a.textContent = "";
+  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); tellTeam(h, "Starting "); }));
+  else if (s === "progress"){ a.append(btn("Let go", "", function(){ setStatus(h, "open"); })); a.append(btn("Mark done", "main", function(){ setStatus(h, "done"); tellTeam(h); })); }
+  else a.append(btn("Reopen", "", function(){ setStatus(h, "open"); }));
+}
+function render(){
+  HOODS.forEach(function(h){
+    var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
+    c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done");
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+  });
+  var k = counts();
+  document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
+  var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
+  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "");
+  renderSheet();
+  var need = HOODS.map(function(h){ return hoods[h.id] && hoods[h.id].by; }).filter(function(id){ return id && id !== me && !names[id]; });
+  if (userApi && need.length){ userApi.profiles(need).then(function(ps){ var ch = false; Object.keys(ps || {}).forEach(function(x){ if (!names[x]){ names[x] = ps[x]; ch = true; } }); if (ch) render(); }).catch(function(){}); }
+}
+var toastEl = document.getElementById("toast"), tt;
+function toast(m){ toastEl.textContent = m; toastEl.classList.add("show"); clearTimeout(tt); tt = setTimeout(function(){ toastEl.classList.remove("show"); }, 2800); }
+
+/* ---------- shared writes: one document per neighborhood ---------- */
+var syncEl = document.getElementById("sync"), pending = {};
+function setStatus(h, next){
+  if (!canWrite || pending[h.id]) return;
+  var prev = hoods[h.id];
+  var rec = next === "open" ? null : {status: next, by: (next === "done" && prev && prev.by) ? prev.by : me, at: new Date().toISOString()};
+  if (rec) hoods[h.id] = rec; else delete hoods[h.id];
+  render();
+  if (next === "progress") toast("Enjoy the walk through " + h.name);
+  if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
+  if (!live){ saveLocal(); return; }
+  pending[h.id] = true;
+  var ref = db.doc(COLL + "/" + h.id);
+  (rec ? ref.set(rec) : ref.delete()).then(function(){ syncEl.textContent = "Shared live: anyone with the link can begin a walk"; })
+    .catch(function(e){
+      if (prev) hoods[h.id] = prev; else delete hoods[h.id];
+      if (e && e.code === "invalid_argument"){ canWrite = false; syncEl.textContent = "View only: ask the page owner for access to begin walks"; }
+      else syncEl.textContent = "Couldn't save that change. Try again.";
+      render();
+    }).then(function(){ delete pending[h.id]; });
+}
+var LS_KEY = "stu-flyer-quest-team-v1";
+/* Walks already covered by the team, shown as covered for every visitor. A device can still reopen one. */
+var DEFAULTS = {};
+function saveLocal(){ try{ var out = {}; Object.keys(hoods).forEach(function(k){ out[k] = hoods[k]; }); Object.keys(DEFAULTS).forEach(function(k){ if (!out[k]) out[k] = {status: "open"}; }); localStorage.setItem(LS_KEY, JSON.stringify(out)); }catch(e){} }
+function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
+  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
+  hoods = next; }
+
+loadLocal(); render();
+
+var api = window.claude;
+function offline(){ syncEl.textContent = "Progress is saved on this device"; }
+if (!api || typeof api.use !== "function") { offline(); return; }
+Promise.all([api.use("db"), api.use("user")]).then(function(res){
+  db = res[0]; userApi = res[1];
+  if (!db) { offline(); return; }
+  var ready = userApi ? Promise.all([userApi.id(), userApi.can("data.write")]) : Promise.resolve([null, null]);
+  return ready.then(function(v){
+    me = v[0]; if (v[1] === false) canWrite = false;
+    live = true; hoods = {};
+    syncEl.textContent = "Loading shared progress…";
+    var wait = setTimeout(function(){ syncEl.textContent = "Can't reach shared progress yet"; }, 10000);
+    db.collection(COLL).onSnapshot(function(snap){
+      var next = {};
+      snap.docs.forEach(function(d){ var x = d.data(); if (x && (x.status === "progress" || x.status === "done")) next[d.id] = {status:x.status, by: typeof x.by === "string" ? x.by : null, at: typeof x.at === "string" ? x.at : null}; });
+      Object.keys(pending).forEach(function(k){ if (hoods[k]) next[k] = hoods[k]; else delete next[k]; });
+      hoods = next; render();
+      if (!snap.metadata.fromCache){ clearTimeout(wait); syncEl.textContent = canWrite ? "Shared live: anyone with the link can begin a walk" : "View only: ask the page owner for access to begin walks"; }
+    }, function(){ clearTimeout(wait); live = false; loadLocal(); render(); offline(); });
+  });
+}).catch(offline);
+})();
+</script>
+
+</body>
+</html>

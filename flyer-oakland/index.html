@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Oakland Flyer Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500&display=swap">
+<style>
+/* Quiet and minimal: one serif for headings, one sans for reading, warm paper, one accent, lots of air. */
+:root{
+  /* Colors pulled from the paintings: apricot sky for paper, night navy for ink, plum dusk for the accent, park grass for done, marigold for underway. */
+  --paper:#faf3ec; --card:#fffaf5; --ink:#1d2b45; --muted:#5d6577; --line:#ecdfd3; --soft:#f3e7dc;
+  --accent:#87485f; --done:#2f6e4e; --warm:#c98a22; --btn:#1d2b45; --btn-ink:#faf3ec;
+  --serif:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gut:max(20px, env(safe-area-inset-left)); --gutr:max(20px, env(safe-area-inset-right));
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131a26; --card:#19212f; --ink:#f1e8de; --muted:#a3a9b6; --line:#273041; --soft:#1d2635;
+  --accent:#e2a0b4; --done:#86c4a0; --warm:#f2b85a; --btn:#f1e8de; --btn-ink:#131a26; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:hidden; -webkit-text-size-adjust:100%; text-rendering:optimizeLegibility}
+button,a{touch-action:manipulation; -webkit-tap-highlight-color:transparent}
+button{font:inherit; color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.wrap{max-width:1040px; margin:0 auto; padding:0 var(--gutr) 96px var(--gut)}
+.label{font:500 12px/1.2 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.art{position:relative; overflow:hidden; background:var(--soft)}
+.art img{display:block; width:100%; height:100%; object-fit:cover}
+.art .coord{position:absolute; right:14px; bottom:12px; font:500 11px/1 var(--sans); letter-spacing:.12em; color:#fff; opacity:.85; text-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+/* header */
+.top{padding:72px 0 36px; max-width:640px}
+.top h1{font:400 clamp(48px, 12vw, 96px)/.95 var(--serif); letter-spacing:-.035em; margin:18px 0 20px; font-variation-settings:"opsz" 144}
+.top h1 em{font-style:italic; font-weight:300}
+.top p{margin:0; font:400 clamp(18px, 4.4vw, 21px)/1.5 var(--serif); color:var(--muted); max-width:30ch}
+.prog{display:flex; align-items:center; gap:16px; margin-top:36px; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
+.prog .bar{flex:1; padding:0; border:0; max-width:260px; height:2px; background:var(--line); position:relative; overflow:hidden}
+.prog .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--done)}
+.prog .bar b{position:absolute; top:0; bottom:0; background:var(--warm)}
+.hero{border-radius:4px; aspect-ratio:4/5; max-height:620px}
+@media (min-width:600px){.hero{aspect-ratio:16/10}}
+@media (min-width:900px){.hero{aspect-ratio:16/7}}
+
+/* how it works */
+.intro{display:grid; gap:56px; margin:88px 0 0}
+@media (min-width:800px){.intro{grid-template-columns:1fr 1fr; gap:80px; align-items:start}}
+.steps{list-style:none; margin:0; padding:0; display:grid; gap:28px}
+.steps li{display:grid; grid-template-columns:36px 1fr; align-items:baseline}
+.steps b{font:400 15px/1 var(--serif); color:var(--accent); font-style:italic}
+.steps span{font-size:17px; line-height:1.55; max-width:36ch}
+.ask q{display:block; margin-top:16px; font:300 clamp(28px, 6vw, 38px)/1.2 var(--serif); letter-spacing:-.015em; quotes:"\201C" "\201D"; font-style:italic}
+.ask p{margin:18px 0 0; color:var(--muted); font-size:15px; max-width:40ch}
+.sync{font-size:13px; color:var(--muted); margin:56px 0 0}
+
+h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em; margin:112px 0 14px}
+.sub{color:var(--muted); margin:0; max-width:52ch; font-size:16px}
+
+/* the walks */
+.tier{margin:72px 0 28px; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px}
+.tier:first-child{margin-top:48px}
+.tier .label{font:400 22px/1.2 var(--serif); letter-spacing:-.01em; text-transform:none; color:var(--ink)}
+.tier p{margin:0; color:var(--muted); font-size:14px}
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:40px 16px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:52px 28px}}
+@media (min-width:960px){.grid{grid-template-columns:repeat(4, minmax(0,1fr))}}
+.card{all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; position:relative}
+.card .art{aspect-ratio:4/5; border-radius:4px; transition:opacity .25s ease}
+@media (hover:hover){.card:hover .art{opacity:.88}}
+.card:focus-visible{outline:2px solid var(--accent); outline-offset:6px; border-radius:4px}
+.card .meta{padding:14px 0 0; display:flex; flex-direction:column; gap:3px}
+.card .no{font:400 13px/1 var(--serif); font-style:italic; color:var(--muted); font-variant-numeric:tabular-nums}
+.card .nm{font:400 20px/1.2 var(--serif); letter-spacing:-.01em; margin-top:4px}
+.card .vb{font-size:13px; color:var(--muted); line-height:1.45}
+.card .st{display:none; font-size:12.5px; font-weight:500; margin-top:6px; align-items:center; gap:7px}
+.card .st::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
+.card.progress .st{display:flex; color:var(--warm)}
+.card.done .st{display:flex; color:var(--done)}
+.card .seal{position:absolute; top:10px; left:10px; padding:5px 10px; font:500 11px/1 var(--sans); letter-spacing:.06em; color:#1f2328; background:rgba(255,253,249,.92); border-radius:999px; display:none; backdrop-filter:blur(4px)}
+.card.done .seal{display:inline-block}
+.card.done .art img{filter:saturate(.75)}
+
+/* sheet */
+.veil{position:fixed; inset:0; background:rgba(20,18,16,.45); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:20}
+.veil.on{opacity:1; pointer-events:auto}
+.sheet{position:fixed; left:0; right:0; bottom:0; top:max(24px, env(safe-area-inset-top)); z-index:21; margin:0 auto; max-width:620px; background:var(--paper); border-radius:16px 16px 0 0; transform:translateY(105%); visibility:hidden; transition:transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s; display:flex; flex-direction:column; overflow:hidden}
+.sheet.on{transform:none; visibility:visible; transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:720px){.sheet{top:32px; bottom:32px; border-radius:8px}}
+.sheet-scroll{overflow-y:auto; flex:1; overscroll-behavior:contain}
+.sheet .art{aspect-ratio:16/11}
+.x{position:absolute; top:12px; right:12px; z-index:2; width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,253,249,.92); color:#1f2328; cursor:pointer; display:grid; place-items:center; backdrop-filter:blur(6px)}
+.body{padding:32px var(--gutr) 40px var(--gut)}
+.body h3{font:400 clamp(34px, 8vw, 44px)/1.05 var(--serif); letter-spacing:-.025em; margin:12px 0 14px}
+.body .lede{font:400 18px/1.55 var(--serif); color:var(--muted); margin:0 0 24px}
+.facts{display:flex; gap:22px; flex-wrap:wrap; padding:0 0 24px; margin-bottom:28px; border-bottom:1px solid var(--line); font-size:14px; color:var(--muted)}
+.facts span b{color:var(--ink); font-weight:500}
+.start{display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.start .tx{flex:1; min-width:180px}
+.start b{display:block; font:400 21px/1.3 var(--serif); margin-top:8px}
+.start p{margin:6px 0 0; font-size:14.5px; color:var(--muted)}
+.maplink{flex:none; display:inline-flex; align-items:center; gap:8px; font-weight:500; font-size:14px; text-decoration:none; padding:11px 18px; min-height:44px; border:1px solid var(--line); color:var(--ink); border-radius:999px; background:var(--card)}
+.trail{list-style:none; margin:40px 0 0; padding:0}
+.trail li{display:grid; grid-template-columns:40px 1fr; gap:12px; position:relative; padding-bottom:32px}
+.trail li:not(:last-child)::before{content:""; position:absolute; left:13px; top:34px; bottom:4px; width:1px; background:var(--line)}
+.trail .n{width:27px; height:27px; border-radius:50%; border:1px solid var(--ink); display:grid; place-items:center; font:400 14px/1 var(--serif); font-style:italic}
+.trail .label{margin-top:5px; font-size:11px; color:var(--accent)}
+.trail b{display:block; font:400 20px/1.3 var(--serif); margin-top:6px}
+.trail p{margin:6px 0 0; font-size:15px; color:var(--ink); max-width:46ch}
+.trail a{display:inline-flex; gap:6px; align-items:center; margin-top:8px; min-height:32px; font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.trail a:hover{color:var(--ink); border-color:var(--ink)}
+.bonus{margin-top:8px; padding-top:28px; border-top:1px solid var(--line)}
+.quote{margin-top:28px; padding:0 0 0 18px; border-left:2px solid var(--accent)}
+.quote q{display:block; margin-top:8px; font:300 21px/1.4 var(--serif); font-style:italic; quotes:"\201C" "\201D"}
+.quote span{display:block; margin-top:6px; font-size:13px; color:var(--muted)}
+.bonus p{margin:10px 0 14px; font-size:15px; color:var(--muted)}
+.bonus ul{margin:0; padding:0; list-style:none; display:grid; gap:10px}
+.bonus li{font-size:15px; display:flex; justify-content:space-between; gap:4px 12px; flex-wrap:wrap}
+.bonus li a{color:var(--muted); font-size:13.5px; text-decoration:none; border-bottom:1px solid var(--line)}
+.sheet > .bar{flex:none; padding:14px var(--gutr) calc(14px + env(safe-area-inset-bottom)) var(--gut); border-top:1px solid var(--line); background:var(--paper); display:flex; gap:12px; align-items:center}
+.bar .who{flex:1; min-width:0; font-size:13.5px; color:var(--muted); line-height:1.4}
+.bar .who b{display:block; color:var(--ink); font:400 17px/1.25 var(--serif)}
+.acts{display:flex; gap:8px; flex:none}
+.b{cursor:pointer; padding:12px 20px; min-height:46px; border-radius:999px; font-weight:500; font-size:14.5px; background:transparent; border:1px solid var(--line); white-space:nowrap}
+.b.main{background:var(--btn); color:var(--btn-ink); border-color:transparent}
+.b:disabled{opacity:.5; cursor:not-allowed}
+.foot{margin:120px 0 0; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); max-width:60ch}
+.toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%, 16px); background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font:400 15px/1.3 var(--sans); opacity:0; pointer-events:none; transition:all .3s ease; z-index:40; max-width:calc(100vw - 32px); text-align:center}
+.toast.show{opacity:1; transform:translate(-50%, 0)}
+
+
+/* other cities, campus rule box */
+.others{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:20px; font-size:14px}
+.others a{color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.others a:hover{color:var(--accent); border-color:var(--accent)}
+.rulebox{margin:0 0 8px; padding:14px 16px; background:var(--soft); border-radius:4px; font-size:14.5px; line-height:1.5}
+.rulebox .label{color:var(--t); margin-bottom:6px}
+.plan{max-width:640px}
+/* markets and booths */
+.mk{display:grid; gap:56px; margin-top:48px}
+@media (min-width:860px){.mk{grid-template-columns:1fr 1fr; gap:72px}}
+.mk-h{font:400 22px/1.2 var(--serif); letter-spacing:-.01em; margin:0}
+.mk-note{margin:8px 0 0; color:var(--muted); font-size:14px}
+.mkt{list-style:none; margin:20px 0 0; padding:0}
+.mkt li{display:grid; grid-template-columns:1fr auto; gap:2px 16px; padding:16px 0; border-top:1px solid var(--line)}
+.mkt li:last-child{border-bottom:1px solid var(--line)}
+.mkt b{font:400 19px/1.3 var(--serif)}
+.mkt .when{font-size:14px; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.mkt a{grid-column:1 / -1; font-size:13.5px; color:var(--muted); text-decoration:none; justify-self:start; border-bottom:1px solid var(--line)}
+.mkt a:hover{color:var(--accent); border-color:var(--accent)}
+.booth{list-style:none; margin:20px 0 0; padding:0; display:grid; gap:28px}
+.booth li{padding-left:18px; border-left:2px solid var(--line)}
+.booth li:first-child{border-left-color:var(--done)}
+.booth .label{color:var(--accent)}
+.booth b{display:block; font:400 20px/1.3 var(--serif); margin-top:6px}
+.booth p{margin:6px 0 0; font-size:15px; max-width:46ch}
+.booth a{display:inline-block; margin-top:8px; font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
+.booth a:hover{color:var(--accent); border-color:var(--accent)}
+@media (max-width:420px){.mkt li{grid-template-columns:1fr}.mkt .when{text-align:left}}
+/* each walk borrows its painting's sky color */
+.card,.sheet{--t:var(--tl, var(--accent)); --w:var(--wl, var(--soft))}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .card,:root:not([data-theme="light"]) .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .sheet{--t:var(--td, var(--accent)); --w:var(--wd, var(--soft))}
+.card .art,.sheet .art{background:var(--w)}
+.card .no{color:var(--t); font-style:italic}
+.card .no::after{content:""; display:inline-block; width:18px; height:1px; background:currentColor; vertical-align:middle; margin-left:8px; opacity:.6}
+.sheet #sNo,.sheet .start .label,.trail .label{color:var(--t)}
+.trail .n{border-color:var(--t); color:var(--t)}
+.quote{border-left-color:var(--t)}
+.maplink{border-color:color-mix(in srgb, var(--t) 35%, var(--line))}
+.trail a:hover{color:var(--t); border-color:var(--t)}
+@media (max-width:520px){
+  .top{padding:48px 0 28px}
+  .sheet > .bar{flex-wrap:wrap; gap:10px}
+  .bar .who{flex:1 1 100%}
+  .acts{flex:1 1 100%}
+  .acts .b{flex:1}
+  .start .maplink{width:100%; justify-content:center}
+  .intro{margin-top:64px}
+  h2.sec{margin-top:88px}
+  .card .nm{font-size:18px}
+  .card .vb{font-size:12.5px}
+}
+@media (prefers-reduced-motion: reduce){.sheet,.veil,.card .art,.toast{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="label" id="heroLabel">Oakland walks</div>
+    <h1>Flyer <em>Quest</em></h1>
+    <p>Walk the town slowly. Leave a little calm in every window you pass.</p>
+    <div class="prog"><div class="bar" id="pbar"><b id="pbarP"></b><i id="pbarD"></i></div><span id="ptext"></span></div>
+  </header>
+  <div class="hero art" id="heroArt"></div>
+
+  <section class="intro">
+    <ol class="steps">
+      <li><b>01</b><span>Choose a neighborhood below.</span></li>
+      <li><b>02</b><span>Begin at its corner and follow the walk: boards, friendly shops, a treat, a spot to relax.</span></li>
+      <li><b>03</b><span>Mark it done when you're back, and see how much of the city you've covered.</span></li>
+    </ol>
+    <div class="ask">
+      <div class="label">The ask</div>
+      <q>Hi! Mind if I put a flyer in your window?</q>
+      <p>If they say no: accept people and situations as they are. Smile, thank them, next door.</p>
+    </div>
+  </section>
+  <div class="sync" id="sync">Loading…</div>
+
+  <h2 class="sec">The walks</h2>
+  <p class="sub">Ranked by foot traffic, notice boards and how open the shops are to flyers. In Oakland, flyers go in windows and on boards only, never on poles, trees or parked cars.</p>
+  <div id="grid"></div>
+
+
+    <h2 class="sec" id="markets">Markets and tables</h2>
+  <p class="sub">Busy markets are great for handing out flyers on the sidewalk outside. Hours were checked in November 2026, so check again before you go.</p>
+  <div class="mk">
+  <div class="mk-col"><h3 class="mk-h">Farmers markets</h3>
+  <ol class="mkt">
+  <li><b>Old Oakland</b><span class="when">Fri 8 to 2</span><a href="https://www.google.com/maps/search/?api=1&amp;query=9th%20St%20and%20Broadway%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">9th St and Broadway</a></li>
+  <li><b>Grand Lake</b><span class="when">Sat 9 to 2, closed Dec 26</span><a href="https://www.google.com/maps/search/?api=1&amp;query=Grand%20Ave%20and%20Lakeshore%20Ave%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">Grand Ave and Lakeshore Ave</a></li>
+  <li><b>Temescal</b><span class="when">Sun 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&amp;query=5300%20Claremont%20Ave%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">5300 Claremont Ave</a></li>
+  <li><b>Montclair</b><span class="when">Sun 9 to 1</span><a href="https://www.google.com/maps/search/?api=1&amp;query=La%20Salle%20Ave%20and%20Moraga%20Ave%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">La Salle Ave and Moraga Ave</a></li>
+  <li><b>Jack London Square</b><span class="when">Sun 11 to 4, closed Dec 27</span><a href="https://www.google.com/maps/search/?api=1&amp;query=472%20Water%20St%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">472 Water St</a></li>
+  <li><b>Fruitvale</b><span class="when">Sun 8 to 3:30, Tue and Thu 11 to 7</span><a href="https://www.google.com/maps/search/?api=1&amp;query=E%2012th%20St%20and%2034th%20Ave%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">E 12th St and 34th Ave</a></li>
+  <li><b>West Oakland</b><span class="when">Sun 10 to 2</span><a href="https://www.google.com/maps/search/?api=1&amp;query=1620%2018th%20St%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">1620 18th St</a></li>
+  </ol></div>
+  <div class="mk-col"><h3 class="mk-h">Where to set up a table</h3><ol class="booth">
+  <li><div class="label">Free, apply</div><b>Grand Lake free speech table</b><p>The market keeps a card table for community groups. Applications reopen Jan 1, 2027.</p><a href="https://www.agriculturalinstitute.org/joinourmarkets" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Ask</div><b>Temescal and Old Oakland markets</b><p>Urban Village runs both. Ask about a community table through their contact page.</p><a href="https://www.uvfm.org/contact" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Free room</div><b>Oakland Public Library rooms</b><p>Book a meeting room for a free intro session at any branch.</p><a href="https://oaklandlibrary.org/services/meeting-rooms/" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Plan ahead</div><b>Library program proposals</b><p>Pitch a breathing workshop as a library program, 3 to 6 months ahead.</p><a href="https://oaklandlibrary.org/library-program-proposals/" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Paid</div><b>Oakland First Fridays</b><p>Nonprofit booths start around $150 on Telegraph Ave.</p><a href="https://oaklandfirstfridays.org/oakland-first-fridays-vendor-portal/" target="_blank" rel="noopener">Details</a></li>
+  <li><div class="label">Next season</div><b>Freedom Farmers&#x27; Market</b><p>Opens again in July in West Oakland. Ask then about a table.</p><a href="https://www.farmstogrow.org/freedomfarmersmarket" target="_blank" rel="noopener">Details</a></li>
+  </ol></div></div>
+
+  <h2 class="sec" id="planned">On the sign-up sheet</h2>
+  <p class="sub">Spots the team picked for Saturday, Nov 21. They sit on these walks.</p>
+  <ol class="mkt plan"><li><b>Pacific Renaissance Plaza</b><span class="when">Chinatown</span><a href="https://www.google.com/maps/search/?api=1&amp;query=388%209th%20St%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">388 9th St, Oakland, CA</a></li><li><b>Rockridge Market Hall</b><span class="when">Rockridge</span><a href="https://www.google.com/maps/search/?api=1&amp;query=5655%20College%20Ave%2C%20Oakland%2C%20CA" target="_blank" rel="noopener">5655 College Ave, Oakland, CA</a></li><li><b>Public Market Emeryville</b><span class="when">Emeryville</span><a href="https://www.google.com/maps/search/?api=1&amp;query=5959%20Shellmound%20St%2C%20Emeryville%2C%20CA" target="_blank" rel="noopener">5959 Shellmound St, Emeryville, CA</a></li><li><b>Bay Street</b><span class="when">Emeryville</span><a href="https://www.google.com/maps/search/?api=1&amp;query=5616%20Bay%20St%2C%20Emeryville%2C%20CA" target="_blank" rel="noopener">5616 Bay St, Emeryville, CA</a></li></ol>
+
+  <p class="foot">A volunteer guide. Oakland law bans flyers on poles, trees, meters, signs, sidewalks and parked cars, so use windows and boards with the owner&#x27;s okay. Oakland libraries post dated nonprofit flyers for 30 days through staff and turn down commercial ones, so a flyer for a free intro session is safest. Checked November 2026.</p>
+  <nav class="others"><a href="../flyer/">San Francisco</a> <a href="../flyer-berkeley/">Berkeley</a> <a href="../flyer-students/">Bay Area students</a></nav>
+</div>
+
+<div class="veil" id="veil"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle" aria-hidden="true">
+  <button class="x" id="close" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+  <div class="sheet-scroll" id="sScroll">
+    <div class="art" id="sArt"></div>
+    <div class="body">
+      <div class="label" id="sNo"></div>
+      <h3 id="sTitle"></h3>
+      <p class="lede" id="sVibe"></p>
+      <div class="facts" id="sFacts"></div>
+      <div class="rulebox" id="sRule" hidden><div class="label">How posting works here</div><span></span></div>
+      <div class="start">
+        <div class="tx"><div class="label">Begin here</div><b id="sStart"></b><p id="sStartNote"></p></div>
+        <a class="maplink" id="sStartMap" target="_blank" rel="noopener">Map</a>
+      </div>
+      <ol class="trail" id="sTrail"></ol>
+      <div class="bonus" id="sBonus"></div>
+    </div>
+  </div>
+  <div class="bar"><div class="who" id="sWho"></div><div class="acts" id="sActs"></div></div>
+</section>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+function S(k, t, n, a){ return {k:k, t:t, n:n, a:a}; }
+var HOODS = [
+ {"id": "rockridge", "name": "Rockridge", "vibe": "Busy, friendly College Ave with bookstores, a library and a food hall.", "start": {"t": "Rockridge Branch Library", "n": "Rockridge BART is about 10 minutes north on College Ave.", "a": "5366 College Ave, Oakland, CA"}, stops:[S("board","Rockridge Branch Library","Hand a printed, dated flyer to the staff member in charge and ask them to post it. They aim to answer within 48 hours.","5366 College Ave, Oakland, CA"),S("shops","East Bay Booksellers","Independent bookstore. Ask if they have a community board or window space.","5433 College Ave, Oakland, CA"),S("shops","Pegasus Books","Ask at the counter about the window or a board.","5560 College Ave, Oakland, CA"),S("shops","Rockridge Market Hall","On the team's sheet for Nov 21. A food hall with a coffee bar and bakery inside. Ask a manager before leaving anything.","5655 College Ave, Oakland, CA"),S("treat","Starter Bakery","A pastry to finish. Bad Walter's ice cream is right next door.","5804 College Ave, Oakland, CA")], bonus:{"t": "Still got flyers?", "n": "Keep going north on College Ave.", "list": [["Cole Coffee", "6255 College Ave, Oakland, CA"]]}},
+ {"id": "temescal", "name": "Temescal", "vibe": "Creative Telegraph Ave strip with a tiny alley of indie shops.", "start": {"t": "Temescal Branch Library", "n": "Buses run along Telegraph. MacArthur BART is about 15 minutes south.", "a": "5205 Telegraph Ave, Oakland, CA"}, stops:[S("board","Temescal Branch Library","Give a printed, dated flyer to staff for the community board.","5205 Telegraph Ave, Oakland, CA"),S("shops","Temescal Alley","Small shops along 49th St. Ask each one kindly for a window spot.","470 49th St, Oakland, CA"),S("shops","East Bay Depot for Creative Reuse","Nonprofit reuse store. Ask if they have a board for local events.","4695 Telegraph Ave, Oakland, CA"),S("treat","Curbside Creamery","Ice cream in the alley.","482 49th St, Oakland, CA"),S("rest","Frog Park","Rest by the park. On Sundays the farmers market runs next door, 9 to 1.","5300 Claremont Ave, Oakland, CA")], bonus:{"t": "Still got flyers?", "n": "More cafes and bakeries line Telegraph.", "list": [["Bakesale Betty", "5098 Telegraph Ave, Oakland, CA"]]}},
+ {"id": "grandlake", "name": "Grand Lake", "vibe": "An old theatre, a co-op bakery and a bookstore, steps from the lake.", "start": {"t": "Grand Lake Theatre", "n": "Buses run on Grand Ave. Street parking is metered.", "a": "3200 Grand Ave, Oakland, CA"}, stops:[S("shops","Walden Pond Books","Long-time used and new bookstore. Ask about a board or the window.","3316 Grand Ave, Oakland, CA"),S("board","Lakeview Branch Library","Hand a printed, dated flyer to staff for the board.","550 El Embarcadero, Oakland, CA"),S("board","Arizmendi Bakery Lakeshore","Worker-owned co-op bakery. Ask if they have a community board.","3265 Lakeshore Ave, Oakland, CA"),S("shops","Lakeshore Ave shops","Walk the block and ask friendly shops for window space.","Lakeshore Ave and Trestle Glen Rd, Oakland, CA"),S("rest","Splash Pad Park","Sit for a minute. On Saturdays the farmers market is right here, 9 to 2.","Grand Ave and Lakeshore Ave, Oakland, CA")], bonus:{"t": "Still got flyers?", "n": "A couple more spots nearby.", "list": [["Colonial Donuts", "3318 Lakeshore Ave, Oakland, CA"], ["Wilde Brothers Coffee", "3206 Grand Ave, Oakland, CA"]]}},
+ {"id": "chinatown", "name": "Chinatown", "vibe": "Lively streets, a library and a cultural center in one plaza.", "start": {"t": "9th St and Webster St", "n": "Lake Merritt and 12th St BART are each 5 to 10 minutes away.", "a": "9th St and Webster St, Oakland, CA"}, stops:[S("board","Asian Branch Library","Inside Pacific Renaissance Plaza, on the team's sheet for Nov 21. Give staff a printed, dated flyer.","388 9th St, Oakland, CA"),S("board","Oakland Asian Cultural Center","Upstairs in the same plaza, open Wed to Sat, 12 to 5. Ask if they share community events.","388 9th St, Suite 290, Oakland, CA"),S("shops","Pacific Renaissance Plaza shops","Ask shops around the fountain courtyard for window space.","388 9th St, Oakland, CA"),S("shops","Webster and Franklin","Bakeries and markets between 8th and 10th St. Ask politely and keep it short.","Webster St and 8th St, Oakland, CA"),S("rest","Lincoln Square Park","A neighborhood park to finish.","10th St and Harrison St, Oakland, CA")]},
+ {"id": "uptown", "name": "Uptown and Downtown", "vibe": "From the theatres to City Hall to the Main Library, ending at the lake.", "start": {"t": "19th St Oakland BART", "n": "Start right at the BART exit on Broadway.", "a": "Broadway and 19th St, Oakland, CA"}, stops:[S("shops","Awaken Cafe","Cafe and event space. Ask if they have a board for local events.","1429 Broadway, Oakland, CA"),S("rest","Frank H. Ogawa Plaza","The open plaza by City Hall. A good spot to regroup. Nothing on poles or signs here.","Frank H. Ogawa Plaza, Oakland, CA"),S("board","Oakland Main Library","The biggest library board in town, open Sundays too. Give staff a printed, dated flyer.","125 14th St, Oakland, CA"),S("rest","Lake Merritt shore","Two blocks east. Sit by the water to finish.","Lakeside Dr and 14th St, Oakland, CA")]},
+ {"id": "piedmont", "name": "Piedmont Ave", "vibe": "Leafy, walkable avenue with bookstores, a cinema and old-school ice cream.", "start": {"t": "Piedmont Ave and 40th St", "n": "MacArthur BART is about 15 minutes west.", "a": "Piedmont Ave and 40th St, Oakland, CA"}, stops:[S("shops","Tally Ho! Books","Independent bookstore. Ask about window space.","3941 Piedmont Ave, Oakland, CA"),S("board","Piedmont Avenue Branch Library","Just off the avenue. Give staff a printed, dated flyer for the board.","80 Echo Ave, Oakland, CA"),S("shops","Piedmont Theatre","Oakland's oldest working cinema. Ask if they post local events.","4186 Piedmont Ave, Oakland, CA"),S("shops","Black Swan Books","Used and new books. Ask at the counter.","4236 Piedmont Ave, Oakland, CA"),S("treat","Fentons Creamery","Classic ice cream to end the walk.","4226 Piedmont Ave, Oakland, CA")], bonus:{"t": "Still got flyers?", "n": "For a quiet walk after, the cemetery hills are at the north end.", "list": [["Mountain View Cemetery", "5000 Piedmont Ave, Oakland, CA"]]}},
+ {"id": "emeryville", "name": "Emeryville", "vibe": "An open-air shopping street, then a busy food hall.", "start": {"t": "Bay Street", "n": "On the team's sheet for Nov 21. MacArthur BART is a short bus ride away.", "a": "5616 Bay St, Emeryville, CA"}, stops:[S("shops","Bay Street","Big chain stores rarely take flyers, so look for small, local shops and ask.","5616 Bay St, Emeryville, CA"),S("board","Tokyo Central","Japanese supermarket, open 9 to 10 daily. Ask at customer service if they have a community board.","5603 Bay St, Emeryville, CA"),S("shops","Public Market stalls","On the team's sheet for Nov 21. Lots of small food stalls. Ask the owners one by one.","5959 Shellmound St, Emeryville, CA"),S("treat","Public Market Emeryville","Grab food and sit in the hall. Open daily from 10.","5959 Shellmound St, Emeryville, CA")], bonus:{"t": "Still got flyers?", "n": "A co-op bakery inland.", "list": [["Arizmendi Bakery Emeryville", "4301 San Pablo Ave, Emeryville, CA"]]}},
+ {"id": "oldoakland", "name": "Old Oakland to the Waterfront", "vibe": "Historic blocks downhill to Jack London Square.", "start": {"t": "Broadway and 9th St", "n": "12th St BART is a few blocks north.", "a": "Broadway and 9th St, Oakland, CA"}, stops:[S("shops","The Bookmark Bookstore","Run by Friends of the Oakland Public Library. Ask if they post community events.","933 Broadway, Oakland, CA"),S("shops","Old Oakland Friday market","Fridays 8 to 2. Chat with shoppers and ask nearby shops for windows.","9th St and Broadway, Oakland, CA"),S("shops","Swan's Market","Food hall in a historic building. Ask a manager about notices.","510 9th St, Oakland, CA"),S("rest","Jack London Square","Walk down Broadway and rest by the water. Sunday market here, 11 to 4.","472 Water St, Oakland, CA")]},
+ {"id": "lakemerritt", "name": "Lake Merritt", "vibe": "A calm lakeside loop past gardens, with a bookshop on Grand Ave.", "start": {"t": "Grand Ave and Harrison St", "n": "19th St BART is about 10 minutes away.", "a": "Grand Ave and Harrison St, Oakland, CA"}, stops:[S("shops","Clio's Bookshop","Bookshop and bar that hosts readings. Ask about a board or the window.","353 Grand Ave, Oakland, CA"),S("shops","Grand Ave shops","Ask small shops between Harrison and Euclid for window space.","Grand Ave and Euclid Ave, Oakland, CA"),S("board","Lakeside Park Garden Center","Garden halls in the park. Ask staff if there is a place for community notices.","666 Bellevue Ave, Oakland, CA"),S("rest","Lakeside Park lawn","Sit on the grass by the bandstand and watch the lake.","Bellevue Ave and Grand Ave, Oakland, CA")]},
+ {"id": "dimond", "name": "Dimond to Laurel", "vibe": "Neighborhood MacArthur Blvd with a grocer, laundromat, yoga studio and cafe.", "start": {"t": "Dimond Branch Library", "n": "At Fruitvale Ave and MacArthur Blvd.", "a": "3565 Fruitvale Ave, Oakland, CA"}, stops:[S("board","Dimond Branch Library","Give staff a printed, dated flyer for the board.","3565 Fruitvale Ave, Oakland, CA"),S("board","Farmer Joe's Marketplace","Family-run grocer since 1994. Ask customer service about a community board.","3501 MacArthur Blvd, Oakland, CA"),S("board","Launderland","Big attended laundromat. People wait here, so ask staff if you can pin one up.","3711 MacArthur Blvd, Oakland, CA"),S("shops","Left Coast Power Yoga","A yoga studio, a natural fit. Ask the front desk.","4148 MacArthur Blvd, Oakland, CA"),S("treat","World Ground Cafe","Walk back west for coffee and a sit-down.","3726 MacArthur Blvd, Oakland, CA")]},
+ {"id": "fruitvale", "name": "Fruitvale", "vibe": "A transit village plaza with a library and a market.", "start": {"t": "Fruitvale BART", "n": "The village plaza is right outside the station.", "a": "E 12th St and 34th Ave, Oakland, CA"}, stops:[S("board","Cesar E. Chavez Branch Library","In Fruitvale Village, open Sundays too. Give staff a printed, dated flyer.","3301 E 12th St, Oakland, CA"),S("shops","Fruitvale Village shops","Ask shops around the plaza for window space. Spanish flyers help here.","3301 E 12th St, Oakland, CA"),S("board","The Unity Council","The community nonprofit that runs the market. Ask if they share local events.","1900 Fruitvale Ave, Oakland, CA"),S("treat","Fruitvale farmers market","Sundays, plus Tuesday and Thursday afternoons. Grab a snack and chat.","E 12th St and 34th Ave, Oakland, CA")]},
+ {"id": "montclair", "name": "Montclair Village", "vibe": "A small hill village with two bookstores and a Sunday market.", "start": {"t": "La Salle Ave and Moraga Ave", "n": "Best by car or bus. The Sunday market is right here, 9 to 1.", "a": "La Salle Ave and Moraga Ave, Oakland, CA"}, stops:[S("shops","A Great Good Place for Books","A beloved local bookstore. Ask about a board or the window.","6120 La Salle Ave, Oakland, CA"),S("shops","Book Tree","Right across the street. Ask at the counter.","6121 La Salle Ave, Oakland, CA"),S("shops","Village shops","Small local shops on La Salle and Mountain. Ask for window space.","La Salle Ave and Mountain Blvd, Oakland, CA"),S("board","Montclair Branch Library","Give staff a printed, dated flyer for the board.","1687 Mountain Blvd, Oakland, CA"),S("rest","Montclair Park","A green park a short walk up Moraga Ave.","Moraga Ave and Thornhill Dr, Oakland, CA")]},
+ {"id": "westoakland", "name": "West Oakland", "vibe": "A worker co-op grocer, a library and a new market hall.", "start": {"t": "West Oakland BART", "n": "Start at the station on 7th St.", "a": "7th St and Mandela Pkwy, Oakland, CA"}, stops:[S("board","Mandela Foods Cooperative","Worker-owned grocery across from BART. Ask if they have a community board.","1430 7th St, Oakland, CA"),S("shops","Kilovolt Coffee","A local cafe. Ask about a board or the window.","1746 13th St, Oakland, CA"),S("board","West Oakland Branch Library","Give staff a printed, dated flyer for the board.","1801 Adeline St, Oakland, CA"),S("treat","Prescott Market","A food hall with coffee and more. Sundays 10 to 2 there is a farmers market.","1620 18th St, Oakland, CA")], bonus:{"t": "Still got flyers?", "n": "Rest in the park by the library.", "list": [["DeFremery Park", "1651 Adeline St, Oakland, CA"]]}}
+];
+
+var N = HOODS.length;
+var COLL = "quest";
+var COORD = {};
+var RANK = ["rockridge", "temescal", "grandlake", "chinatown", "uptown", "piedmont", "emeryville", "oldoakland", "lakemerritt", "dimond", "fruitvale", "montclair", "westoakland"];
+HOODS.sort(function(a, b){ var x = RANK.indexOf(a.id), y = RANK.indexOf(b.id); return (x < 0 ? 999 : x) - (y < 0 ? 999 : y); });
+var TIERS = [[0, "Start here", "The busiest walks with the most boards."], [5, "Next up", "Good streets with friendly shops."], [9, "When you're on a roll", "Quieter, but worth a visit."]];
+function rng(seed){ var h = 2166136261; for (var i=0;i<seed.length;i++){ h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function r1(n){ return Math.round(n*10)/10; }
+function closedPath(pts){ var n = pts.length, d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<n;i++){ var p0 = pts[(i-1+n)%n], p1 = pts[i], p2 = pts[(i+1)%n], p3 = pts[(i+2)%n];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d + "Z"; }
+function openPath(pts){ var d = "M" + r1(pts[0][0]) + " " + r1(pts[0][1]);
+  for (var i=0;i<pts.length-1;i++){ var p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
+    d += " C" + r1(p1[0]+(p2[0]-p0[0])/6) + " " + r1(p1[1]+(p2[1]-p0[1])/6) + " " + r1(p2[0]-(p3[0]-p1[0])/6) + " " + r1(p2[1]-(p3[1]-p1[1])/6) + " " + r1(p2[0]) + " " + r1(p2[1]); }
+  return d; }
+var uid = 0;
+function pic(name, lazy){ return '<img src="art/'+name+'.webp" alt=""'+(lazy ? ' loading="lazy" decoding="async"' : '')+'>'; }
+
+function coordText(id){ var c = COORD[id]; return c ? c[0].toFixed(4) + "° N  " + c[1].toFixed(4) + "° W" : ""; }
+
+/* ---------- state ---------- */
+var hoods = {}, me = null, canWrite = true, db = null, userApi = null, live = false, names = {};
+function mapUrl(addr){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(/,/.test(addr) ? addr : addr + ", " + "Oakland, CA"); }
+function fmt(iso){ var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
+function who(id){ if (!id) return live ? "Someone" : "You"; if (id === "team") return "the team"; if (id === me) return "You"; return (names[id] && names[id].name) || "Someone"; }
+function status(id){ var h = hoods[id]; return h && (h.status === "progress" || h.status === "done") ? h.status : "open"; }
+function counts(){ var d = 0, p = 0; HOODS.forEach(function(h){ var s = status(h.id); if (s === "done") d++; else if (s === "progress") p++; }); return {d:d, p:p}; }
+function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+var KIND = {board:"Notice board", shops:"Ask the shops", treat:"Treat", rest:"Relax", campus:"On campus"};
+var MAPI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9"/></svg>';
+
+/* ---------- build ---------- */
+document.getElementById("heroArt").innerHTML = pic("hero");
+var grid = document.getElementById("grid"), gsec = null;
+/* Per-walk tints taken from each painting's sky: [text on light, text on dark, light wash, dark wash]. */
+var TINT = {"rockridge": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "temescal": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "grandlake": ["#8f5044", "#f4c6be", "#fcf1e9", "#523631"], "chinatown": ["#4b2d44", "#c3adbd", "#faede7", "#342630"], "uptown": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"], "piedmont": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "emeryville": ["#203953", "#a4b5c8", "#e5eef4", "#202b37"], "oldoakland": ["#203953", "#a4b5c8", "#e5eef4", "#202b37"], "lakemerritt": ["#2e2d4b", "#aeadc3", "#f7e5dd", "#272634"], "dimond": ["#866030", "#edd2af", "#fcf5e7", "#4e3d27"], "fruitvale": ["#72314b", "#dfb0c3", "#fbe9e7", "#452834"], "montclair": ["#445f53", "#bed1c8", "#f6f7ee", "#313d37"], "westoakland": ["#274e6b", "#a8c5da", "#f0f6f9", "#233542"]};
+function tint(e, id){ var v = TINT[id]; if (!v) return; e.style.setProperty("--tl", v[0]); e.style.setProperty("--td", v[1]); e.style.setProperty("--wl", v[2]); e.style.setProperty("--wd", v[3]); }
+document.getElementById("heroLabel").textContent = "Oakland" + " · " + N + " walks";
+HOODS.forEach(function(h, i){
+  TIERS.forEach(function(tr){ if (tr[0] === i){ var hd = el("div", "tier"); hd.append(el("div", "label", tr[1]), el("p", "", tr[2])); grid.append(hd); gsec = el("div", "grid"); grid.append(gsec); } });
+  h.k = i;
+  var c = el("button", "card"); c.type = "button"; c.id = "c-" + h.id; c.setAttribute("aria-label", h.name + " walk"); tint(c, h.id);
+  var a = el("div", "art"); a.innerHTML = pic(h.id + "-card", true);
+  var seal = el("div", "seal", "Covered");
+  var meta = el("div", "meta");
+  meta.append(el("div", "no", pad(i+1)), el("div", "nm", h.name), el("div", "vb", h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
+  c.append(a, seal, meta);
+  c.addEventListener("click", function(){ openSheet(h, c); });
+  gsec.append(c);
+});
+
+/* ---------- sheet ---------- */
+var sheet = document.getElementById("sheet"), veil = document.getElementById("veil"), cur = null, lastFocus = null;
+function openSheet(h, from){
+  cur = h; lastFocus = from || null; tint(document.getElementById("sheet"), h.id);
+  document.getElementById("sArt").innerHTML = pic(h.id + "-wide") + '<span class="coord">' + coordText(h.id) + '</span>';
+  document.getElementById("sNo").textContent = "No. " + (h.k+1) + " of " + N;
+  document.getElementById("sTitle").textContent = h.name;
+  document.getElementById("sVibe").textContent = h.vibe;
+  var f = document.getElementById("sFacts"); f.textContent = "";
+  var nb = h.stops.filter(function(s){ return s.k === "board" || s.k === "campus"; }).length;
+  function fact(n, l){ var sp = el("span"); sp.append(el("b", "", n), document.createTextNode(" " + l)); f.append(sp); }
+  fact(h.stops.length, "stops"); fact(nb, nb === 1 ? "board" : "boards");
+  if (h.stops.some(function(s){ return s.k === "treat"; })) fact(1, "treat");
+  if (h.stops.some(function(s){ return s.k === "rest"; })) fact(1, "place to relax");
+  var rb = document.getElementById("sRule"); rb.hidden = !h.rule; rb.querySelector("span").textContent = h.rule || "";
+  document.getElementById("sStart").textContent = h.start.t;
+  document.getElementById("sStartNote").textContent = h.start.n;
+  var sm = document.getElementById("sStartMap"); sm.href = mapUrl(h.start.a); sm.innerHTML = "Open in Maps " + MAPI;
+  var ol = document.getElementById("sTrail"); ol.textContent = "";
+  h.stops.forEach(function(s, i){
+    var li = el("li");
+    var tx = el("div");
+    tx.append(el("div", "label", KIND[s.k]), el("b", "", s.t), el("p", "", s.n));
+    if (s.a){ var a = el("a"); a.href = mapUrl(s.a); a.target = "_blank"; a.rel = "noopener"; a.innerHTML = MAPI; a.prepend(document.createTextNode((/^\d/.test(s.a) ? s.a.split(",")[0] : "Open in Maps") + " ")); tx.append(a); }
+    li.append(el("div", "n", String(i+1)), tx); ol.append(li);
+  });
+  var bx = document.getElementById("sBonus"); bx.textContent = "";
+  if (h.bonus){
+    bx.hidden = false; bx.append(el("div", "label", "If you have flyers left · " + h.bonus.t));
+    bx.append(el("p", "", h.bonus.n || "A few more boards nearby."));
+    var ul = el("ul"); h.bonus.list.forEach(function(x){ var li = el("li"); var a = el("a", "", x[1].split(",")[0]); a.href = mapUrl(x[1]); a.target = "_blank"; a.rel = "noopener"; li.append(el("span", "", x[0]), a); ul.append(li); }); bx.append(ul);
+  } else bx.hidden = true;
+  renderSheet();
+  document.getElementById("sScroll").scrollTop = 0;
+  sheet.setAttribute("aria-hidden", "false"); sheet.classList.add("on"); veil.classList.add("on");
+  document.body.style.overflow = "hidden";
+  setTimeout(function(){ document.getElementById("close").focus({preventScroll:true}); }, 60);
+}
+function closeSheet(){
+  sheet.classList.remove("on"); veil.classList.remove("on"); sheet.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = ""; cur = null; if (lastFocus) lastFocus.focus({preventScroll:true});
+}
+document.getElementById("close").addEventListener("click", closeSheet);
+veil.addEventListener("click", closeSheet);
+document.addEventListener("keydown", function(e){
+  if (!cur) return;
+  if (e.key === "Escape") closeSheet();
+  if (e.key === "Tab"){ var f = sheet.querySelectorAll("button:not([disabled]), a[href]"); if (!f.length) return; var a = f[0], z = f[f.length-1];
+    if (e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
+});
+
+/* Begin and Mark done open WhatsApp with a short note to the team lead already written. Nothing is sent until the volunteer taps send. */
+var WA_NUMBER = "14159350575";
+function tellTeam(h, verb){ var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent((verb || "Covered ") + h.name + "!"); var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } else location.href = url; }
+function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
+function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
+  if (s === "open") return ["Open", "Anyone can begin this walk"];
+  if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
+  return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
+function renderSheet(){
+  if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
+  var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
+  var a = document.getElementById("sActs"); a.textContent = "";
+  if (s === "open") a.append(btn("Jai Gurudev, begin", "main", function(){ setStatus(h, "progress"); tellTeam(h, "Starting "); }));
+  else if (s === "progress"){ a.append(btn("Let go", "", function(){ setStatus(h, "open"); })); a.append(btn("Mark done", "main", function(){ setStatus(h, "done"); tellTeam(h); })); }
+  else a.append(btn("Reopen", "", function(){ setStatus(h, "open"); }));
+}
+function render(){
+  HOODS.forEach(function(h){
+    var s = status(h.id), rec = hoods[h.id] || {}, c = document.getElementById("c-" + h.id);
+    c.classList.toggle("progress", s === "progress"); c.classList.toggle("done", s === "done");
+    c.querySelector(".st").textContent = s === "open" ? "Open" : s === "progress" ? "Walking · " + who(rec.by) : "Covered · " + who(rec.by);
+  });
+  var k = counts();
+  document.getElementById("pbarD").style.width = (100*k.d/N) + "%";
+  var pb = document.getElementById("pbarP"); pb.style.left = (100*k.d/N) + "%"; pb.style.width = (100*k.p/N) + "%";
+  document.getElementById("ptext").textContent = k.d + " of " + N + " covered" + (k.p ? " · " + k.p + " underway" : "");
+  renderSheet();
+  var need = HOODS.map(function(h){ return hoods[h.id] && hoods[h.id].by; }).filter(function(id){ return id && id !== me && !names[id]; });
+  if (userApi && need.length){ userApi.profiles(need).then(function(ps){ var ch = false; Object.keys(ps || {}).forEach(function(x){ if (!names[x]){ names[x] = ps[x]; ch = true; } }); if (ch) render(); }).catch(function(){}); }
+}
+var toastEl = document.getElementById("toast"), tt;
+function toast(m){ toastEl.textContent = m; toastEl.classList.add("show"); clearTimeout(tt); tt = setTimeout(function(){ toastEl.classList.remove("show"); }, 2800); }
+
+/* ---------- shared writes: one document per neighborhood ---------- */
+var syncEl = document.getElementById("sync"), pending = {};
+function setStatus(h, next){
+  if (!canWrite || pending[h.id]) return;
+  var prev = hoods[h.id];
+  var rec = next === "open" ? null : {status: next, by: (next === "done" && prev && prev.by) ? prev.by : me, at: new Date().toISOString()};
+  if (rec) hoods[h.id] = rec; else delete hoods[h.id];
+  render();
+  if (next === "progress") toast("Enjoy the walk through " + h.name);
+  if (next === "done"){ var d = counts().d; toast(d === N ? "Every walk covered. Beautiful seva." : h.name + " is covered · " + d + " of " + N); }
+  if (!live){ saveLocal(); return; }
+  pending[h.id] = true;
+  var ref = db.doc(COLL + "/" + h.id);
+  (rec ? ref.set(rec) : ref.delete()).then(function(){ syncEl.textContent = "Shared live: anyone with the link can begin a walk"; })
+    .catch(function(e){
+      if (prev) hoods[h.id] = prev; else delete hoods[h.id];
+      if (e && e.code === "invalid_argument"){ canWrite = false; syncEl.textContent = "View only: ask the page owner for access to begin walks"; }
+      else syncEl.textContent = "Couldn't save that change. Try again.";
+      render();
+    }).then(function(){ delete pending[h.id]; });
+}
+var LS_KEY = "oak-flyer-quest-team-v1";
+/* Walks already covered by the team, shown as covered for every visitor. A device can still reopen one. */
+var DEFAULTS = {};
+function saveLocal(){ try{ var out = {}; Object.keys(hoods).forEach(function(k){ out[k] = hoods[k]; }); Object.keys(DEFAULTS).forEach(function(k){ if (!out[k]) out[k] = {status: "open"}; }); localStorage.setItem(LS_KEY, JSON.stringify(out)); }catch(e){} }
+function loadLocal(){ var next = {}; Object.keys(DEFAULTS).forEach(function(k){ next[k] = DEFAULTS[k]; });
+  try{ var v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (v && typeof v === "object") Object.keys(v).forEach(function(k){ var x = v[k]; if (x && x.status === "open") delete next[k]; else if (x && (x.status === "progress" || x.status === "done")) next[k] = x; }); }catch(e){}
+  hoods = next; }
+
+loadLocal(); render();
+
+var api = window.claude;
+function offline(){ syncEl.textContent = "Progress is saved on this device"; }
+if (!api || typeof api.use !== "function") { offline(); return; }
+Promise.all([api.use("db"), api.use("user")]).then(function(res){
+  db = res[0]; userApi = res[1];
+  if (!db) { offline(); return; }
+  var ready = userApi ? Promise.all([userApi.id(), userApi.can("data.write")]) : Promise.resolve([null, null]);
+  return ready.then(function(v){
+    me = v[0]; if (v[1] === false) canWrite = false;
+    live = true; hoods = {};
+    syncEl.textContent = "Loading shared progress…";
+    var wait = setTimeout(function(){ syncEl.textContent = "Can't reach shared progress yet"; }, 10000);
+    db.collection(COLL).onSnapshot(function(snap){
+      var next = {};
+      snap.docs.forEach(function(d){ var x = d.data(); if (x && (x.status === "progress" || x.status === "done")) next[d.id] = {status:x.status, by: typeof x.by === "string" ? x.by : null, at: typeof x.at === "string" ? x.at : null}; });
+      Object.keys(pending).forEach(function(k){ if (hoods[k]) next[k] = hoods[k]; else delete next[k]; });
+      hoods = next; render();
+      if (!snap.metadata.fromCache){ clearTimeout(wait); syncEl.textContent = canWrite ? "Shared live: anyone with the link can begin a walk" : "View only: ask the page owner for access to begin walks"; }
+    }, function(){ clearTimeout(wait); live = false; loadLocal(); render(); offline(); });
+  });
+}).catch(offline);
+})();
+</script>
+
+</body>
+</html>
