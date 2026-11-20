@@ -586,7 +586,7 @@ loadLocal(); render();
 
 /* ---------- shared backend (Google Apps Script) ---------- */
 /* Paste the web app URL here to share progress, names, times and photos across everyone. Empty means progress stays on this device. */
-var BACKEND = "https://script.google.com/macros/s/AKfycbwaXC1_SYiCMlo5YicABdTCXu3FmZFNunU8gS-68MdYlWmUAUh1h2YIYXlZKXbNUm1i/exec";
+var BACKEND = "https://script.google.com/macros/s/AKfycbwtPfAfg-28ptlnJOwY57w11I0OjYiTsOQvMEQSxpqVHTP-gqeDB4t54lFJbsnKKyhj/exec";
 var SITE = "oakland";
 var byId = {}; HOODS.forEach(function(h){ byId[h.id] = h; });
 function store(k, v){ try{ if (v === undefined) return localStorage.getItem(k) || ""; localStorage.setItem(k, v); }catch(e){ return ""; } }
