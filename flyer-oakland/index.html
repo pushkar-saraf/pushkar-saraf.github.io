@@ -283,6 +283,12 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .addw .lnk{all:unset; cursor:pointer; justify-self:start; display:inline-flex; align-items:center; min-height:44px; font-size:15px; color:var(--accent); text-decoration:underline; text-underline-offset:3px}
 .addw .lnk[hidden]{display:none}
 .addw .lnk.rm{font-size:14px; color:var(--muted)}
+/* assign to me */
+.own{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:0 0 20px; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--card)}
+.own .tx{flex:1; min-width:160px; font-size:14px; color:var(--muted); line-height:1.4}
+.own .tx b{display:block; color:var(--ink); font:400 18px/1.25 var(--serif)}
+.own.done{border-color:color-mix(in srgb, var(--t) 45%, var(--line))}
+@media (max-width:520px){.own .b{flex:1 1 100%}}
 </style>
 </head>
 <body>
@@ -378,6 +384,7 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
     <div class="body">
       <div class="label" id="sNo"></div>
       <h3 id="sTitle"></h3>
+      <div class="own" id="sOwn"></div>
       <p class="lede" id="sVibe"></p>
       <div class="facts" id="sFacts"></div>
       <div class="rulebox" id="sRule" hidden><div class="label">How posting works here</div><span></span></div>
@@ -568,7 +575,7 @@ document.addEventListener("keydown", function(e){
 
 function btn(label, cls, fn){ var b = el("button", "b" + (cls ? " " + cls : ""), label); b.type = "button"; if (!canWrite) b.disabled = true; b.addEventListener("click", function(){ fn(b); }); return b; }
 function stateLine(h){ var s = status(h.id), rec = hoods[h.id] || {};
-  if (s === "open") return ["Open", "Reserve it for a day, or begin now"];
+  if (s === "open") return ["Open", "Ready to walk it now?"];
   if (s === "claimed") return [who(rec.by) === "You" ? "You reserved this walk" : "Reserved by " + who(rec.by), rec.date ? "For " + rel(rec.date, true) : (rec.at ? "Since " + fmt(rec.at) : "")];
   if (s === "progress") return [(who(rec.by) === "You" ? "You're" : who(rec.by) + " is") + " walking it", rec.at ? "Since " + fmt(rec.at) : ""];
   return ["Covered by " + who(rec.by), rec.at ? fmt(rec.at) : ""]; }
@@ -576,11 +583,18 @@ function renderSheet(){
   if (!cur) return; var h = cur, s = status(h.id), L = stateLine(h);
   var w = document.getElementById("sWho"); w.textContent = ""; w.append(el("b", "", L[0]), document.createTextNode(L[1]));
   var a = document.getElementById("sActs"); a.textContent = "";
-  if (s === "open"){ a.append(btn("Reserve", "", function(){ act(h, "claimed"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
-  else if (s === "claimed"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); })); }
+  if (s === "open" || s === "claimed") a.append(btn("Jai Gurudev, begin", "main", function(){ act(h, "progress"); }));
   else if (s === "progress"){ a.append(btn("Release", "", function(){ act(h, "open"); })); a.append(btn("Mark done", "main", function(){ act(h, "done"); })); }
   else a.append(btn("Reopen", "", function(){ act(h, "open"); }));
+  renderOwn(h, s, L);
   renderWalkFeed(h);
+}
+function renderOwn(h, s, L){
+  var o = document.getElementById("sOwn"), tx = el("div", "tx"); o.textContent = ""; o.className = "own" + (s === "done" ? " done" : "");
+  if (s === "open"){ tx.append(el("b", "", "No one has this walk yet"), document.createTextNode("Pick the day you'll walk it.")); o.append(tx, btn("Assign to me", "main", function(){ act(h, "claimed"); })); return; }
+  if (s === "done"){ tx.append(el("b", "", "Done. " + L[0]), document.createTextNode(L[1])); o.append(tx); return; }
+  tx.append(el("b", "", L[0]), document.createTextNode(L[1])); o.append(tx);
+  if (s === "claimed") o.append(btn("Release", "", function(){ act(h, "open"); }));
 }
 var filt = "all";
 function mine(h){ var s = status(h.id), rec = hoods[h.id] || {}; return s !== "open" && rec.by !== "team" && who(rec.by) === "You"; }
@@ -670,7 +684,7 @@ function closeBox(){ box.hidden = true; bar.hidden = false; }
 function openBox(h, next){
   var done = next === "done";
   var claim = next === "claimed", rec0 = hoods[h.id] || {};
-  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Reserve " + h.name : "Who's walking " + h.name + "?";
+  document.getElementById("dbTitle").textContent = done ? "Mark " + h.name + " covered" : claim ? "Assign " + h.name + " to me" : "Who's walking " + h.name + "?";
   document.getElementById("dbDateRow").hidden = !claim;
   var dt = document.getElementById("dbDate"), today = ymd(new Date()); dt.min = today; dt.value = today;
   var dd = document.getElementById("dbDays"); dd.textContent = "";
@@ -687,7 +701,7 @@ function openBox(h, next){
   var nm = document.getElementById("dbName"); nm.value = (done && rec0.by && rec0.by !== "team") ? rec0.by : myName(); document.getElementById("dbPhoto").value = ""; document.getElementById("dbHp").value = "";
   var a = document.getElementById("dbActs"); a.textContent = "";
   var cancel = el("button", "b", "Cancel"); cancel.type = "button"; cancel.addEventListener("click", closeBox);
-  var go = el("button", "b main", done ? "Save" : claim ? "Reserve" : "Begin"); go.type = "submit";
+  var go = el("button", "b main", done ? "Save" : claim ? "Assign to me" : "Begin"); go.type = "submit";
   a.append(cancel, go);
   box.onsubmit = function(ev){ ev.preventDefault();
     var name = nm.value.replace(/\s+/g, " ").trim().slice(0, 40);
