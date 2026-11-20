@@ -387,6 +387,8 @@ h2.sec{margin:96px 0 12px}
 /* one main button at a time: when Assign to me shows, Begin steps back */
 .sheet:has(.own .b.main) > .bar .b.main{background:transparent; color:var(--ink); border-color:var(--line)}
 .awplaces .grp{border-top:0; padding-top:6px}
+.trail .label .vtag{margin-left:8px; font-weight:400; letter-spacing:.02em; text-transform:none; color:var(--muted)}
+.trail .label .vtag.ok{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -651,6 +653,8 @@ function openSheet(h, from){
   function fact(n, l){ var sp = el("span"); sp.append(el("b", "", n), document.createTextNode(" " + l)); f.append(sp); }
   f.hidden = !h.stops.length;
   fact(h.stops.length, "stops"); fact(nb, nb === 1 ? "board" : "boards");
+  var nv = h.stops.filter(function(s){ return /^\[verified/i.test(s.n || ""); }).length;
+  if (nv) fact(nv, "verified online");
   if (h.stops.some(function(s){ return s.k === "treat"; })) fact(1, "treat");
   if (h.stops.some(function(s){ return s.k === "rest"; })) fact(1, "place to relax");
   document.getElementById("sStart").textContent = h.start.t;
@@ -660,7 +664,9 @@ function openSheet(h, from){
   h.stops.forEach(function(s, i){
     var li = el("li");
     var tx = el("div");
-    tx.append(el("div", "label", KIND[s.k]), el("b", "", s.t), el("p", "", s.n));
+    var vm = /^\[([^\]]{1,40})\]\s*/.exec(s.n || ""), lb = el("div", "label", KIND[s.k]);
+    if (vm){ var vt = el("span", "vtag" + (/^verified/i.test(vm[1]) ? " ok" : ""), (/^verified/i.test(vm[1]) ? "\u2713 " : "") + vm[1]); lb.append(vt); }
+    tx.append(lb, el("b", "", s.t), el("p", "", vm ? s.n.slice(vm[0].length) : s.n));
     if (s.a){ var a = el("a"); a.href = mapUrl(s.a); a.target = "_blank"; a.rel = "noopener"; a.innerHTML = MAPI; a.prepend(document.createTextNode((/^\d/.test(s.a) ? s.a : "Open in Maps") + " ")); tx.append(a); }
     li.append(el("div", "n", String(i+1)), tx); ol.append(li);
   });
