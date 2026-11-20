@@ -64,6 +64,12 @@ a{color:inherit}
 @media (max-width:600px){.top{padding:36px 0 8px}.top h1{margin:12px 0 14px}.pick-h{margin-top:28px}}
 .foot{margin-top:96px; font-size:13.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
+/* clean pass */
+.label{font-size:12.5px}
+.pick-h{font-size:17px}
+.resume{font-size:16px; min-height:48px}
+.foot{font-size:14.5px}
+@media (max-width:600px){.foot{margin-top:64px}}
 </style>
 </head>
 <body>
@@ -94,10 +100,10 @@ var GUIDES = {
   students: {name:"Bay Area students", url:"../flyer-students/"}
 };
 var WHO = [
-  ["hoods", "Neighbourhoods", "Cafes, co-ops, libraries and shop windows", "art/hero.webp"],
+  ["hoods", "Neighborhoods", "Cafes, co-ops, libraries and shop windows", "art/hero.webp"],
   ["students", "Students", "Campus plazas, boards and study cafes", "art/flyer-students.webp"]
 ];
-/* Neighbourhoods open the city's guide. Students open the students guide at that city's section. */
+/* Neighborhoods open the city's guide. Students open the students guide at that city's section. */
 var CITIES = [
   {k:"sf", name:"San Francisco", art:"art/flyer.webp", hoods:"30 walks, the Mission to the Sunset", stu:"SF State, City College, USF and UCSF", anchor:"san-francisco"},
   {k:"oakland", name:"Oakland", art:"art/flyer-oakland.webp", hoods:"13 walks, Rockridge to Lake Merritt", stu:"Laney and Mills", anchor:"oakland"},

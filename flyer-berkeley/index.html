@@ -229,6 +229,42 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .sfeed{margin:40px 0 0}
 .sfeed .feedlist{grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); margin-top:14px}
 @media (prefers-reduced-motion: reduce){.sheet,.veil,.card .art,.toast{transition:none}}
+
+/* clean pass */
+:root{--warm-ink:#8f5e12}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--warm-ink:#f2b85a}}
+:root[data-theme="dark"]{--warm-ink:#f2b85a}
+.card.progress .st{color:var(--warm-ink)}
+.label{font-size:12.5px}
+.trail .label{font-size:12px}
+.card .vb,.card .st{font-size:14px}
+.sync,.foot,.tier p,.facts,.start p,.mk-note,.mkt .when{font-size:14.5px}
+.addw .small,.donebox .small,.fi .tx,.quote span{font-size:14px}
+.fld{font-size:15px; color:var(--ink); font-weight:500}
+.fld input,.fld textarea{font-weight:400}
+.fld input:focus,.fld textarea:focus{border-color:var(--accent); outline:2px solid color-mix(in srgb, var(--accent) 30%, transparent); outline-offset:0}
+.b{font-size:16px; min-height:48px}
+.chip{min-height:44px}
+.prog .bar{height:6px; border-radius:3px}
+.art .coord{display:none}
+.trail a,.mkt a,.booth a,.bonus li a,.others a{display:inline-flex; align-items:center; min-height:44px; font-size:14.5px; border-bottom:0; text-decoration:underline; text-decoration-color:var(--line); text-decoration-thickness:1px; text-underline-offset:4px}
+.trail a{margin-top:2px}
+.trail a:hover,.mkt a:hover,.booth a:hover,.others a:hover{text-decoration-color:currentColor}
+.others{gap:0 22px}
+@media (max-width:600px){
+  .top{padding:36px 0 20px}
+  .prog{margin-top:24px}
+  .hero{aspect-ratio:3/2; max-height:44vh}
+  .intro{margin-top:40px; gap:36px}
+  .steps{gap:18px}
+  .sync{margin-top:32px}
+  h2.sec{margin-top:64px}
+  .tier{margin:44px 0 18px}
+  .grid{gap:32px 14px}
+  .card .vb{font-size:13.5px}
+  .foot{margin-top:72px}
+  .mk{gap:40px; margin-top:32px}
+}
 </style>
 </head>
 <body>
