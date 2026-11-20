@@ -265,6 +265,11 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   .foot{margin-top:72px}
   .mk{gap:40px; margin-top:32px}
 }
+/* add-walk card */
+.card.addc .art{display:flex; align-items:center; justify-content:center; background:transparent; border:2px dashed var(--line); color:var(--muted); box-sizing:border-box}
+.card.addc .plus{font:300 64px/1 var(--sans)}
+.card.addc .no{visibility:hidden}
+@media (hover:hover){.card.addc:hover .art{opacity:1; border-color:var(--accent); color:var(--accent)}}
 </style>
 </head>
 <body>
@@ -299,7 +304,6 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <div id="grid"></div>
   <p class="fempty" id="fEmpty" hidden></p>
   <section class="addw" id="addWalk" hidden>
-    <button class="b" type="button" id="awOpen">Add a walk you did</button>
     <form id="awForm" hidden novalidate autocomplete="off">
       <h3>Add a walk you did</h3>
       <p class="small">Flyered somewhere that isn't listed? Add it and it shows as covered by you.</p>
@@ -483,6 +487,23 @@ HOODS.forEach(function(h, i){
   c.addEventListener("click", function(){ openSheet(h, c); });
   gsec.append(c);
 });
+placeAdd();
+}
+var addOn = false, addEl = null;
+function addCard(){
+  if (addEl) return addEl;
+  var c = el("button", "card addc"); c.type = "button"; c.id = "c-add"; c.setAttribute("aria-label", "Add a walk you did");
+  var a = el("div", "art"); a.append(el("span", "plus", "+")); a.firstChild.setAttribute("aria-hidden", "true");
+  var meta = el("div", "meta"); meta.append(el("div", "no", "00"), el("div", "nm", "Add a walk"), el("div", "vb", "Flyered somewhere not listed? Add it here."));
+  c.append(a, meta);
+  c.addEventListener("click", function(){ if (window.openAdd) window.openAdd(); });
+  return addEl = c;
+}
+function placeAdd(){
+  if (!addOn) return;
+  var gs = grid.querySelectorAll(".grid"), g = grid.querySelector(".grid:not(.off)") || gs[0];
+  if (!g) return;
+  g.classList.remove("off"); g.insertBefore(addCard(), g.firstChild);
 }
 buildGrid(); jump();
 
@@ -566,7 +587,8 @@ function renderFilters(){
   opts.forEach(function(o){ var b = el("button", "chip", o[1]); b.type = "button"; b.setAttribute("aria-pressed", String(filt === o[0])); b.addEventListener("click", function(){ filt = o[0]; render(); }); f.append(b); });
   var shown = 0;
   HOODS.forEach(function(h){ var c = document.getElementById("c-" + h.id), ok = filt === "all" || (filt === "open" ? status(h.id) === "open" : mine(h)); c.classList.toggle("off", !ok); if (ok) shown++; });
-  Array.prototype.forEach.call(grid.querySelectorAll(".grid"), function(g){ var off = !g.querySelector(".card:not(.off)"); g.classList.toggle("off", off); var hd = g.previousElementSibling; if (hd && hd.classList.contains("tier")) hd.classList.toggle("off", off); });
+  Array.prototype.forEach.call(grid.querySelectorAll(".grid"), function(g){ var off = !g.querySelector(".card:not(.off):not(.addc)"); g.classList.toggle("off", off); var hd = g.previousElementSibling; if (hd && hd.classList.contains("tier")) hd.classList.toggle("off", off); });
+  placeAdd();
   var fe = document.getElementById("fEmpty"); fe.hidden = shown > 0; fe.textContent = filt === "open" ? "Every walk is taken right now. Check Yours, or come back later." : "";
 }
 function render(){
@@ -783,11 +805,11 @@ function setWalks(out){
 }
 var gotWalks = false;
 function setupAdd(){
-  var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), op = document.getElementById("awOpen"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
+  var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
   function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ f.hidden = !on; op.hidden = on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); nm.focus(); } }
-  sec.hidden = false;
-  op.addEventListener("click", function(){ show(true); });
+  function show(on){ sec.hidden = !on; f.hidden = !on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); sec.scrollIntoView({behavior: "smooth", block: "start"}); nm.focus({preventScroll: true}); } else if (addEl) addEl.focus({preventScroll: true}); }
+  window.openAdd = function(){ show(true); };
+  addOn = true; placeAdd();
   document.getElementById("awCancel").addEventListener("click", function(){ show(false); });
   f.addEventListener("submit", function(ev){ ev.preventDefault();
     if (go.disabled) return;
