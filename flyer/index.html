@@ -830,7 +830,7 @@ function openSheet(h, from){
   });
   var bx = document.getElementById("sBonus"); bx.textContent = "";
   if (h.bonus){
-    bx.hidden = false; bx.append(el("div", "label", "If you have flyers left · " + h.bonus.t));
+    bx.hidden = false; bx.append(el("div", "label", "If you have flyers left" + (!h.bonus.t || /\?$/.test(h.bonus.t) ? "" : " · " + h.bonus.t)));
     bx.append(el("p", "", h.bonus.n || "A few more boards nearby."));
     var ul = el("ul"); h.bonus.list.forEach(function(x){ var li = el("li"); var a = el("a", "", x[1]); a.href = mapUrl(x[1]); a.target = "_blank"; a.rel = "noopener"; li.append(el("span", "", x[0]), a); ul.append(li); }); bx.append(ul);
   } else bx.hidden = true;
