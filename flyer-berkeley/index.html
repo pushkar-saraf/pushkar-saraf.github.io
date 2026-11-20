@@ -270,6 +270,19 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .card.addc .plus{font:300 64px/1 var(--sans)}
 .card.addc .no{visibility:hidden}
 @media (hover:hover){.card.addc:hover .art{opacity:1; border-color:var(--accent); color:var(--accent)}}
+/* add-walk pop-up */
+.addw.modal{position:fixed; inset:0; z-index:30; margin:0; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(20,18,16,.45); box-sizing:border-box}
+.addw.modal[hidden]{display:none}
+.addw.modal form{position:relative; width:100%; max-width:520px; max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px); overflow-y:auto; box-sizing:border-box; padding-top:22px}
+.addw .awx{top:6px; right:6px; background:transparent; color:var(--muted)}
+.addw h3{padding-right:44px}
+.addw .grp{border:0; margin:0; padding:0; display:grid; gap:10px; min-width:0}
+.addw .grp legend{padding:0; margin-bottom:10px; font:400 18px/1.2 var(--serif); color:var(--ink)}
+.addw .grp + .grp,.awplaces .grp{padding-top:14px; border-top:1px solid var(--line)}
+.awplaces{display:grid; gap:14px}
+.addw .lnk{all:unset; cursor:pointer; justify-self:start; display:inline-flex; align-items:center; min-height:44px; font-size:15px; color:var(--accent); text-decoration:underline; text-underline-offset:3px}
+.addw .lnk[hidden]{display:none}
+.addw .lnk.rm{font-size:14px; color:var(--muted)}
 </style>
 </head>
 <body>
@@ -303,28 +316,21 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
   <div class="filters chips" id="filters" role="group" aria-label="Show walks"></div>
   <div id="grid"></div>
   <p class="fempty" id="fEmpty" hidden></p>
-  <section class="addw" id="addWalk" hidden>
-    <form id="awForm" hidden novalidate autocomplete="off">
-      <h3>Add a walk you did</h3>
-      <p class="small">Flyered somewhere that isn't listed? Add it and it shows as covered by you.</p>
+  <section class="addw modal" id="addWalk" hidden role="dialog" aria-modal="true" aria-labelledby="awTitle">
+    <form id="awForm" novalidate autocomplete="off">
+      <button class="x awx" type="button" id="awX" aria-label="Close"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+      <h3 id="awTitle">Add a walk to do</h3>
+      <p class="small">Know streets that need flyers? Add a walk and anyone can reserve it.</p>
       <label class="fld"><span>Walk name</span><input id="awName" maxlength="60" placeholder="For example, Piedmont Avenue"></label>
-      <label class="fld"><span>Places covered</span><textarea id="awPlaces" maxlength="300" rows="3" placeholder="Streets, shops and boards you flyered"></textarea></label>
-      <label class="fld"><span>Your name</span><input id="awWho" maxlength="40" autocomplete="given-name"></label>
+      <fieldset class="grp"><legend>Starting point</legend>
+        <label class="fld"><span>Name</span><input id="awStart" maxlength="80" placeholder="A station, a cafe or a corner"></label>
+        <label class="fld"><span>Address</span><input id="awStartAddr" maxlength="120" placeholder="Street address or corner"></label>
+      </fieldset>
+      <div id="awPlaces" class="awplaces"></div>
+      <button class="lnk" type="button" id="awMore">+ Add another place</button>
       <input class="hp" id="awHp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="small">Your name and the walk show on this page for anyone with the link.</p>
+      <p class="small">The walk shows on this page for anyone with the link.</p>
       <div class="acts"><button class="b" type="button" id="awCancel">Cancel</button><button class="b main" type="submit" id="awGo">Add walk</button></div>
-    </form>
-  </section>
-  <section class="addw" id="addPlace" hidden>
-    <button class="b" type="button" id="plOpen">Add a place</button>
-    <form id="plForm" hidden novalidate autocomplete="off">
-      <h3>Add a place</h3>
-      <p class="small">Know a spot that takes flyers and isn't listed? Send it to the team.</p>
-      <label class="fld"><span>Name</span><input id="plName" maxlength="80" placeholder="For example, a cafe or a notice board"></label>
-      <label class="fld"><span>Address</span><input id="plAddr" maxlength="120" placeholder="Street address or corner"></label>
-      <label class="fld"><span>Notes (optional)</span><textarea id="plNotes" maxlength="300" rows="3" placeholder="Where the board is, who to ask"></textarea></label>
-      <input class="hp" id="plHp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="acts"><button class="b" type="button" id="plCancel">Cancel</button><button class="b main" type="submit" id="plGo">Add place</button></div>
     </form>
   </section>
   <section class="feed" id="feed" hidden>
@@ -477,7 +483,7 @@ HOODS.forEach(function(h, i){
   var a = el("div", "art"); a.innerHTML = pic(art(h, "card"), true);
   var seal = el("div", "seal", "Covered");
   var meta = el("div", "meta");
-  meta.append(el("div", "no", h.id), el("div", "nm", h.name), el("div", "vb", h.custom ? "Added by a volunteer" + (h.start.t ? " · from " + h.start.t : "") : h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
+  meta.append(el("div", "no", h.id), el("div", "nm", h.name), el("div", "vb", h.custom && !h.stops.length ? "Added by a volunteer" + (h.start.t ? " · from " + h.start.t : "") : h.stops.length + " stops · from " + h.start.t), el("div", "st", "Open"));
   c.append(a, seal, meta);
   c.addEventListener("click", function(){ openSheet(h, c); });
   gsec.append(c);
@@ -487,9 +493,9 @@ placeAdd();
 var addOn = false, addEl = null;
 function addCard(){
   if (addEl) return addEl;
-  var c = el("button", "card addc"); c.type = "button"; c.id = "c-add"; c.setAttribute("aria-label", "Add a walk you did");
+  var c = el("button", "card addc"); c.type = "button"; c.id = "c-add"; c.setAttribute("aria-label", "Add a walk to do");
   var a = el("div", "art"); a.append(el("span", "plus", "+")); a.firstChild.setAttribute("aria-hidden", "true");
-  var meta = el("div", "meta"); meta.append(el("div", "no", "00"), el("div", "nm", "Add a walk"), el("div", "vb", "Flyered somewhere not listed? Add it here."));
+  var meta = el("div", "meta"); meta.append(el("div", "no", "00"), el("div", "nm", "Add a walk to do"), el("div", "vb", "Know streets that need flyers? Add them here."));
   c.append(a, meta);
   c.addEventListener("click", function(){ if (window.openAdd) window.openAdd(); });
   return addEl = c;
@@ -800,57 +806,59 @@ function setWalks(out){
 }
 var gotWalks = false;
 function setupAdd(){
-  var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), go = document.getElementById("awGo"), nm = document.getElementById("awName");
-  function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ sec.hidden = !on; f.hidden = !on; if (on){ var wh = document.getElementById("awWho"); if (!wh.value) wh.value = myName(); sec.scrollIntoView({behavior: "smooth", block: "start"}); nm.focus({preventScroll: true}); } else if (addEl) addEl.focus({preventScroll: true}); }
+  var sec = document.getElementById("addWalk"), f = document.getElementById("awForm"), go = document.getElementById("awGo"), nm = document.getElementById("awName"),
+      box = document.getElementById("awPlaces"), more = document.getElementById("awMore"), MAXP = 10;
+  function val(x, n){ return x.value.replace(/\s+/g, " ").trim().slice(0, n); }
+  function fld(label, max, ph, cls){ var l = el("label", "fld"), i = el("input", cls); i.maxLength = max; i.placeholder = ph; l.append(el("span", "", label), i); return l; }
+  function renum(){ Array.prototype.forEach.call(box.children, function(g, i){ g.querySelector("legend").textContent = "Place " + (i + 1); var rm = g.querySelector(".rm"); if (rm) rm.hidden = box.children.length < 2; }); more.hidden = box.children.length >= MAXP; }
+  function addPlace(focus){
+    if (box.children.length >= MAXP) return;
+    var g = el("fieldset", "grp"); g.append(el("legend", "", "Place"), fld("Name", 80, "A shop, a cafe or a notice board", "pn"), fld("Address", 120, "Street address or corner", "pa"), fld("Notes (optional)", 200, "Where the board is, who to ask", "pt"));
+    var rm = el("button", "lnk rm", "Remove this place"); rm.type = "button"; rm.addEventListener("click", function(){ g.remove(); renum(); }); g.append(rm);
+    box.append(g); renum(); if (focus) g.querySelector(".pn").focus();
+  }
+  function clear(){ f.reset(); box.textContent = ""; addPlace(false); }
+  function onKey(e){ if (e.key === "Escape") show(false); }
+  function show(on){
+    sec.hidden = !on; document.documentElement.style.overflow = on ? "hidden" : "";
+    if (on){ document.addEventListener("keydown", onKey); f.scrollTop = 0; nm.focus(); }
+    else { document.removeEventListener("keydown", onKey); if (addEl) addEl.focus({preventScroll: true}); }
+  }
+  clear();
   window.openAdd = function(){ show(true); };
   addOn = true; placeAdd();
+  more.addEventListener("click", function(){ addPlace(true); });
   document.getElementById("awCancel").addEventListener("click", function(){ show(false); });
+  document.getElementById("awX").addEventListener("click", function(){ show(false); });
+  sec.addEventListener("click", function(e){ if (e.target === sec) show(false); });
   f.addEventListener("submit", function(ev){ ev.preventDefault();
     if (go.disabled) return;
-    var title = val("awName", 60), places = val("awPlaces", 300), who = val("awWho", 40);
+    var title = val(nm, 60), st = document.getElementById("awStart"), sa = document.getElementById("awStartAddr"), bad = null, places = [];
     if (!title){ nm.focus(); toast("Give the walk a name first"); return; }
     if (HOODS.some(function(h){ return h.name.toLowerCase() === title.toLowerCase(); })){ nm.focus(); toast("There's already a walk called " + title + "."); return; }
-    if (!places){ document.getElementById("awPlaces").focus(); toast("Add the places you covered"); return; }
-    if (!who){ document.getElementById("awWho").focus(); toast("Add your name first"); return; }
-    store("flyer-quest-name", who);
+    if (!val(st, 80)){ st.focus(); toast("Add where the walk starts"); return; }
+    if (!val(sa, 120)){ sa.focus(); toast("Add the starting point's address"); return; }
+    Array.prototype.forEach.call(box.children, function(g, i){
+      var p = {name: val(g.querySelector(".pn"), 80), address: val(g.querySelector(".pa"), 120), notes: val(g.querySelector(".pt"), 200)};
+      if (!p.name && !p.address && !p.notes) return;
+      if (!bad && !p.name){ bad = [g.querySelector(".pn"), "Add a name for place " + (i + 1)]; }
+      if (!bad && !p.address){ bad = [g.querySelector(".pa"), "Add an address for place " + (i + 1)]; }
+      places.push(p);
+    });
+    if (bad){ bad[0].focus(); toast(bad[1]); return; }
+    if (!places.length){ box.querySelector(".pn").focus(); toast("Add at least one place"); return; }
     if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
     go.disabled = true; go.textContent = "Adding…";
-    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, places: places, name: who, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
+    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "add", title: title, start: {name: val(st, 80), address: val(sa, 120)}, places: places, hp: document.getElementById("awHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
       if (!res || !res.ok) throw new Error(res && res.error || "add");
-      f.reset(); show(false);
+      clear(); show(false);
       if (!res.walk) return;
       filt = "all";
-      var ev = {t: typeof res.t === "string" ? res.t : new Date().toISOString(), w: String(res.walk.id), a: "done", n: who, d: "", p: ""};
-      hoods[ev.w] = {status: "done", by: who, at: ev.t};
       var h = addWalk(res.walk);
-      if (h){ events.push(ev); if (v2) coverEvs.push(ev); renderFeed();
-        toast(h.name + " is added as walk " + h.id + ", covered by you. Thank you."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
+      if (h){ toast(h.name + " is added as walk " + h.id + ". Anyone can reserve it."); var c = document.getElementById("c-" + h.id); if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); }
     }).catch(function(e){
       toast(e && e.message && e.message !== "add" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
     }).then(function(){ go.disabled = false; go.textContent = "Add walk"; });
-  });
-}
-function setupPlace(){
-  var f = document.getElementById("plForm"), op = document.getElementById("plOpen"), go = document.getElementById("plGo"), nm = document.getElementById("plName");
-  function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
-  function show(on){ f.hidden = !on; op.hidden = on; if (on) nm.focus(); }
-  document.getElementById("addPlace").hidden = false;
-  op.addEventListener("click", function(){ show(true); });
-  document.getElementById("plCancel").addEventListener("click", function(){ show(false); });
-  f.addEventListener("submit", function(ev){ ev.preventDefault();
-    if (go.disabled) return;
-    var name = val("plName", 80), addr = val("plAddr", 120), notes = val("plNotes", 300);
-    if (!name){ nm.focus(); toast("Add the place's name first"); return; }
-    if (!addr){ document.getElementById("plAddr").focus(); toast("Add the address first"); return; }
-    if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
-    go.disabled = true; go.textContent = "Adding…";
-    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "place", name: name, address: addr, notes: notes, hp: document.getElementById("plHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
-      if (!res || !res.ok) throw new Error(res && res.error || "place");
-      f.reset(); show(false); toast("Thanks, " + name + " is sent to the team.");
-    }).catch(function(e){
-      toast(e && e.message && e.message !== "place" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
-    }).then(function(){ go.disabled = false; go.textContent = "Add place"; });
   });
 }
 function pull(){
@@ -859,7 +867,7 @@ function pull(){
     if (!gotWalks && Array.isArray(res.walks)){ gotWalks = true; useWalks(res.walks); }
     if (Array.isArray(res.covers)){
       coverEvs = res.covers.filter(function(e){ return e && byId[e.w] && typeof e.t === "string"; });
-      if (!v2){ v2 = true; document.getElementById("dbNote").textContent = "Your name and the time appear on this page for anyone with the link. Photos show once the team approves them."; setupAdd(); setupPlace(); }
+      if (!v2){ v2 = true; document.getElementById("dbNote").textContent = "Your name and the time appear on this page for anyone with the link. Photos show once the team approves them."; setupAdd(); }
     }
     apply(res.events); pulled = true;
     syncEl.textContent = "Shared live. Names, times and photos are visible to anyone with this link.";
