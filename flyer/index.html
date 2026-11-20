@@ -272,6 +272,18 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
       <div class="acts"><button class="b" type="button" id="awCancel">Cancel</button><button class="b main" type="submit" id="awGo">Add walk</button></div>
     </form>
   </section>
+  <section class="addw" id="addPlace" hidden>
+    <button class="b" type="button" id="plOpen">Add a place</button>
+    <form id="plForm" hidden novalidate autocomplete="off">
+      <h3>Add a place</h3>
+      <p class="small">Know a spot that takes flyers and isn't listed? Send it to the team.</p>
+      <label class="fld"><span>Name</span><input id="plName" maxlength="80" placeholder="For example, a cafe or a notice board"></label>
+      <label class="fld"><span>Address</span><input id="plAddr" maxlength="120" placeholder="Street address or corner"></label>
+      <label class="fld"><span>Notes (optional)</span><textarea id="plNotes" maxlength="300" rows="3" placeholder="Where the board is, who to ask"></textarea></label>
+      <input class="hp" id="plHp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="acts"><button class="b" type="button" id="plCancel">Cancel</button><button class="b main" type="submit" id="plGo">Add place</button></div>
+    </form>
+  </section>
   <section class="feed" id="feed" hidden>
     <h2 class="sec">Recent covers</h2>
     <p class="sub">Who walked where, and when. Add yours with Mark done.</p>
@@ -1081,13 +1093,35 @@ function setupAdd(){
     }).then(function(){ go.disabled = false; go.textContent = "Add walk"; });
   });
 }
+function setupPlace(){
+  var f = document.getElementById("plForm"), op = document.getElementById("plOpen"), go = document.getElementById("plGo"), nm = document.getElementById("plName");
+  function val(id, n){ return document.getElementById(id).value.replace(/\s+/g, " ").trim().slice(0, n); }
+  function show(on){ f.hidden = !on; op.hidden = on; if (on) nm.focus(); }
+  document.getElementById("addPlace").hidden = false;
+  op.addEventListener("click", function(){ show(true); });
+  document.getElementById("plCancel").addEventListener("click", function(){ show(false); });
+  f.addEventListener("submit", function(ev){ ev.preventDefault();
+    if (go.disabled) return;
+    var name = val("plName", 80), addr = val("plAddr", 120), notes = val("plNotes", 300);
+    if (!name){ nm.focus(); toast("Add the place's name first"); return; }
+    if (!addr){ document.getElementById("plAddr").focus(); toast("Add the address first"); return; }
+    if (navigator.onLine === false){ toast("You're offline, so nothing was saved. Try again when you have signal."); return; }
+    go.disabled = true; go.textContent = "Adding…";
+    fetch(BACKEND, {method: "POST", body: JSON.stringify({site: SITE, action: "place", name: name, address: addr, notes: notes, hp: document.getElementById("plHp").value, device: device()})}).then(function(r){ return r.json(); }).then(function(res){
+      if (!res || !res.ok) throw new Error(res && res.error || "place");
+      f.reset(); show(false); toast("Thanks, " + name + " is sent to the team.");
+    }).catch(function(e){
+      toast(e && e.message && e.message !== "place" && e.message !== "Failed to fetch" ? "Couldn't add it: " + e.message : "Couldn't add it. Check your connection and try again.");
+    }).then(function(){ go.disabled = false; go.textContent = "Add place"; });
+  });
+}
 function pull(){
   return fetch(BACKEND + (BACKEND.indexOf("?") < 0 ? "?" : "&") + "site=" + encodeURIComponent(SITE) + (gotWalks ? "" : "&content=1")).then(function(r){ return r.json(); }).then(function(res){
     if (!res || !res.ok || !Array.isArray(res.events)) throw new Error("feed");
     if (!gotWalks && Array.isArray(res.walks)){ gotWalks = true; useWalks(res.walks); }
     if (Array.isArray(res.covers)){
       coverEvs = res.covers.filter(function(e){ return e && byId[e.w] && typeof e.t === "string"; });
-      if (!v2){ v2 = true; document.getElementById("dbNote").textContent = "Your name and the time appear on this page for anyone with the link. Photos show once the team approves them."; setupAdd(); }
+      if (!v2){ v2 = true; document.getElementById("dbNote").textContent = "Your name and the time appear on this page for anyone with the link. Photos show once the team approves them."; setupAdd(); setupPlace(); }
     }
     apply(res.events); pulled = true;
     syncEl.textContent = "Shared live. Names, times and photos are visible to anyone with this link.";
