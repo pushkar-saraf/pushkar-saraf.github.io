@@ -598,19 +598,20 @@ placeAdd();
 }
 var addOn = false, addEl = null;
 function addCard(){
-  if (addEl) return addEl;
-  var c = el("button", "card addc"); c.type = "button"; c.id = "c-add"; c.setAttribute("aria-label", "Add a walk to do");
+  var c = el("button", "card addc"), first = !addEl || !addEl.isConnected; c.type = "button"; if (first) c.id = "c-add"; c.setAttribute("aria-label", "Add a walk to do");
   var a = el("div", "art"); a.append(el("span", "plus", "+")); a.firstChild.setAttribute("aria-hidden", "true");
   var meta = el("div", "meta"); meta.append(el("div", "no", "00"), el("div", "nm", "Add a walk to do"), el("div", "vb", "Know streets that need flyers? Add them here."));
   c.append(a, meta);
   c.addEventListener("click", function(){ if (window.openAdd) window.openAdd(); });
-  return addEl = c;
+  if (first) addEl = c;
+  return c;
 }
 function placeAdd(){
   if (!addOn) return;
-  var gs = grid.querySelectorAll(".grid"), g = grid.querySelector(".grid:not(.off)") || gs[0];
-  if (!g) return;
-  g.classList.remove("off"); g.insertBefore(addCard(), g.firstChild);
+  var gs = grid.querySelectorAll(".grid");
+  if (!gs.length) return;
+  Array.prototype.forEach.call(gs, function(x){ if (!x.custom && !x.querySelector(".addc")) x.insertBefore(addCard(), x.firstChild); });
+  if (!grid.querySelector(".grid:not(.off)")) gs[0].classList.remove("off");
 }
 buildGrid(); jump();
 
