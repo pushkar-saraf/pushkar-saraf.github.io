@@ -289,6 +289,104 @@ h2.sec{font:400 clamp(34px, 7vw, 48px)/1.05 var(--serif); letter-spacing:-.025em
 .own .tx b{display:block; color:var(--ink); font:400 18px/1.25 var(--serif)}
 .own.done{border-color:color-mix(in srgb, var(--t) 45%, var(--line))}
 @media (max-width:520px){.own .b{flex:1 1 100%}}
+/* design pass: one calm palette with one accent, soft cards, one radius scale, even spacing */
+:root{
+  --paper:#f7f3ed; --card:#fffdf9; --ink:#1e2433; --muted:#686d7a; --line:#e8e0d6; --soft:#f0e9e0;
+  --accent:#8a4a62; --btn:#1e2433; --btn-ink:#fbf8f3;
+  --r-lg:22px; --r:16px; --r-sm:11px;
+  --sh:0 1px 2px rgba(30,36,51,.04), 0 8px 24px -12px rgba(30,36,51,.14);
+  --sh-up:0 2px 4px rgba(30,36,51,.05), 0 18px 36px -14px rgba(30,36,51,.24);
+  --sh-pop:0 24px 64px -16px rgba(20,22,30,.35);
+  --dash:color-mix(in srgb, var(--muted) 38%, transparent);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161e; --card:#191e29; --ink:#ede7dd; --muted:#9ba1ad; --line:#272d3a; --soft:#1e2431;
+  --accent:#e2a6b9; --btn:#ede7dd; --btn-ink:#12161e;
+  --sh:0 1px 0 rgba(255,255,255,.02), 0 10px 26px -14px rgba(0,0,0,.7);
+  --sh-up:0 1px 0 rgba(255,255,255,.03), 0 20px 40px -16px rgba(0,0,0,.8);
+  --sh-pop:0 24px 70px -12px rgba(0,0,0,.75)}}
+:root[data-theme="dark"]{
+  --paper:#12161e; --card:#191e29; --ink:#ede7dd; --muted:#9ba1ad; --line:#272d3a; --soft:#1e2431;
+  --accent:#e2a6b9; --btn:#ede7dd; --btn-ink:#12161e;
+  --sh:0 1px 0 rgba(255,255,255,.02), 0 10px 26px -14px rgba(0,0,0,.7);
+  --sh-up:0 1px 0 rgba(255,255,255,.03), 0 20px 40px -16px rgba(0,0,0,.8);
+  --sh-pop:0 24px 70px -12px rgba(0,0,0,.75)}
+.label{font:500 11.5px/1.2 var(--sans); letter-spacing:.12em; color:var(--muted)}
+.b{border-radius:999px; font-size:15.5px; padding:12px 22px; transition:background-color .2s, border-color .2s, transform .15s, filter .2s}
+@media (hover:hover){.b:not(:disabled):hover{border-color:var(--ink)} .b.main:not(:disabled):hover{filter:brightness(1.15)}}
+.b:not(:disabled):active{transform:scale(.98)}
+/* header and intro */
+.top{padding:64px 0 32px}
+.top h1{margin:16px 0 18px}
+.prog{margin-top:28px}
+.prog .bar{max-width:220px}
+.hero{border-radius:var(--r-lg)}
+.intro{margin-top:72px; gap:48px}
+.steps{gap:22px}
+.steps b{font:500 12px/1 var(--sans); font-style:normal; letter-spacing:.06em; color:var(--muted)}
+.ask q{margin-top:12px}
+.sync{display:flex; align-items:baseline; gap:10px; margin:48px 0 0; font-size:13.5px; color:var(--muted)}
+.sync::before{content:""; flex:none; width:7px; height:7px; border-radius:50%; background:var(--done); transform:translateY(-1px)}
+h2.sec{margin:96px 0 12px}
+.sub{font-size:15.5px}
+/* one accent: numbers and labels use it instead of each painting's color */
+.card .no,.sheet #sNo,.sheet .start .label,.trail .label,.rulebox .label,.booth .label{color:var(--accent)}
+.quote{border-left-color:var(--accent)}
+.maplink{border-color:var(--line)}
+.trail a:hover,.mkt a:hover,.booth a:hover,.others a:hover{color:var(--ink); border-color:var(--ink)}
+/* walk cards */
+.filters{margin:24px 0 -16px}
+.tier{margin:56px 0 18px}
+.tier:first-child{margin-top:36px}
+.grid{gap:14px}
+@media (min-width:640px){.grid{gap:22px}}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:7px; box-shadow:var(--sh); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
+.card .art{border-radius:var(--r-sm)}
+@media (hover:hover){.card:hover{transform:translateY(-2px); box-shadow:var(--sh-up)} .card:hover .art{opacity:1}}
+.card:focus-visible{outline-offset:3px; border-radius:var(--r)}
+.card .meta{padding:12px 7px 7px; gap:2px}
+.card .no{font:500 11.5px/1 var(--sans); font-style:normal; letter-spacing:.08em}
+.card .no::after{display:none}
+.card .nm{font-size:19px; margin-top:5px}
+.card .vb{font-size:13.5px}
+.card .st{font-size:13px; margin-top:8px}
+.card .seal{top:16px; left:16px}
+/* add a walk card */
+.card.addc{background:transparent; box-shadow:none; border:1.5px dashed var(--dash)}
+.card.addc .art{border:0; background:color-mix(in srgb, var(--accent) 6%, transparent); color:var(--accent)}
+.card.addc .plus{display:grid; place-items:center; width:60px; height:60px; border-radius:50%; background:var(--card); box-shadow:var(--sh); font:300 34px/1 var(--sans)}
+@media (hover:hover){.card.addc:hover{border-color:var(--accent); box-shadow:none} .card.addc:hover .art{color:var(--accent)}}
+/* walk sheet */
+.veil{background:rgba(18,20,28,.42); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+.sheet{border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--sh-pop)}
+@media (min-width:720px){.sheet{border-radius:var(--r-lg)}}
+.sheet .art{margin:8px 8px 0; border-radius:calc(var(--r-lg) - 7px)}
+.x{top:18px; right:18px; box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.body{padding-top:26px}
+.body h3{margin:10px 0 16px}
+.own{border-radius:var(--r); box-shadow:var(--sh); padding:14px 14px 14px 18px; margin-bottom:22px}
+.facts{gap:6px 20px; padding-bottom:22px; margin-bottom:26px}
+.trail{margin-top:36px}
+.trail .n{border:0; background:var(--soft); color:var(--ink); font:500 13px/1 var(--sans); font-style:normal}
+.rulebox{border-radius:var(--r-sm)}
+.sheet > .bar{background:color-mix(in srgb, var(--paper) 90%, transparent); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.donebox{border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:0 -12px 32px -18px rgba(0,0,0,.25)}
+.fld input,.fld textarea{border-radius:var(--r-sm); transition:border-color .2s}
+.chip{transition:border-color .2s, background-color .2s}
+@media (hover:hover){.chip[aria-pressed="false"]:hover{border-color:var(--ink)}}
+.pick{border-radius:var(--r-sm); border-color:var(--dash)}
+.fi{border-radius:var(--r); box-shadow:var(--sh)}
+.toast{box-shadow:0 10px 30px -10px rgba(0,0,0,.35)}
+/* add a walk pop-up */
+.addw.modal{background:rgba(18,20,28,.42); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+.addw.modal form{border:0; border-radius:var(--r-lg); box-shadow:var(--sh-pop); padding:26px 22px 22px; gap:16px}
+.addw h3{font-size:25px; letter-spacing:-.01em}
+.addw .grp legend{font-size:17px}
+.addw .awx{top:12px; right:12px}
+/* markets and footer */
+.mk{margin-top:40px}
+.foot{margin-top:104px; font-size:13.5px}
+@media (max-width:520px){.top{padding:44px 0 24px} h2.sec{margin-top:76px} .intro{margin-top:56px} .card .nm{font-size:17.5px} .card .vb{font-size:13px} .tier{margin-top:44px}}
 </style>
 </head>
 <body>
